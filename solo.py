@@ -865,7 +865,7 @@ elif menu == "🌱 2. Classificacao":
     # BOTAO CALCULAR
     # ==========================================================
 
-    if st.button("🔬 CALCULAR CLASSIFICACAO"):
+        if st.button("🔬 CALCULAR CLASSIFICACAO"):
 
         try:
 
@@ -915,28 +915,35 @@ elif menu == "🌱 2. Classificacao":
             st.session_state.cultura = cultura
 
             st.success("✅ Classificação realizada com sucesso!")
-# ==================================================
-# IA - CLASSIFICAÇÃO AUTOMÁTICA
-# ==================================================
 
-entrada_ia = pd.DataFrame([[
+            # ==================================================
+            # IA - CLASSIFICAÇÃO AUTOMÁTICA
+            # ==================================================
 
-    dados["nitrogen"],
-    dados["phosphorus"],
-    dados["potassium"],
-    dados["ph"],
-    dados["organic_matter"],
-    dados["bulk_density"]
+            entrada_ia = pd.DataFrame([[
 
-]], columns=features)
+                dados["nitrogen"],
+                dados["phosphorus"],
+                dados["potassium"],
+                dados["ph"],
+                dados["organic_matter"],
+                dados["bulk_density"]
 
-pred_ia = modelo.predict(entrada_ia)
+            ]], columns=features)
 
-st.markdown("---")
+            pred_ia = modelo.predict(entrada_ia)
 
-st.markdown("## 🤖 Inteligência Artificial")
+            st.markdown("---")
 
-st.success(f"Classe prevista pela IA: {pred_ia[0]}")
+            st.markdown("## 🤖 Inteligência Artificial")
+
+            st.success(f"Classe prevista pela IA: {pred_ia[0]}")
+
+        except ValueError:
+
+            st.error(
+                "❌ Verifique os valores digitados."
+            )
 
     # ==========================================================
     # MOSTRAR RESULTADOS
