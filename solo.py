@@ -343,6 +343,69 @@ button[data-baseweb="tab"][aria-selected="true"] {
 </style>
 """, unsafe_allow_html=True)
 
+#=============================================================
+# ABA 2
+#=============================================================
+
+st.markdown("""
+<style>
+
+/* =========================
+   CARDS MÉTRICOS
+========================= */
+
+.metric-card{
+    background: linear-gradient(145deg, #111827, #1f2937);
+    border: 2px solid #2563eb;
+    border-radius: 18px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(37,99,235,0.2);
+    margin-bottom: 15px;
+}
+
+.metric-card h3{
+    color: #93c5fd;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.metric-card h2{
+    color: white;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.metric-card small{
+    color: #cbd5e1;
+}
+
+/* =========================
+   BARRA DE PROGRESSO
+========================= */
+
+.progress-container{
+    width: 100%;
+    background-color: #1f2937;
+    border-radius: 30px;
+    overflow: hidden;
+    margin-top: 15px;
+    margin-bottom: 25px;
+    border: 2px solid #2563eb;
+}
+
+.progress-bar{
+    background: linear-gradient(90deg, #2563eb, #60a5fa);
+    color: white;
+    text-align: center;
+    padding: 12px;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 # ============================================================================
 # CABECALHO
 # ============================================================================
@@ -455,7 +518,7 @@ menu = st.radio(
     "Navegacao",
     [
         "📊 1. Dados do Solo",
-        "🌱 2. Classificacao",
+        "🌱 2. Classificação",
         "📈 3. Relatorio",
         "ℹ️ 4. Metodos"
     ],
@@ -672,10 +735,10 @@ if menu == "📊 1. Dados do Solo":
             st.error("❌ Verifique os valores numericos inseridos. Use ponto decimal (ex: 1.5)")
 
 # ============================================================================
-# ABA 2 - CLASSIFICAÇÃO
+# ABA 2 - CLASSIFICACAO
 # ============================================================================
 
-elif menu == "🌱 2. Classificação":
+elif menu == "🌱 2. Classificacao":
 
     if not st.session_state.dados_basicos:
         st.warning(
@@ -723,7 +786,7 @@ elif menu == "🌱 2. Classificação":
 
     st.markdown("---")
 
-    if st.button("🔬 CALCULAR CLASSIFICAÇÃO"):
+    if st.button("🔬 CALCULAR CLASSIFICACAO"):
 
         try:
 
@@ -762,7 +825,7 @@ elif menu == "🌱 2. Classificação":
             st.session_state.m_percent = m_percent
             st.session_state.cultura = cultura
 
-            st.success("✅ Classificação realizada!")
+            st.success("✅ Classificacao realizada!")
 
         except ValueError:
             st.error(
@@ -851,7 +914,7 @@ elif menu == "🌱 2. Classificação":
 
         st.markdown(f"""
         <div class="result-card">
-            <h2>{cor} Classificação SiBCS</h2>
+            <h2>{cor} Classificacao SiBCS</h2>
             <p class="result-number">{classe}</p>
         </div>
         """, unsafe_allow_html=True)
@@ -930,7 +993,7 @@ elif menu == "📈 3. Relatorio":
     st.markdown("## 📈 Relatorio Tecnico")
 
     if "v_percent" not in st.session_state:
-        st.warning("⚠️ Execute a classificacao primeiro na aba 'Classificacao'.")
+        st.warning("⚠️ Execute a classificação primeiro na aba 'Classificacao'.")
 
     else:
         dados = st.session_state.dados_calculados
@@ -987,22 +1050,54 @@ elif menu == "📈 3. Relatorio":
 
         st.success(f"✅ Cultura selecionada: {st.session_state.cultura}")
 
-        st.info(
-            f"🪨 Aplicar {st.session_state.nc_corrigida:.2f} t/ha "
-            f"de calcário com PRNT {st.session_state.prnt:.0f}%"
-        )
+        # ======================================================
+        # CALAGEM
+        # ======================================================
 
-        if st.session_state.gesso > 0:
-            st.warning(
-                f"🌱 Recomenda-se gessagem de "
-                f"{st.session_state.gesso:.2f} t/ha"
-            )
+        v2 = necessidades_culturas[cultura]["v_desejado"]
 
-        if dados["phosphorus"] < 15:
-            st.error("🔴 Necessária adubação fosfatada")
+        nc = ((v2 - v_percent) * ctc_potencial) / 100
 
-        if dados["potassium"] < 0.30:
-            st.error("🔴 Necessária adubação potássica")
+            if nc < 0:
+                nc = 0
+
+        prnt = 80
+
+        nc_corrigida = nc * (100 / prnt)
+
+        # ======================================================
+        # GESSAGEM
+        # ======================================================
+
+        if dados["clay"] >= 350:
+            gesso = nc_corrigida * 0.5
+        else:
+            gesso = 0
+
+        # ======================================================
+        # SALVAR SESSION STATE
+        # ======================================================
+
+        st.session_state.nc_corrigida = nc_corrigida
+        st.session_state.prnt = prnt
+        st.session_state.gesso = gesso
+
+            st.info(
+                f"🪨 Aplicar {st.session_state.nc_corrigida:.2f} t/ha "
+                f"de calcário com PRNT {st.session_state.prnt:.0f}%"
+                )
+
+            if st.session_state.gesso > 0:
+                st.warning(
+                    f"🌱 Recomenda-se gessagem de "
+                    f"{st.session_state.gesso:.2f} t/ha"
+                )
+
+            if dados["phosphorus"] < 15:
+                st.error("🔴 Necessária adubação fosfatada")
+
+            if dados["potassium"] < 0.30:
+                st.error("🔴 Necessária adubação potássica")
 # ============================================================================
 # MÉTODOS
 # ============================================================================
