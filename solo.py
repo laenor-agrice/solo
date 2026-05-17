@@ -468,45 +468,109 @@ menu = st.radio(
 # ============================================================================
 
 necessidades_culturas = {
+
     "Soja": {
         "v_desejado": 60,
-        "n_min": 40,
+        "ph_min": 5.5,
+        "ph_max": 6.5,
         "p_min": 15,
-        "k_min": 0.35,
-        "ph_min": 5.5,
-        "ph_max": 6.5
+        "k_min": 0.35
     },
-    "Milho (grao)": {
+
+    "Milho": {
         "v_desejado": 65,
-        "n_min": 50,
-        "p_min": 20,
-        "k_min": 0.40,
         "ph_min": 5.5,
-        "ph_max": 6.5
+        "ph_max": 6.5,
+        "p_min": 20,
+        "k_min": 0.40
     },
+
     "Feijao": {
         "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.35,
         "ph_min": 5.5,
-        "ph_max": 6.5
+        "ph_max": 6.5,
+        "p_min": 20,
+        "k_min": 0.35
     },
+
     "Cafe": {
         "v_desejado": 70,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.40,
         "ph_min": 5.5,
-        "ph_max": 6.5
+        "ph_max": 6.5,
+        "p_min": 25,
+        "k_min": 0.40
     },
+
     "Pastagem": {
         "v_desejado": 50,
-        "n_min": 30,
-        "p_min": 10,
-        "k_min": 0.25,
         "ph_min": 5.0,
-        "ph_max": 6.5
+        "ph_max": 6.0,
+        "p_min": 10,
+        "k_min": 0.25
+    },
+
+    "Algodao": {
+        "v_desejado": 70,
+        "ph_min": 5.5,
+        "ph_max": 6.5,
+        "p_min": 25,
+        "k_min": 0.45
+    },
+
+    "Cana-de-acucar": {
+        "v_desejado": 60,
+        "ph_min": 5.5,
+        "ph_max": 6.5,
+        "p_min": 15,
+        "k_min": 0.30
+    },
+
+    "Sorgo": {
+        "v_desejado": 55,
+        "ph_min": 5.2,
+        "ph_max": 6.2,
+        "p_min": 12,
+        "k_min": 0.30
+    },
+
+    "Trigo": {
+        "v_desejado": 65,
+        "ph_min": 5.5,
+        "ph_max": 6.5,
+        "p_min": 18,
+        "k_min": 0.35
+    },
+
+    "Tomate": {
+        "v_desejado": 80,
+        "ph_min": 6.0,
+        "ph_max": 6.8,
+        "p_min": 30,
+        "k_min": 0.50
+    },
+
+    "Eucalipto": {
+        "v_desejado": 45,
+        "ph_min": 5.0,
+        "ph_max": 6.0,
+        "p_min": 8,
+        "k_min": 0.20
+    },
+
+    "Citrus": {
+        "v_desejado": 70,
+        "ph_min": 5.5,
+        "ph_max": 6.5,
+        "p_min": 20,
+        "k_min": 0.35
+    },
+
+    "Arroz": {
+        "v_desejado": 50,
+        "ph_min": 5.0,
+        "ph_max": 6.0,
+        "p_min": 10,
+        "k_min": 0.25
     }
 }
 
@@ -607,234 +671,30 @@ if menu == "📊 1. Dados do Solo":
         except ValueError:
             st.error("❌ Verifique os valores numericos inseridos. Use ponto decimal (ex: 1.5)")
 
-# ============================================================================
-# ABA 2 - CLASSIFICACAO
-# ============================================================================
+# ======================================================
+# SCORE DE FERTILIDADE
+# ======================================================
 
-elif menu == "🌱 2. Classificacao":
+score = 0
 
-    if not st.session_state.dados_basicos:
-        st.warning("⚠️ Preencha primeiro os dados basicos na aba 'Dados do Solo'.")
-        st.stop()
+if v_percent >= 70:
+    score += 5
+elif v_percent >= 50:
+    score += 3
 
-    st.markdown("## 🌱 Classificacao da Fertilidade")
+if dados["phosphorus"] >= 20:
+    score += 3
 
-    col1, col2 = st.columns(2)
+if dados["potassium"] >= 0.35:
+    score += 3
 
-    with col1:
+if dados["aluminum"] < 0.5:
+    score += 4
 
-        ph = st.text_input(
-            "🧪 pH do Solo",
-            value="6.0",
-            key="ph_input"
-        )
+if 5.5 <= dados["ph"] <= 6.5:
+    score += 5
 
-        aluminum = st.text_input(
-            "⚠️ Aluminio (Al3+) - cmolc/dm3",
-            value="0.50",
-            key="al_input"
-        )
-
-        h_al = st.text_input(
-            "📊 H + Al - cmolc/dm3",
-            value="3.50",
-            key="hal_input"
-        )
-
-    with col2:
-
-        calcium = st.text_input(
-            "🥛 Calcio (Ca2+) - cmolc/dm3",
-            value="3.00",
-            key="ca_input"
-        )
-
-        magnesium = st.text_input(
-            "🧂 Magnesio (Mg2+) - cmolc/dm3",
-            value="1.50",
-            key="mg_input"
-        )
-
-        cultura = st.selectbox(
-            "🌾 Cultura",
-            list(necessidades_culturas.keys()),
-            key="cultura_select"
-        )
-
-    st.markdown("---")
-
-    if st.button("🔬 CALCULAR CLASSIFICACAO", key="calcular_classificacao"):
-
-        try:
-            dados = st.session_state.dados_basicos.copy()
-
-            dados["ph"] = float(ph.replace(",", "."))
-            dados["aluminum"] = float(aluminum.replace(",", "."))
-            dados["h_al"] = float(h_al.replace(",", "."))
-            dados["calcium"] = float(calcium.replace(",", "."))
-            dados["magnesium"] = float(magnesium.replace(",", "."))
-
-            sb = dados["calcium"] + dados["magnesium"] + dados["potassium"]
-            ctc_efetiva = sb + dados["aluminum"]
-            ctc_potencial = sb + dados["h_al"]
-            v_percent = (sb / ctc_potencial * 100) if ctc_potencial > 0 else 0
-            m_percent = (dados["aluminum"] / ctc_efetiva * 100) if ctc_efetiva > 0 else 0
-
-            st.session_state.dados_calculados = dados
-            st.session_state.sb = sb
-            st.session_state.ctc_potencial = ctc_potencial
-            st.session_state.v_percent = v_percent
-            st.session_state.m_percent = m_percent
-            st.session_state.cultura = cultura
-
-            st.success("✅ Classificacao realizada com sucesso!")
-
-        except ValueError as e:
-            st.error(f"❌ Erro ao converter os dados: {e}")
-
-    # ========================
-    # EXIBIR RESULTADOS
-    # ========================
-
-    if "v_percent" in st.session_state:
-
-        dados = st.session_state.dados_calculados
-        sb = st.session_state.sb
-        ctc_potencial = st.session_state.ctc_potencial
-        v_percent = st.session_state.v_percent
-        m_percent = st.session_state.m_percent
-
-        st.markdown("---")
-        st.markdown("## 📊 Resultados da Analise")
-
-        col1, col2, col3, col4 = st.columns(4)
-
-        with col1:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h3>🟢 Soma de Bases (SB)</h3>
-                <h2>{sb:.2f}</h2>
-                <small>cmolc/dm3</small>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with col2:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h3>🟡 CTC Potencial</h3>
-                <h2>{ctc_potencial:.2f}</h2>
-                <small>cmolc/dm3</small>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with col3:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h3>🟢 Saturacao por Bases</h3>
-                <h2>{v_percent:.1f}%</h2>
-                <small>V%</small>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with col4:
-            st.markdown(f"""
-            <div class="metric-card">
-                <h3>🔴 Saturacao por Al</h3>
-                <h2>{m_percent:.1f}%</h2>
-                <small>m%</small>
-            </div>
-            """, unsafe_allow_html=True)
-
-        # Barra de progresso
-        st.markdown("### 📈 Indice de Fertilidade (V%)")
-
-        progress_html = f"""
-        <div class="progress-container">
-            <div class="progress-bar" style="width:{min(v_percent, 100)}%;">
-                {v_percent:.1f}%
-            </div>
-        </div>
-        """
-        st.markdown(progress_html, unsafe_allow_html=True)
-
-        # Classificacao
-        if v_percent >= 70:
-            classe = "Eutrofico (Muito Fertil)"
-            cor = "🟢"
-        elif v_percent >= 50:
-            classe = "Eutrofico (Fertil)"
-            cor = "🟢"
-        elif v_percent >= 25:
-            classe = "Distrofico (Baixa Fertilidade)"
-            cor = "🟡"
-        else:
-            classe = "Alico (Muito Pobre)"
-            cor = "🔴"
-
-        resultado_html = f"""
-        <div class="result-card">
-            <h2>{cor} Classificacao SiBCS</h2>
-            <p class="result-number">{classe}</p>
-        </div>
-        """
-        st.markdown(resultado_html, unsafe_allow_html=True)
-
-        # Adequacao
-        st.markdown("## 🌾 Adequacao da Cultura")
-        nec = necessidades_culturas[st.session_state.cultura]
-
-        if v_percent >= nec["v_desejado"]:
-            st.success(f"✅ V% = {v_percent:.1f}% - Adequado para {st.session_state.cultura}")
-        else:
-            st.error(f"❌ V% = {v_percent:.1f}% - Necessario calagem para {st.session_state.cultura}")
-
-        if dados["phosphorus"] >= nec["p_min"]:
-            st.success(f"✅ Fosforo = {dados['phosphorus']:.1f} mg/dm3 - Adequado")
-        else:
-            st.error(f"❌ Fosforo = {dados['phosphorus']:.1f} mg/dm3 - Abaixo do ideal")
-
-        if dados["potassium"] >= nec["k_min"]:
-            st.success(f"✅ Potassio = {dados['potassium']:.2f} cmolc/dm3 - Adequado")
-        else:
-            st.error(f"❌ Potassio = {dados['potassium']:.2f} cmolc/dm3 - Abaixo do ideal")
-
-        if nec["ph_min"] <= dados["ph"] <= nec["ph_max"]:
-            st.success(f"✅ pH = {dados['ph']:.1f} - Adequado")
-        else:
-            st.error(f"❌ pH = {dados['ph']:.1f} - Fora da faixa ideal")
-
-        # Score
-        score = 0
-        if v_percent >= 70:
-            score += 5
-        elif v_percent >= 50:
-            score += 3
-        if dados["phosphorus"] >= 20:
-            score += 3
-        if dados["potassium"] >= 0.35:
-            score += 3
-        if dados["aluminum"] < 0.5:
-            score += 4
-        if 5.5 <= dados["ph"] <= 6.5:
-            score += 5
-
-        st.markdown("---")
-
-        if score >= 15:
-            resultado = "🟢 ALTA FERTILIDADE"
-        elif score >= 8:
-            resultado = "🟡 FERTILIDADE MEDIA"
-        else:
-            resultado = "🔴 BAIXA FERTILIDADE"
-
-        resultado_final_html = f"""
-        <div class="result-card">
-            <h2>RESULTADO FINAL</h2>
-            <p class="result-number">{resultado}</p>
-            <p>Score: {score}/20 pontos</p>
-        </div>
-        """
-        st.markdown(resultado_final_html, unsafe_allow_html=True)
+st.session_state.score = score
 
 # ============================================================================
 # ABA 3 - RELATORIO
@@ -894,7 +754,26 @@ elif menu == "📈 3. Relatorio":
             mime="text/csv",
             key="download_csv"
         )
+                st.markdown("## 🌾 Recomendações Agronômicas")
 
+        st.success(f"✅ Cultura selecionada: {st.session_state.cultura}")
+
+        st.info(
+            f"🪨 Aplicar {st.session_state.nc_corrigida:.2f} t/ha "
+            f"de calcário com PRNT {st.session_state.prnt:.0f}%"
+        )
+
+        if st.session_state.gesso > 0:
+            st.warning(
+                f"🌱 Recomenda-se gessagem de "
+                f"{st.session_state.gesso:.2f} t/ha"
+            )
+
+        if dados["phosphorus"] < 15:
+            st.error("🔴 Necessária adubação fosfatada")
+
+        if dados["potassium"] < 0.30:
+            st.error("🔴 Necessária adubação potássica")
 # ============================================================================
 # MÉTODOS
 # ============================================================================
@@ -935,6 +814,34 @@ m% = (Al³⁺ / CTC efetiva) × 100
 | < 25 | Álico |
         """)
 
+with st.expander("🪨 Cálculo da Calagem"):
+
+    st.markdown("""
+### Fórmula utilizada:
+""")
+
+    st.latex(
+        r"NC = \frac{(V_2 - V_1) \times CTC}{100}"
+    )
+
+    st.markdown("""
+Onde:
+
+- NC = necessidade de calcário
+- V₂ = saturação desejada
+- V₁ = saturação atual
+- CTC = capacidade de troca catiônica
+""")
+
+with st.expander("🌱 Cálculo da Gessagem"):
+
+    st.markdown("""
+### Critério utilizado:
+
+- Solos com argila > 350 g/kg
+- Gessagem = 50% da dose de calcário
+""")
+
 # ============================================================================
 # RODAPÉ
 # ============================================================================
@@ -942,5 +849,5 @@ m% = (Al³⁺ / CTC efetiva) × 100
 st.markdown("---")
 
 st.caption(
-    "© 2026 - Classificador de Fertilidade do Solo | SiBCS - Embrapa"
+    "© 2026 - Classificador de Fertilidade do Solo | Créditos ao SiBCS - Embrapa"
 )
