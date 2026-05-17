@@ -887,4 +887,4 @@ elif menu == "📈 3. Relatorio":
 
     st.info(f"🪨 Aplicar {nc_corrigida:.2f} t/ha de calcário com PRNT {prnt}%")
     if gesso > 0:
-        st.warning(f
+        st.warning(f)
