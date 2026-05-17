@@ -1048,25 +1048,25 @@ elif menu == "🌱 2. Classificacao":
                 "❌ Erro ao converter os dados numéricos."
             )
 
-    # =========================================================================
-    # RESULTADOS
-    # =========================================================================
+        # =========================================================================
+        # RESULTADOS
+        # =========================================================================
 
-    if "v_percent" in st.session_state:
+        if "v_percent" in st.session_state:
 
-        dados = st.session_state.dados_calculados
+            dados = st.session_state.dados_calculados
 
-        sb = st.session_state.sb
+            sb = st.session_state.sb
 
-        ctc_potencial = st.session_state.ctc_potencial
+            ctc_potencial = st.session_state.ctc_potencial
 
-        v_percent = st.session_state.v_percent
+            v_percent = st.session_state.v_percent
 
-        m_percent = st.session_state.m_percent
+            m_percent = st.session_state.m_percent
 
-        st.markdown("---")
+            st.markdown("---")
 
-        st.markdown("## 📊 Resultados")
+            st.markdown("## 📊 Resultados")
 
         # =====================================================================
         # CARDS
