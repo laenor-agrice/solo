@@ -1362,7 +1362,9 @@ elif menu == "ℹ️ 4. Métodos":
 ### Fórmula:
 """)
 
-        :contentReference[oaicite:0]{index=0}
+        st.latex(
+            r"V\% = \frac{SB}{CTC} \times 100"
+        )
 
         st.markdown("""
 Onde:
@@ -1381,7 +1383,9 @@ Onde:
 ### Fórmula:
 """)
 
-        :contentReference[oaicite:1]{index=1}
+        st.latex(
+            r"m\% = \frac{Al^{3+}}{CTC\ efetiva} \times 100"
+        )
 
         st.markdown("""
 Onde:
@@ -1415,7 +1419,9 @@ Onde:
 ### Fórmula utilizada:
 """)
 
-        :contentReference[oaicite:2]{index=2}
+        st.latex(
+            r"NC = \frac{(V_2 - V_1) \times CTC}{100}"
+        )
 
         st.markdown("""
 Onde:
@@ -1438,7 +1444,6 @@ Onde:
 - Solos com argila > 350 g/kg
 - Gessagem = 50% da dose de calcário
         """)
-
 # ============================================================================
 # RODAPÉ
 # ============================================================================
