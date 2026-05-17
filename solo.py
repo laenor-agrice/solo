@@ -510,22 +510,57 @@ if "dados_basicos" not in st.session_state:
 if "dados_calculados" not in st.session_state:
     st.session_state.dados_calculados = {}
 
-# ============================================================================
 # MENU
-# ============================================================================
-if "menu" not in st.session_state:
-    st.session_state.menu = "📊 1. Dados do Solo"
-menu = st.sidebar.radio(
-    "Navegacao",
+menu = st.radio(
+    "Navegação",
     [
         "📊 1. Dados do Solo",
-        "🌱 2. Classificação",
+        "🌱 2. Classificacao",
         "📈 3. Relatorio",
         "ℹ️ 4. Metodos"
     ],
     horizontal=True,
     label_visibility="collapsed"
 )
+
+# ============================================================================
+# ABA 1
+# ============================================================================
+
+if menu == "📊 1. Dados do Solo":
+
+    # TODO O CODIGO DA ABA 1
+    pass
+
+
+# ============================================================================
+# ABA 2
+# ============================================================================
+
+elif menu == "🌱 2. Classificacao":
+
+    # TODO O CODIGO DA ABA 2
+    pass
+
+
+# ============================================================================
+# ABA 3
+# ============================================================================
+
+elif menu == "📈 3. Relatorio":
+
+    # TODO O CODIGO DA ABA 3
+    pass
+
+
+# ============================================================================
+# ABA 4
+# ============================================================================
+
+elif menu == "ℹ️ 4. Metodos":
+
+    # TODO O CODIGO DA ABA 4
+    pass
 
 # ============================================================================
 # DICIONARIO DAS CULTURAS
