@@ -152,25 +152,13 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# CABEÇALHO
+# CABECALHO (CORRIGIDO)
 # ============================================================================
 
 st.markdown("""
-<div style="
-    background: linear-gradient(135deg, #1a5f3e, #2ecc71);
-    padding: 2rem;
-    border-radius: 20px;
-    text-align: center;
-    margin-bottom: 2rem;
-">
-    <h1 style="color:white !important;">
-        🌾 Classificador Inteligente de Fertilidade do Solo
-    </h1>
-
-    <p style="font-size:1.2rem !important; color:white !important;">
-        Baseado no Sistema Brasileiro de Classificação de Solos (SiBCS) - Embrapa
-    </p>
-
+<div style="background: linear-gradient(135deg, #1a5f3e, #2ecc71); padding: 2rem; border-radius: 20px; text-align: center; margin-bottom: 2rem;">
+    <h1 style="color: white;">🌾 Classificador Inteligente de Fertilidade do Solo</h1>
+    <p style="font-size: 1.2rem; color: white;">Baseado no Sistema Brasileiro de Classificacao de Solos (SiBCS) - Embrapa</p>
 </div>
 """, unsafe_allow_html=True)
 
