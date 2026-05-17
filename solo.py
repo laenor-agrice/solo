@@ -487,191 +487,61 @@ elif menu == "📈 Relatório":
         use_container_width=True
     )
 
-# ========== ESTILOS ADICIONAIS PARA CORRIGIR BRANCO ==========
+# ========== CORREÇÃO DE VISIBILIDADE DAS CAIXAS BRANCAS ==========
 st.markdown("""
 <style>
-    /* Fundo geral da página */
-    .stApp {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    /* Corrigir fundo das métricas */
+    div[data-testid="stMetric"] {
+        background: linear-gradient(135deg, #1a5f3e, #2ecc71) !important;
+        padding: 15px !important;
+        border-radius: 15px !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
     }
     
-    /* Cards de métricas */
-    div[data-testid="stMetricValue"] {
+    /* Corrigir texto das métricas */
+    div[data-testid="stMetric"] label {
+        color: white !important;
+        font-weight: bold !important;
+    }
+    
+    div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
+        color: white !important;
         font-size: 2rem !important;
         font-weight: bold !important;
-        color: #1a5f3e !important;
     }
     
-    div[data-testid="stMetricLabel"] {
-        font-size: 1rem !important;
+    div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {
+        color: #f8f9fa !important;
+    }
+    
+    /* Corrigir caixas de informação */
+    .stAlert {
+        background: #f8f9fa !important;
+        border-left: 5px solid #1a5f3e !important;
+        border-radius: 10px !important;
         color: #2c3e50 !important;
     }
     
-    /* Botões */
-    .stButton button {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 30px !important;
-        padding: 0.75rem 2rem !important;
-        font-weight: bold !important;
-        transition: all 0.3s !important;
-    }
-    
-    .stButton button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 15px rgba(46,204,113,0.4);
-    }
-    
-    /* Abas/Radio buttons */
-    .stRadio > div {
-        gap: 10px;
-    }
-    
-    .stRadio label {
-        background: white;
-        padding: 8px 20px;
-        border-radius: 30px;
-        border: 1px solid #dee2e6;
-        transition: all 0.3s;
-    }
-    
-    .stRadio label:hover {
-        background: #e9ecef;
-        transform: translateY(-2px);
-    }
-    
-    .stRadio [data-baseweb="radio"]:checked + label {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71);
-        color: white;
-        border: none;
-    }
-    
-    /* Títulos */
-    h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-        color: #1a5f3e !important;
-    }
-    
-    /* Expanders */
+    /* Corrigir expanders */
     .streamlit-expanderHeader {
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        border-radius: 10px;
-        font-weight: bold;
-        color: #1a5f3e;
-    }
-    
-    /* Alertas/Snackbars */
-    .stAlert {
-        border-radius: 15px;
-        border-left: 5px solid;
-    }
-    
-    /* Inputs numéricos */
-    div[data-baseweb="input"] input {
+        background: #1a5f3e !important;
+        color: white !important;
         border-radius: 10px !important;
-        border: 1px solid #ced4da !important;
     }
     
-    div[data-baseweb="input"] input:focus {
-        border-color: #2ecc71 !important;
-        box-shadow: 0 0 0 2px rgba(46,204,113,0.2) !important;
+    .streamlit-expanderContent {
+        background: #f8f9fa !important;
+        border-radius: 0 0 10px 10px !important;
+        padding: 15px !important;
     }
     
-    /* Sliders */
-    div[data-testid="stSlider"] {
-        padding: 10px 0;
-    }
-    
-    div[data-testid="stSlider"] > div {
-        background: linear-gradient(90deg, #1a5f3e, #2ecc71);
-    }
-    
-    /* DataFrames */
-    .dataframe {
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    
-    .dataframe th {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71);
-        color: white;
-        font-weight: bold;
-    }
-    
-    /* Sidebar */
-    section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #f8f9fa, #e9ecef);
-        border-right: 1px solid #dee2e6;
-    }
-    
-    section[data-testid="stSidebar"] .stMarkdown {
-        color: #2c3e50;
-    }
-    
-    /* Separadores */
-    hr {
-        margin: 2rem 0;
-        background: linear-gradient(90deg, #1a5f3e, #2ecc71, #1a5f3e);
-        height: 3px;
-        border: none;
-    }
-    
-    /* Cards de resultado */
-    .success-box, .warning-box, .info-box {
-        padding: 1.5rem;
-        border-radius: 20px;
-        margin: 1rem 0;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    
-    .success-box {
-        background: linear-gradient(135deg, #d4edda, #c3e6cb);
-        border-left: 8px solid #28a745;
-    }
-    
-    .warning-box {
-        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-        border-left: 8px solid #ffc107;
-    }
-    
-    .info-box {
-        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
-        border-left: 8px solid #17a2b8;
-    }
-    
-    /* Métricas em grid */
-    .metric-card {
-        background: white;
-        padding: 1rem;
-        border-radius: 20px;
-        text-align: center;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        transition: transform 0.3s;
-    }
-    
-    .metric-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    /* Footer */
-    footer {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71);
-        color: white;
-        padding: 1rem;
-        border-radius: 15px;
-        text-align: center;
-        margin-top: 2rem;
+    /* Corrigir abas */
+    .stRadio > div {
+        background: #f8f9fa !important;
+        padding: 10px !important;
+        border-radius: 10px !important;
     }
 </style>
-""", unsafe_allow_html=True)
-
-# Footer estilizado
-st.markdown("""
-<footer>
-    <p>🌾 Classificador de Fertilidade do Solo - Baseado no SiBCS (Embrapa)</p>
-    <p style="font-size: 0.8rem;">© 2025 - Todos os direitos reservados</p>
-</footer>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
