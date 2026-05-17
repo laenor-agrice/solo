@@ -185,12 +185,12 @@ with st.sidebar:
 
     st.markdown("""
 - 🧪 Avaliação da fertilidade do solo
-- ⚖️ Cálculo de saturação por bases (V%)
+- ⚖️ Cálculo de saturação por bases
 - 🔬 Avaliação de alumínio tóxico
 - 🧱 Estimativa da CTC
 - 🌱 Adequação para culturas agrícolas
 - 📈 Recomendações de manejo
-    """)
+""")
 
     st.markdown("---")
     st.caption("Versão 3.0")
