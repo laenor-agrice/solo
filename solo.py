@@ -1050,54 +1050,37 @@ elif menu == "📈 3. Relatorio":
 
         st.success(f"✅ Cultura selecionada: {st.session_state.cultura}")
 
-        # ======================================================
-        # CALAGEM
-        # ======================================================
+                    # ======================================================
+            # CALAGEM
+            # ======================================================
 
-        v2 = necessidades_culturas[cultura]["v_desejado"]
+            v2 = necessidades_culturas[cultura]["v_desejado"]
 
-        nc = ((v2 - v_percent) * ctc_potencial) / 100
+            nc = ((v2 - v_percent) * ctc_potencial) / 100
 
             if nc < 0:
-             nc = 0
+                nc = 0
 
-        prnt = 80
+            prnt = 80
 
-        nc_corrigida = nc * (100 / prnt)
+            nc_corrigida = nc * (100 / prnt)
 
-        # ======================================================
-        # GESSAGEM
-        # ======================================================
+            # ======================================================
+            # GESSAGEM
+            # ======================================================
 
-        if dados["clay"] >= 350:
-            gesso = nc_corrigida * 0.5
-        else:
-            gesso = 0
+            if dados["clay"] >= 350:
+                gesso = nc_corrigida * 0.5
+            else:
+                gesso = 0
 
-        # ======================================================
-        # SALVAR SESSION STATE
-        # ======================================================
+            # ======================================================
+            # SESSION STATE
+            # ======================================================
 
-        st.session_state.nc_corrigida = nc_corrigida
-        st.session_state.prnt = prnt
-        st.session_state.gesso = gesso
-
-            st.info(
-                f"🪨 Aplicar {st.session_state.nc_corrigida:.2f} t/ha "
-                f"de calcário com PRNT {st.session_state.prnt:.0f}%"
-                )
-
-            if st.session_state.gesso > 0:
-                st.warning(
-                    f"🌱 Recomenda-se gessagem de "
-                    f"{st.session_state.gesso:.2f} t/ha"
-                )
-
-            if dados["phosphorus"] < 15:
-                st.error("🔴 Necessária adubação fosfatada")
-
-            if dados["potassium"] < 0.30:
-                st.error("🔴 Necessária adubação potássica")
+            st.session_state.nc_corrigida = nc_corrigida
+            st.session_state.prnt = prnt
+            st.session_state.gesso = gesso
 # ============================================================================
 # MÉTODOS
 # ============================================================================
