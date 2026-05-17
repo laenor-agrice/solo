@@ -12,17 +12,12 @@ st.set_page_config(
 # CSS personalizado - Fundo preto, caixas brancas, texto verde escuro
 st.markdown("""
 <style>
-    /* Fundo geral preto */
     .stApp {
         background-color: #0a0a0a !important;
     }
-    
-    /* Fundo do conteúdo principal */
     .main > div {
         background-color: #0a0a0a !important;
     }
-    
-    /* Cards das métricas - fundo branco, texto verde escuro */
     .metric-card {
         background: linear-gradient(135deg, #ffffff, #f0f0f0) !important;
         padding: 1rem;
@@ -46,8 +41,6 @@ st.markdown("""
     .metric-card p, .metric-card small {
         color: #2c5a3a !important;
     }
-    
-    /* Botões */
     .stButton button {
         background: linear-gradient(135deg, #1a5f3e, #2ecc71);
         color: white;
@@ -56,13 +49,12 @@ st.markdown("""
         border-radius: 30px;
         padding: 0.75rem 2rem;
         transition: all 0.3s;
+        width: 100%;
     }
     .stButton button:hover {
         transform: scale(1.05);
         box-shadow: 0 4px 15px rgba(46,204,113,0.4);
     }
-    
-    /* Caixas de alerta/info/warning/success - fundo branco, texto escuro */
     .stAlert {
         background-color: #ffffff !important;
         border-radius: 15px;
@@ -73,8 +65,6 @@ st.markdown("""
     .stAlert p, .stAlert li, .stAlert div {
         color: #1a2a1a !important;
     }
-    
-    /* Expanders - fundo branco, texto escuro */
     .streamlit-expanderHeader {
         background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
         border-radius: 10px;
@@ -92,14 +82,10 @@ st.markdown("""
     .streamlit-expanderContent p, .streamlit-expanderContent li {
         color: #1a2a1a !important;
     }
-    
-    /* Labels - verde escuro */
     label, .stSlider label, .stNumberInput label, .stSelectbox label, .stRadio label {
         color: #a8e6cf !important;
         font-weight: 600 !important;
     }
-    
-    /* Inputs - fundo branco, texto escuro */
     input, .stTextInput input, .stNumberInput input {
         color: #1a2a1a !important;
         background-color: #ffffff !important;
@@ -110,13 +96,9 @@ st.markdown("""
         border-color: #1a5f3e !important;
         box-shadow: 0 0 0 2px rgba(26,95,62,0.2) !important;
     }
-    
-    /* Títulos - verde */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
         color: #2ecc71 !important;
     }
-    
-    /* Sidebar */
     section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0a0a0a, #1a1a1a) !important;
         border-right: 1px solid #2ecc71;
@@ -124,16 +106,12 @@ st.markdown("""
     .stSidebar .stMarkdown p, .stSidebar .stMarkdown li {
         color: #a8e6cf !important;
     }
-    
-    /* Separador */
     hr {
         margin: 2rem 0;
         background: linear-gradient(90deg, #1a5f3e, #2ecc71, #1a5f3e);
         height: 3px;
         border: none;
     }
-    
-    /* Dataframe - fundo branco */
     .dataframe {
         background-color: #ffffff !important;
         border-radius: 15px;
@@ -146,8 +124,6 @@ st.markdown("""
     .dataframe td {
         color: #1a2a1a !important;
     }
-    
-    /* Result Card */
     .result-card {
         background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
         padding: 1.5rem;
@@ -170,8 +146,6 @@ st.markdown("""
         color: #1a5f3e;
         text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
-    
-    /* Métricas do streamlit */
     div[data-testid="stMetric"] {
         background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
         padding: 1rem;
@@ -187,11 +161,6 @@ st.markdown("""
         font-size: 1.8rem !important;
         font-weight: 900 !important;
     }
-    div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {
-        color: #2c5a3a !important;
-    }
-    
-    /* Barra de progresso */
     .progress-container {
         background-color: #e9ecef;
         border-radius: 10px;
@@ -206,8 +175,6 @@ st.markdown("""
         border-radius: 10px;
         font-weight: bold;
     }
-    
-    /* Info boxes */
     .info-box {
         background: #ffffff !important;
         padding: 1rem;
@@ -232,9 +199,6 @@ st.markdown("""
         margin: 1rem 0;
         color: #0c5460;
     }
-    .info-box p, .warning-box p, .success-box p {
-        color: inherit !important;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -246,7 +210,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Menu com radio buttons
+# Menu
 menu = st.radio(
     "Navegação",
     ["📊 Dados do Solo", "🌱 Classificação", "🧪 Calagem", "⚖️ Gessagem", "📈 Relatório"],
@@ -270,19 +234,22 @@ with st.sidebar:
     st.caption("Versão 2.0 - Classificação Completa")
 
 # Inicializar session_state
+if 'dados_basicos' not in st.session_state:
+    st.session_state.dados_basicos = {}
+if 'dados_acidez' not in st.session_state:
+    st.session_state.dados_acidez = {}
 if 'dados_calculados' not in st.session_state:
     st.session_state.dados_calculados = {}
 
-# ========== SEÇÃO 1: DADOS DO SOLO (APENAS BÁSICO) ==========
+# ========== SEÇÃO 1: DADOS DO SOLO (APENAS NUTRIENTES, MO, DENSIDADE, TEXTURA) ==========
 if menu == "📊 Dados do Solo":
     st.markdown("## 📋 Coleta de Dados do Solo - Parte 1")
-    st.markdown("Preencha os dados básicos. Os dados de acidez serão solicitados na próxima etapa.")
+    st.markdown("Preencha os dados básicos. Os dados de **pH e acidez** serão solicitados na próxima aba.")
     
     col1, col2 = st.columns(2, gap="large")
     
     with col1:
         st.markdown("### 🧪 Nutrientes")
-        
         nitrogen = st.text_input("🌱 Nitrogênio (mg/dm³)", value="30.0", key="n_basico")
         phosphorus = st.text_input("🔴 Fósforo (mg/dm³)", value="20.0", key="p_basico")
         potassium = st.text_input("🟡 Potássio (mmolc/dm³)", value="25.0", key="k_basico")
@@ -290,18 +257,16 @@ if menu == "📊 Dados do Solo":
         st.markdown("### 🧫 Matéria Orgânica")
         organic_matter = st.text_input("🌿 Matéria Orgânica (g/kg)", value="25.0", key="om_basico")
         
-        st.markdown("### ⚖️ Densidade")
+        st.markdown("### ⚖️ Densidade do Solo")
         bulk_density = st.text_input("📦 Densidade do Solo (g/cm³)", value="1.20", key="bd_basico")
         particle_density = st.text_input("💎 Densidade de Partícula (g/cm³)", value="2.65", key="pd_basico")
     
     with col2:
-        st.markdown("### 🏺 Textura (Opcional)")
+        st.markdown("### 🏺 Textura do Solo (Opcional)")
+        st.caption("Preencha para análise da dinâmica de nutrientes")
         sand = st.text_input("🏖️ Areia (g/kg)", value="350.0", key="sand_basico")
         silt = st.text_input("🏞️ Silte (g/kg)", value="300.0", key="silt_basico")
         clay = st.text_input("🏺 Argila (g/kg)", value="350.0", key="clay_basico")
-        
-        st.markdown("### 🔬 Acidez e pH (Básico)")
-        ph = st.text_input("🧪 pH do Solo", value="6.0", key="ph_basico")
     
     st.markdown("---")
     
@@ -311,7 +276,6 @@ if menu == "📊 Dados do Solo":
                 'nitrogen': float(nitrogen.replace(',', '.')),
                 'phosphorus': float(phosphorus.replace(',', '.')),
                 'potassium': float(potassium.replace(',', '.')),
-                'ph': float(ph.replace(',', '.')),
                 'organic_matter': float(organic_matter.replace(',', '.')),
                 'bulk_density': float(bulk_density.replace(',', '.')),
                 'particle_density': float(particle_density.replace(',', '.')),
@@ -319,37 +283,45 @@ if menu == "📊 Dados do Solo":
                 'silt': float(silt.replace(',', '.')),
                 'clay': float(clay.replace(',', '.'))
             }
-            st.session_state.dados_basicos_salvos = True
-            st.success("✅ Dados básicos salvos! Agora vá para a aba 'Classificação' para completar com dados de acidez.")
+            st.success("✅ Dados básicos salvos! Vá para a aba 'Classificação' para inserir pH e acidez.")
         except ValueError as e:
             st.error(f"❌ Erro: {e}. Use números com ponto decimal (ex: 1.5)")
 
-# ========== SEÇÃO 2: CLASSIFICAÇÃO (COM DADOS DE ACIDEZ) ==========
+# ========== SEÇÃO 2: CLASSIFICAÇÃO (COM pH, ACIDEZ E CÁTIONS) ==========
 elif menu == "🌱 Classificação":
     
-    if not st.session_state.get('dados_basicos_salvos', False):
+    if not st.session_state.dados_basicos:
         st.warning("⚠️ Por favor, preencha os dados básicos primeiro na aba '📊 Dados do Solo'.")
         st.stop()
     
-    st.markdown("## 📋 Dados de Acidez e Cátions Trocáveis")
+    st.markdown("## 📋 Dados de pH, Acidez e Cátions Trocáveis - Parte 2")
     st.markdown("Preencha os dados da análise de solo para completar a classificação.")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("### 🔬 Acidez do Solo")
-        aluminum = st.text_input("⚠️ Alumínio (Al³⁺) (cmolc/dm³)", value="0.50", key="al_acidez")
-        h_al = st.text_input("📊 H + Al (cmolc/dm³)", value="3.50", key="hal_acidez")
+        st.markdown("### 🧪 pH e Acidez do Solo")
+        ph = st.text_input("🧪 pH do Solo (CaCl₂ ou H₂O)", value="6.0", key="ph_acidez", 
+                          help="Ideal para maioria das culturas: 5.5-6.5")
+        aluminum = st.text_input("⚠️ Alumínio (Al³⁺) (cmolc/dm³)", value="0.50", key="al_acidez",
+                                help="Alumínio trocável - tóxico para plantas")
+        h_al = st.text_input("📊 H + Al (cmolc/dm³)", value="3.50", key="hal_acidez",
+                            help="Acidez potencial - H + Al trocáveis")
     
     with col2:
         st.markdown("### 🧱 Cátions Trocáveis")
-        calcium = st.text_input("🥛 Cálcio (Ca²⁺) (cmolc/dm³)", value="3.00", key="ca_acidez")
-        magnesium = st.text_input("🧂 Magnésio (Mg²⁺) (cmolc/dm³)", value="1.50", key="mg_acidez")
+        calcium = st.text_input("🥛 Cálcio (Ca²⁺) (cmolc/dm³)", value="3.00", key="ca_acidez",
+                               help="Cálcio trocável")
+        magnesium = st.text_input("🧂 Magnésio (Mg²⁺) (cmolc/dm³)", value="1.50", key="mg_acidez",
+                                 help="Magnésio trocável")
+    
+    st.markdown("---")
     
     if st.button("🔬 CALCULAR CLASSIFICAÇÃO", use_container_width=True):
         try:
             # Combinar dados
             dados = st.session_state.dados_basicos.copy()
+            dados['ph'] = float(ph.replace(',', '.'))
             dados['aluminum'] = float(aluminum.replace(',', '.'))
             dados['h_al'] = float(h_al.replace(',', '.'))
             dados['calcium'] = float(calcium.replace(',', '.'))
@@ -358,59 +330,71 @@ elif menu == "🌱 Classificação":
             
             # Cálculos
             sb = dados['calcium'] + dados['magnesium'] + dados['potassium']
+            ctc_efetiva = sb + dados['aluminum']
             ctc_potencial = sb + dados['h_al']
             v_percent = (sb / ctc_potencial * 100) if ctc_potencial > 0 else 0
+            m_percent = (dados['aluminum'] / ctc_efetiva * 100) if ctc_efetiva > 0 else 0
             
             # Salvar resultados
             st.session_state.v_percent = v_percent
             st.session_state.ctc_potencial = ctc_potencial
             st.session_state.sb = sb
+            st.session_state.m_percent = m_percent
             
             st.success("✅ Cálculos realizados! Veja os resultados abaixo.")
             
         except ValueError as e:
-            st.error(f"Erro: {e}")
+            st.error(f"❌ Erro ao converter dados: {e}. Use números com ponto decimal (ex: 1.5)")
     
+    # Exibir resultados se já tiver sido calculado
     if st.session_state.get('v_percent') is not None:
         dados = st.session_state.dados_calculados
         v_percent = st.session_state.v_percent
         ctc_potencial = st.session_state.ctc_potencial
         sb = st.session_state.sb
+        m_percent = st.session_state.m_percent
         
         st.markdown("---")
         st.markdown("## 📊 Resultado da Classificação")
         
-        # Cards
-        col1, col2, col3 = st.columns(3)
+        # Cards de métricas
+        col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.markdown(f"""
             <div class="metric-card">
-                <h3>🟢 Soma de Bases (SB)</h3>
+                <h3>🟢 SB</h3>
                 <h2>{sb:.2f}</h2>
-                <small>cmolc/dm³</small>
+                <small>Soma de Bases</small>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown(f"""
             <div class="metric-card">
-                <h3>🟡 CTC Potencial</h3>
+                <h3>🟡 CTC</h3>
                 <h2>{ctc_potencial:.2f}</h2>
-                <small>cmolc/dm³</small>
+                <small>CTC potencial</small>
             </div>
             """, unsafe_allow_html=True)
         with col3:
             st.markdown(f"""
             <div class="metric-card">
-                <h3>🟢 Saturação por Bases</h3>
+                <h3>🟢 V%</h3>
                 <h2>{v_percent:.1f}%</h2>
-                <small>V%</small>
+                <small>Saturação por Bases</small>
+            </div>
+            """, unsafe_allow_html=True)
+        with col4:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>🔴 m%</h3>
+                <h2>{m_percent:.1f}%</h2>
+                <small>Saturação por Al</small>
             </div>
             """, unsafe_allow_html=True)
         
         # BARRA DE PROGRESSO VISUAL
         st.markdown("### 📊 Indicador de Fertilidade (V%)")
         
-        # Barra de progresso
         progress_html = f"""
         <div class="progress-container">
             <div class="progress-bar" style="width: {min(v_percent, 100)}%;">
@@ -420,7 +404,6 @@ elif menu == "🌱 Classificação":
         """
         st.markdown(progress_html, unsafe_allow_html=True)
         
-        # Escala da barra
         col_a, col_b, col_c, col_d, col_e = st.columns(5)
         with col_a: st.caption("0% (Álico)")
         with col_b: st.caption("25%")
@@ -428,7 +411,7 @@ elif menu == "🌱 Classificação":
         with col_d: st.caption("70%")
         with col_e: st.caption("100% (Eutrófico)")
         
-        # Classificação
+        # Classificação SiBCS
         if v_percent >= 70:
             classe = "Eutrófico (Muito Fértil)"
             cor = "success"
@@ -450,7 +433,7 @@ elif menu == "🌱 Classificação":
         </div>
         """, unsafe_allow_html=True)
         
-        # Score
+        # Score de fertilidade
         score = 0
         if dados['nitrogen'] > 40: score += 2
         if dados['phosphorus'] > 25: score += 2
@@ -493,12 +476,12 @@ elif menu == "🌱 Classificação":
 # ========== SEÇÃO 3: CALAGEM ==========
 elif menu == "🧪 Calagem":
     
-    if not st.session_state.dados_calculados:
+    if st.session_state.get('v_percent') is None:
         st.warning("⚠️ Por favor, complete a classificação primeiro na aba '🌱 Classificação'.")
         st.stop()
     
-    v_percent = st.session_state.get('v_percent', 0)
-    ctc_potencial = st.session_state.get('ctc_potencial', 0)
+    v_percent = st.session_state.v_percent
+    ctc_potencial = st.session_state.ctc_potencial
     
     st.markdown("## 🧪 Recomendação de Calagem")
     
@@ -582,35 +565,43 @@ elif menu == "📈 Relatório":
         st.warning("⚠️ Por favor, complete a classificação primeiro na aba '🌱 Classificação'.")
         st.stop()
     
-    st.markdown("## 📋 Relatório Completo")
+    st.markdown("## 📋 Relatório Completo da Análise")
     
     dados = st.session_state.dados_calculados
     v_percent = st.session_state.get('v_percent', 0)
     ctc_potencial = st.session_state.get('ctc_potencial', 0)
+    sb = st.session_state.get('sb', 0)
     
     resumo = pd.DataFrame({
-        "Parâmetro": ["N", "P", "K", "Ca", "Mg", "Al³⁺", "H+Al", "pH", "SB", "CTC", "V%", "MO", "Densidade"],
+        "Parâmetro": ["Nitrogênio (N)", "Fósforo (P)", "Potássio (K)", 
+                     "Cálcio (Ca)", "Magnésio (Mg)", "pH", "Alumínio (Al³⁺)",
+                     "H + Al", "Soma de Bases (SB)", "CTC Potencial",
+                     "Saturação por Bases (V%)", "Matéria Orgânica",
+                     "Densidade do Solo", "Areia", "Silte", "Argila"],
         "Valor": [
             f"{dados['nitrogen']:.1f} mg/dm³",
             f"{dados['phosphorus']:.1f} mg/dm³",
             f"{dados['potassium']:.1f} mmolc/dm³",
             f"{dados['calcium']:.1f} cmolc/dm³",
             f"{dados['magnesium']:.1f} cmolc/dm³",
+            f"{dados['ph']:.1f}",
             f"{dados['aluminum']:.2f} cmolc/dm³",
             f"{dados['h_al']:.2f} cmolc/dm³",
-            f"{dados['ph']:.1f}",
-            f"{st.session_state.get('sb', 0):.2f} cmolc/dm³",
+            f"{sb:.2f} cmolc/dm³",
             f"{ctc_potencial:.2f} cmolc/dm³",
             f"{v_percent:.1f}%",
             f"{dados['organic_matter']:.1f} g/kg",
-            f"{dados['bulk_density']:.2f} g/cm³"
+            f"{dados['bulk_density']:.2f} g/cm³",
+            f"{dados['sand']:.1f} g/kg",
+            f"{dados['silt']:.1f} g/kg",
+            f"{dados['clay']:.1f} g/kg"
         ]
     })
     
     st.dataframe(resumo, hide_index=True, use_container_width=True)
     
     csv = resumo.to_csv(index=False).encode('utf-8')
-    st.download_button("📥 Baixar Relatório", csv, "analise_solo.csv", "text/csv", use_container_width=True)
+    st.download_button("📥 Baixar Relatório (CSV)", csv, "analise_solo.csv", "text/csv", use_container_width=True)
 
 st.markdown("---")
 st.caption("© 2025 - Classificador de Fertilidade do Solo | Baseado no SiBCS - Embrapa")
