@@ -51,6 +51,9 @@ def carregar_modelo():
         modelo = joblib.load('modelo.pkl')
         features = joblib.load('features.pkl')
         
+        # Mostrar quantas features o modelo espera
+        st.sidebar.info(f"📊 Modelo treinado com {len(features)} features")
+        
         return modelo, features
     
     except Exception as e:
@@ -386,26 +389,6 @@ button[data-baseweb="tab"][aria-selected="true"] {
     background: #60a5fa;
 }
 
-/* ==========================================================================
-   INFO BOX PARA BIBLIOTECAS FALTANTES
-========================================================================== */
-
-.missing-deps {
-    background: linear-gradient(135deg, #7f1a1a, #991b1b);
-    border: 2px solid #ef4444;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 20px 0;
-    text-align: center;
-}
-
-.missing-deps code {
-    background: #1f2937;
-    color: #fbbf24;
-    padding: 4px 8px;
-    border-radius: 6px;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -476,20 +459,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# VERIFICAÇÃO DE DEPENDÊNCIAS
-# ============================================================================
-
-if not JOBLIB_AVAILABLE:
-    st.markdown("""
-    <div class="missing-deps">
-        <h2>⚠️ Dependência Ausente</h2>
-        <p>A biblioteca <code>joblib</code> não está instalada. Para usar a funcionalidade de IA, instale com:</p>
-        <code>pip install joblib</code>
-        <p style="margin-top: 15px;">O aplicativo continuará funcionando para classificação manual de solo, mas a IA estará desabilitada.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-# ============================================================================
 # SIDEBAR
 # ============================================================================
 
@@ -514,7 +483,13 @@ with st.sidebar:
         st.caption("Execute: pip install joblib")
     elif modelo is not None and features is not None:
         st.success("✅ IA carregada com sucesso!")
-        st.caption(f"Features: {len(features)} parâmetros")
+        st.caption(f"Features esperadas: {len(features)}")
+        # Mostrar as primeiras features
+        with st.expander("📋 Features do modelo"):
+            for i, f in enumerate(features[:10]):
+                st.caption(f"{i+1}. {f}")
+            if len(features) > 10:
+                st.caption(f"... e mais {len(features)-10} features")
     else:
         st.warning("⚠️ IA não disponível")
         if JOBLIB_AVAILABLE:
@@ -573,11 +548,11 @@ necessidades_culturas = {
 }
 
 # ============================================================================
-# FUNÇÃO PARA PREDIÇÃO DA IA
+# FUNÇÃO PARA PREDIÇÃO DA IA - CORRIGIDA PARA USAR TODAS AS FEATURES
 # ============================================================================
 
 def fazer_predicao_ia(dados):
-    """Faz a predição usando o modelo de IA carregado"""
+    """Faz a predição usando o modelo de IA carregado com todas as features"""
     
     # Verificar se joblib está disponível
     if not JOBLIB_AVAILABLE:
@@ -587,23 +562,54 @@ def fazer_predicao_ia(dados):
         return None, "Modelo não disponível"
     
     try:
-        features_necessarias = ["nitrogen", "phosphorus", "potassium", "ph", "organic_matter", "bulk_density"]
+        # Criar um dicionário com todas as features que o modelo espera
+        # Para features que não temos no sistema, usar valores padrão (média ou zero)
         
-        for feature in features_necessarias:
-            if feature not in dados:
-                return None, f"Feature '{feature}' não encontrada"
+        # Features básicas que temos no sistema
+        features_disponiveis = {
+            "nitrogen": dados.get("nitrogen", 0),
+            "phosphorus": dados.get("phosphorus", 0),
+            "potassium": dados.get("potassium", 0),
+            "ph": dados.get("ph", 6.0),
+            "organic_matter": dados.get("organic_matter", 25),
+            "bulk_density": dados.get("bulk_density", 1.2),
+            "sand": dados.get("sand", 350),
+            "silt": dados.get("silt", 300),
+            "clay": dados.get("clay", 350),
+            "calcium": dados.get("calcium", 3.0),
+            "magnesium": dados.get("magnesium", 1.5),
+            "aluminum": dados.get("aluminum", 0.5),
+            "h_al": dados.get("h_al", 3.5),
+            "particle_density": dados.get("particle_density", 2.65)
+        }
         
-        entrada_ia = pd.DataFrame([[
-            dados["nitrogen"],
-            dados["phosphorus"],
-            dados["potassium"],
-            dados["ph"],
-            dados["organic_matter"],
-            dados["bulk_density"]
-        ]], columns=features_necessarias)
+        # Criar array na ordem correta das features do modelo
+        valores = []
+        features_faltando = []
         
+        for feature in features:
+            if feature in features_disponiveis:
+                valores.append(features_disponiveis[feature])
+            else:
+                # Se a feature não está disponível, usar 0 e registrar aviso
+                valores.append(0)
+                features_faltando.append(feature)
+        
+        # Mostrar aviso se houver features faltando
+        if features_faltando:
+            st.warning(f"⚠️ Features não disponíveis (usando 0): {features_faltando[:5]}")
+        
+        # Criar DataFrame com a ordem correta das features
+        entrada_ia = pd.DataFrame([valores], columns=features)
+        
+        # Fazer predição
         predicao = modelo.predict(entrada_ia)
-        return predicao[0], "Sucesso"
+        
+        # Se for classificação, pegar a classe
+        if hasattr(modelo, 'classes_'):
+            return modelo.classes_[predicao[0]], "Sucesso"
+        else:
+            return predicao[0], "Sucesso"
     
     except Exception as e:
         return None, f"Erro na predição: {str(e)}"
@@ -718,20 +724,26 @@ elif menu == "🌱 2. Classificacao":
             
             if JOBLIB_AVAILABLE:
                 if modelo is not None and features is not None:
-                    predicao, status = fazer_predicao_ia(dados)
+                    with st.spinner("🔄 IA processando os dados do solo..."):
+                        predicao, status = fazer_predicao_ia(dados)
+                    
                     if predicao is not None:
-                        st.success(f"🌾 Classe prevista pela IA: **{predicao}**")
-                        with st.expander("ℹ️ Sobre esta classificação"):
-                            st.markdown("""
-                            A IA analisou os seguintes parâmetros:
-                            - Nitrogênio (N)
-                            - Fósforo (P)
-                            - Potássio (K+)
-                            - pH do solo
-                            - Matéria Orgânica
-                            - Densidade do solo
+                        st.success(f"🌾 **Classe prevista pela IA:** {predicao}")
+                        
+                        # Mostrar informações sobre as features usadas
+                        with st.expander("ℹ️ Sobre a classificação da IA"):
+                            st.markdown(f"""
+                            **Modelo:** RandomForestClassifier  
+                            **Features utilizadas:** {len(features)} parâmetros do solo  
                             
-                            Com base nesses dados, o modelo classificou a fertilidade do solo.
+                            A IA analisou os seguintes parâmetros principais:
+                            - Nitrogênio (N): {dados['nitrogen']} mg/dm³
+                            - Fósforo (P): {dados['phosphorus']} mg/dm³
+                            - Potássio (K+): {dados['potassium']} cmolc/dm³
+                            - pH: {dados['ph']}
+                            - Matéria Orgânica: {dados['organic_matter']} g/kg
+                            - Densidade: {dados['bulk_density']} g/cm³
+                            - Textura: Areia {dados['sand']} | Silte {dados['silt']} | Argila {dados['clay']} g/kg
                             """)
                     else:
                         st.warning(f"⚠️ IA não pôde fazer a predição: {status}")
@@ -860,31 +872,4 @@ elif menu == "📈 3. Relatorio":
             f"{dados['aluminum']:.2f} cmolc/dm3", f"{dados['h_al']:.2f} cmolc/dm3",
             f"{sb:.2f} cmolc/dm3", f"{ctc_potencial:.2f} cmolc/dm3",
             f"{v_percent:.1f}%", f"{m_percent:.1f}%",
-            f"{dados['organic_matter']:.1f} g/kg", f"{dados['bulk_density']:.2f} g/cm3"
-        ]
-    })
-
-    st.dataframe(relatorio, hide_index=True, use_container_width=True)
-
-    csv = relatorio.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label="📥 Baixar Relatorio (CSV)",
-        data=csv,
-        file_name="relatorio_solo.csv",
-        mime="text/csv",
-        key="download_csv"
-    )
-
-    st.markdown("---")
-    st.markdown("## 🌾 Recomendações Agronômicas")
-    st.success(f"✅ Cultura selecionada: {cultura}")
-
-    v2 = necessidades_culturas[cultura]["v_desejado"]
-    nc = max(((v2 - v_percent) * ctc_potencial) / 100, 0)
-    prnt = 80
-    nc_corrigida = nc * (100 / prnt)
-    gesso = nc_corrigida * 0.5 if dados["clay"] >= 350 else 0
-
-    st.info(f"🪨 Aplicar {nc_corrigida:.2f} t/ha de calcário com PRNT {prnt}%")
-    if gesso > 0:
-        st.warning(f)
+            f"{d}}}}]
