@@ -1121,17 +1121,17 @@ m% = (Al³⁺ / CTC efetiva) × 100
 | < 25 | Álico |
         """)
 
-with st.expander("🪨 Cálculo da Calagem"):
+    with st.expander("🪨 Cálculo da Calagem"):
 
-    st.markdown("""
+        st.markdown("""
 ### Fórmula utilizada:
 """)
 
-    st.latex(
-        r"NC = \frac{(V_2 - V_1) \times CTC}{100}"
-    )
+        st.latex(
+            r"NC = \frac{(V_2 - V_1) \times CTC}{100}"
+        )
 
-    st.markdown("""
+        st.markdown("""
 Onde:
 
 - NC = necessidade de calcário
@@ -1140,9 +1140,9 @@ Onde:
 - CTC = capacidade de troca catiônica
 """)
 
-with st.expander("🌱 Cálculo da Gessagem"):
+    with st.expander("🌱 Cálculo da Gessagem"):
 
-    st.markdown("""
+        st.markdown("""
 ### Critério utilizado:
 
 - Solos com argila > 350 g/kg
