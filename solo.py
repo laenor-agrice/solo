@@ -677,12 +677,13 @@ if menu == "📊 1. Dados do Solo":
 # ABA 3 - RELATORIO
 # ============================================================================
 
-elif menu == "📈 3. Relatorio":
+eelif menu == "📈 3. Relatorio":
 
     st.markdown("## 📈 Relatorio Tecnico")
 
     if "v_percent" not in st.session_state:
         st.warning("⚠️ Execute a classificacao primeiro na aba 'Classificacao'.")
+
     else:
         dados = st.session_state.dados_calculados
 
@@ -703,6 +704,7 @@ elif menu == "📈 3. Relatorio":
                 "Materia Organica",
                 "Densidade do Solo"
             ],
+
             "Valor": [
                 f"{dados['ph']:.1f}",
                 f"{dados['nitrogen']:.1f} mg/dm3",
@@ -724,14 +726,16 @@ elif menu == "📈 3. Relatorio":
         st.dataframe(relatorio, hide_index=True, use_container_width=True)
 
         csv = relatorio.to_csv(index=False).encode('utf-8')
-         st.download_button(
+
+        st.download_button(
             label="📥 Baixar Relatorio (CSV)",
             data=csv,
             file_name="relatorio_solo.csv",
             mime="text/csv",
             key="download_csv"
         )
-                st.markdown("## 🌾 Recomendações Agronômicas")
+
+        st.markdown("## 🌾 Recomendações Agronômicas")
 
         st.success(f"✅ Cultura selecionada: {st.session_state.cultura}")
 
