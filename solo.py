@@ -587,8 +587,8 @@ elif menu == "🌱 2. Classificação":
 
 
 **Quando indicar:**
-        - Al3+ > 0,5 cmolc/dm3
-        - Ca2+ < 1,0 cmolc/dm3
+        - Al^3+ > 0,5 cmolc/dm3
+        - Ca^2+ < 1,0 cmolc/dm3
         - Saturação por Al (m%) > 20%
 
 with st.expander("🌾 Tabela de Necessidades por Cultura"):
