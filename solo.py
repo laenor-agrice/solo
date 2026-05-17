@@ -66,6 +66,24 @@ st.markdown("""
         border-left: 5px solid #17a2b8;
         margin: 1rem 0;
     }
+    .result-card {
+        background: linear-gradient(135deg, #1a5f3e, #2ecc71);
+        padding: 1.5rem;
+        border-radius: 20px;
+        text-align: center;
+        margin: 1rem 0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .result-card h2, .result-card h3, .result-card p {
+        color: white !important;
+        margin: 0;
+    }
+    .result-number {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #f1c40f;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
     h1, h2, h3 {
         color: #1a5f3e;
     }
@@ -77,6 +95,24 @@ st.markdown("""
     }
     div.stButton > button {
         width: 100%;
+    }
+    .stAlert {
+        border-radius: 15px;
+        border-left: 5px solid;
+        padding: 1rem;
+    }
+    .stAlert p {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+    .highlight {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #f1c40f;
+    }
+    .subtext {
+        font-size: 0.9rem;
+        color: #a8e6cf;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -113,7 +149,7 @@ with st.sidebar:
     st.caption("Versão 2.0 - Classificação Completa")
     st.caption("Desenvolvido com base na literatura Embrapa")
 
-# Inicializar session_state com valores padrão
+# Inicializar session_state
 if 'dados_calculados' not in st.session_state:
     st.session_state.dados_calculados = {}
 
@@ -220,7 +256,6 @@ if menu == "📊 Dados do Solo":
     
     st.markdown("---")
     
-    # Botão para salvar
     if st.button("💾 SALVAR TODOS OS DADOS", use_container_width=True):
         try:
             st.session_state.dados_calculados = {
@@ -302,56 +337,85 @@ elif menu == "🌱 Classificação":
     
     st.markdown("## 📊 Resultado da Classificação")
     
-    with st.expander("📐 Como os cálculos são realizados?"):
-        st.markdown(f"""
-        **1. Soma de Bases (SB)** = Ca²⁺ + Mg²⁺ + K⁺ = **{sb:.2f} cmolc/dm³**
-        **2. CTC potencial** = SB + H+Al = **{ctc_potencial:.2f} cmolc/dm³**
-        **3. Saturação por Bases (V%)** = (SB / CTC) × 100 = **{v_percent:.1f}%**
-        **4. Saturação por Alumínio (m%)** = (Al³⁺ / CTC_efetiva) × 100 = **{m_percent:.1f}%**
-        """)
-    
+    # Cards de métricas
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("🟢 SB", f"{sb:.2f} cmolc/dm³")
+        st.markdown(f"""
+        <div class="metric-card">
+            <h3>🟢 Soma de Bases</h3>
+            <h2>{sb:.2f}</h2>
+            <small>cmolc/dm³</small>
+        </div>
+        """, unsafe_allow_html=True)
     with col2:
-        st.metric("🟡 CTC", f"{ctc_potencial:.2f} cmolc/dm³")
+        st.markdown(f"""
+        <div class="metric-card">
+            <h3>🟡 CTC Potencial</h3>
+            <h2>{ctc_potencial:.2f}</h2>
+            <small>cmolc/dm³</small>
+        </div>
+        """, unsafe_allow_html=True)
     with col3:
-        st.metric("🟢 V%", f"{v_percent:.1f}%")
+        st.markdown(f"""
+        <div class="metric-card">
+            <h3>🟢 Saturação por Bases</h3>
+            <h2>{v_percent:.1f}%</h2>
+            <small>V%</small>
+        </div>
+        """, unsafe_allow_html=True)
     with col4:
-        st.metric("🔴 m%", f"{m_percent:.1f}%")
+        st.markdown(f"""
+        <div class="metric-card">
+            <h3>🔴 Saturação por Al</h3>
+            <h2>{m_percent:.1f}%</h2>
+            <small>m%</small>
+        </div>
+        """, unsafe_allow_html=True)
     
     st.markdown("---")
     
-    st.markdown(f"""
-    <div class="info-box">
-        <h3>🏺 Informações Complementares</h3>
-        <p><strong>Classe Textural:</strong> {textura}</p>
-        <p><strong>Porosidade Total:</strong> {porosity:.1f}%</p>
-        <p><strong>Relação Ca/Mg:</strong> {ca_mg_ratio:.2f} (Ideal: 2:1 a 4:1)</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Informações complementares
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.info(f"🏺 **Classe Textural:** {textura}")
+    with col2:
+        st.info(f"⚖️ **Porosidade:** {porosity:.1f}%")
+    with col3:
+        st.info(f"📊 **Relação Ca/Mg:** {ca_mg_ratio:.2f} (Ideal: 2:1 a 4:1)")
     
+    st.markdown("---")
+    
+    # Classificação V%
     if v_percent >= 70:
-        classe_v = "🟢 Eutrófico (Muito Fértil) - V% > 70%"
+        classe_v = "Eutrófico (Muito Fértil)"
         cor_classe = "success-box"
+        emoji = "🟢"
+        recomendacao = "Solo excelente! Mantenha os níveis com adubações de manutenção."
     elif v_percent >= 50:
-        classe_v = "🟢 Eutrófico (Fértil) - V% entre 50-70%"
+        classe_v = "Eutrófico (Fértil)"
         cor_classe = "success-box"
+        emoji = "🟢"
+        recomendacao = "Solo fértil, apto para cultivo de alta produtividade."
     elif v_percent >= 25:
-        classe_v = "🟡 Distrófico (Baixa Fertilidade) - V% entre 25-50%"
+        classe_v = "Distrófico (Baixa Fertilidade)"
         cor_classe = "warning-box"
+        emoji = "🟡"
+        recomendacao = "Solo com baixa fertilidade natural. Recomenda-se calagem e adubação corretiva."
     else:
-        classe_v = "🔴 Álico (Muito Pobre) - V% < 25%"
+        classe_v = "Álico (Muito Pobre)"
         cor_classe = "info-box"
+        emoji = "🔴"
+        recomendacao = "Solo muito pobre. Necessita correção intensiva com calagem e gessagem."
     
     st.markdown(f"""
     <div class="{cor_classe}">
-        <h3>📌 Classificação do Solo (SiBCS)</h3>
-        <p>{classe_v}</p>
+        <h3>{emoji} Classificação SiBCS: {classe_v}</h3>
+        <p><strong>V% atual:</strong> {v_percent:.1f}%</p>
+        <p>{recomendacao}</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Score de fertilidade
+    # Score
     score = 0
     if dados['nitrogen'] > 40: score += 2
     if dados['phosphorus'] > 25: score += 2
@@ -364,30 +428,29 @@ elif menu == "🌱 Classificação":
     elif dados['bulk_density'] < 1.6: score += 1.5
     if 5.5 <= dados['ph'] <= 6.5: score += 2
     
-    st.markdown("---")
-    
+    # Resultado final
     if score >= 12:
         st.markdown(f"""
-        <div class="success-box">
-            <h2 style="color: #155724;">🟢 RESULTADO: ALTA FERTILIDADE</h2>
-            <p>Score: {score:.1f}/20 pontos</p>
-            <p>✅ Solo fértil segundo critérios do SiBCS.</p>
+        <div class="result-card">
+            <h2>🟢 RESULTADO: ALTA FERTILIDADE</h2>
+            <p class="result-number">Score: {score:.1f} / 20 pontos</p>
+            <p>✅ Solo fértil segundo critérios do SiBCS. Apto para cultivo de alta produtividade.</p>
         </div>
         """, unsafe_allow_html=True)
     elif score >= 7:
         st.markdown(f"""
-        <div class="warning-box">
-            <h2 style="color: #856404;">🟡 RESULTADO: FERTILIDADE MÉDIA</h2>
-            <p>Score: {score:.1f}/20 pontos</p>
-            <p>⚠️ Necessita manejo adequado.</p>
+        <div class="result-card" style="background: linear-gradient(135deg, #856404, #ffc107);">
+            <h2>🟡 RESULTADO: FERTILIDADE MÉDIA</h2>
+            <p class="result-number">Score: {score:.1f} / 20 pontos</p>
+            <p>⚠️ Solo com potencial, mas necessita manejo adequado e correções localizadas.</p>
         </div>
         """, unsafe_allow_html=True)
     else:
         st.markdown(f"""
-        <div class="info-box">
-            <h2 style="color: #721c24;">🔴 RESULTADO: BAIXA FERTILIDADE</h2>
-            <p>Score: {score:.1f}/20 pontos</p>
-            <p>❌ Correção do solo necessária.</p>
+        <div class="result-card" style="background: linear-gradient(135deg, #721c24, #e74c3c);">
+            <h2>🔴 RESULTADO: BAIXA FERTILIDADE</h2>
+            <p class="result-number">Score: {score:.1f} / 20 pontos</p>
+            <p>❌ Solo necessita correção e manejo intensivo. Recomenda-se calagem e adubação.</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -396,6 +459,7 @@ elif menu == "🌱 Classificação":
     st.session_state.ctc_potencial = ctc_potencial
     st.session_state.m_percent = m_percent
     st.session_state.sb = sb
+    st.session_state.score = score
 
 # ========== SEÇÃO 3: CALAGEM ==========
 elif menu == "🧪 Calagem":
@@ -406,34 +470,47 @@ elif menu == "🧪 Calagem":
     
     v_percent = st.session_state.get('v_percent', 0)
     ctc_potencial = st.session_state.get('ctc_potencial', 0)
+    score = st.session_state.get('score', 0)
     
-    st.markdown("## 🧪 Recomendação de Calagem")
+    st.markdown("## 🧪 Recomendação de Calagem Agrícola")
+    st.markdown("A calagem é a prática de aplicação de calcário para corrigir a acidez do solo e elevar a saturação por bases.")
     
     col1, col2 = st.columns(2)
     
     with col1:
         profundidade = st.radio(
-            "Profundidade de incorporação:",
+            "📏 Profundidade de incorporação:",
             ["0-10 cm", "10-15 cm", "15-20 cm"],
             horizontal=True
         )
         fator_profundidade = {"0-10 cm": 1.0, "10-15 cm": 1.5, "15-20 cm": 2.0}
-        prnt = st.number_input("PRNT do calcário (%)", min_value=50.0, max_value=100.0, value=85.0, step=1.0)
+        prnt = st.number_input("📦 PRNT do calcário (%)", min_value=50.0, max_value=100.0, value=85.0, step=1.0,
+                               help="Poder Relativo de Neutralização Total - informado na nota fiscal do calcário")
     
     with col2:
-        cultura = st.selectbox("Cultura a ser cultivada:", [
+        cultura = st.selectbox("🌾 Cultura a ser cultivada:", [
             "Soja", "Milho", "Feijão", "Trigo", "Arroz", "Café", "Cana-de-açúcar",
-            "Pastagem", "Batata", "Mandioca", "Tomate", "Alface"
+            "Pastagem", "Batata", "Mandioca", "Tomate", "Alface", "Cebola", "Algodão"
         ])
     
     v_desejado_culturas = {
         "Soja": 60, "Milho": 65, "Feijão": 65, "Trigo": 65, "Arroz": 55,
         "Café": 70, "Cana-de-açúcar": 60, "Pastagem": 55, "Batata": 65,
-        "Mandioca": 55, "Tomate": 70, "Alface": 65
+        "Mandioca": 55, "Tomate": 70, "Alface": 65, "Cebola": 65, "Algodão": 65
     }
     v_desejado = v_desejado_culturas.get(cultura, 60)
     
-    st.info(f"📌 {cultura} - V% desejado: {v_desejado}% | V% atual: {v_percent:.1f}%")
+    # Exibir situação atual
+    st.markdown("---")
+    st.markdown("### 📊 Situação Atual do Solo")
+    
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        st.metric("📌 V% atual", f"{v_percent:.1f}%", delta=f"Faltam {max(0, v_desejado - v_percent):.1f}% para o ideal")
+    with col_b:
+        st.metric("🎯 V% desejado para " + cultura, f"{v_desejado}%")
+    with col_c:
+        st.metric("🧮 CTC potencial", f"{ctc_potencial:.2f} cmolc/dm³")
     
     st.markdown("---")
     
@@ -442,19 +519,59 @@ elif menu == "🧪 Calagem":
         nc_corrigido = nc * (100 / prnt)
         nc_final = nc_corrigido * fator_profundidade[profundidade]
         
-        st.warning("⚠️ É RECOMENDADO CALAGEM")
-        st.success(f"✅ Quantidade final de calcário: {nc_final:.1f} t/ha")
+        st.markdown(f"""
+        <div class="warning-box">
+            <h3 style="color: #856404;">⚠️ É RECOMENDADO CALAGEM</h3>
+            <p><strong>Motivo:</strong> V% atual ({v_percent:.1f}%) está abaixo do ideal para {cultura} ({v_desejado}%)</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Card com resultado
+        st.markdown(f"""
+        <div class="result-card" style="background: linear-gradient(135deg, #1a5f3e, #2ecc71);">
+            <h2>📦 QUANTIDADE DE CALCÁRIO</h2>
+            <p class="result-number">{nc_final:.1f} t/ha</p>
+            <p>Considerando profundidade de {profundidade} e PRNT = {prnt:.0f}%</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        with st.expander("📖 Ver detalhes do cálculo"):
+            st.markdown(f"""
+            **Passo a passo do cálculo:**
+            
+            1. **Necessidade de calagem base (0-10cm, PRNT 100%):**
+               - NC = (V_desejado - V_atual) × CTC / 100
+               - NC = ({v_desejado} - {v_percent:.1f}) × {ctc_potencial:.2f} / 100
+               - NC = **{nc:.2f} t/ha**
+            
+            2. **Ajuste pelo PRNT do calcário ({prnt:.0f}%):**
+               - NC_corrigido = NC × (100 / PRNT)
+               - NC_corrigido = {nc:.2f} × (100 / {prnt:.0f})
+               - NC_corrigido = **{nc_corrigido:.2f} t/ha**
+            
+            3. **Ajuste pela profundidade ({profundidade}):**
+               - NC_final = NC_corrigido × Fator_profundidade
+               - NC_final = {nc_corrigido:.2f} × {fator_profundidade[profundidade]}
+               - NC_final = **{nc_final:.2f} t/ha**
+            """)
         
         with st.expander("📖 Recomendações de Aplicação"):
             st.markdown(f"""
-            - **Época ideal:** 60-90 dias antes do plantio
-            - **Incorporação:** Incorporar na profundidade de {profundidade}
-            - **PRNT utilizado:** {prnt:.0f}%
-            - **Resultado esperado:** Solo atingirá V% = {v_desejado}%
+            ✅ **Época ideal:** 60-90 dias antes do plantio
+            ✅ **Incorporação:** Incorporar na profundidade de {profundidade}
+            ✅ **PRNT utilizado:** {prnt:.0f}%
+            ✅ **Resultado esperado:** Solo atingirá V% = {v_desejado}%
+            ✅ **Umidade do solo:** Aplicar com solo úmido para melhor reação
+            ✅ **Uniformidade:** Distribuir uniformemente em área total
             """)
     else:
-        st.success("✅ NÃO HÁ NECESSIDADE DE CALAGEM")
-        st.write(f"V% atual ({v_percent:.1f}%) já está no nível ideal para {cultura} ({v_desejado}%)")
+        st.markdown(f"""
+        <div class="success-box">
+            <h3 style="color: #155724;">✅ NÃO HÁ NECESSIDADE DE CALAGEM</h3>
+            <p>V% atual ({v_percent:.1f}%) já está no nível ideal para {cultura} ({v_desejado}%)</p>
+            <p>O solo já apresenta boas condições de fertilidade para a cultura selecionada.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ========== SEÇÃO 4: GESSAGEM ==========
 elif menu == "⚖️ Gessagem":
@@ -465,17 +582,40 @@ elif menu == "⚖️ Gessagem":
     
     dados = st.session_state.dados_calculados
     m_percent = st.session_state.get('m_percent', 0)
+    v_percent = st.session_state.get('v_percent', 0)
     
-    st.markdown("## ⚖️ Recomendação de Gessagem")
+    st.markdown("## ⚖️ Recomendação de Gessagem Agrícola")
+    st.markdown("A gessagem é indicada para solos com problemas de alumínio tóxico ou cálcio deficiente em profundidade.")
     
-    col1, col2, col3 = st.columns(3)
-    with col1: st.metric("Alumínio (Al³⁺)", f"{dados['aluminum']:.2f} cmolc/dm³")
-    with col2: st.metric("Cálcio (Ca²⁺)", f"{dados['calcium']:.2f} cmolc/dm³")
-    with col3: st.metric("Saturação Al (m%)", f"{m_percent:.1f}%")
+    # Cards com indicadores atuais
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("⚠️ Alumínio (Al³⁺)", f"{dados['aluminum']:.2f} cmolc/dm³", 
+                  delta="Ideal: < 0.5", delta_color="inverse")
+    with col2:
+        st.metric("🥛 Cálcio (Ca²⁺)", f"{dados['calcium']:.2f} cmolc/dm³",
+                  delta="Ideal: > 1.5", delta_color="inverse")
+    with col3:
+        st.metric("📊 Saturação Al (m%)", f"{m_percent:.1f}%",
+                  delta="Ideal: < 20%", delta_color="inverse")
+    with col4:
+        st.metric("🟢 V% atual", f"{v_percent:.1f}%")
     
     st.markdown("---")
     
-    if dados['aluminum'] > 0.5 or dados['calcium'] < 1.0 or m_percent > 20:
+    # Verificar necessidade
+    motivos = []
+    if dados['aluminum'] > 0.5:
+        motivos.append(f"• Alumínio alto: {dados['aluminum']:.2f} cmolc/dm³ (limite ideal: ≤ 0.5)")
+    if dados['calcium'] < 1.0:
+        motivos.append(f"• Cálcio muito baixo: {dados['calcium']:.2f} cmolc/dm³ (limite ideal: ≥ 1.5)")
+    if m_percent > 20:
+        motivos.append(f"• Saturação por Alumínio alta: {m_percent:.1f}% (limite ideal: ≤ 20%)")
+    if v_percent < 35 and dados['aluminum'] > 0.3:
+        motivos.append("• Subsuperfície provavelmente ácida (V% baixo + Al³⁺ presente)")
+    
+    if motivos:
+        # Cálculo da necessidade de gessagem
         ng_al = dados['aluminum'] * 1.5
         if dados['calcium'] < 2.0:
             ng_ca = (2.0 - dados['calcium']) * 1.5
@@ -483,18 +623,60 @@ elif menu == "⚖️ Gessagem":
             ng_ca = 0
         ng_total = ng_al + ng_ca
         
-        st.warning("⚠️ É RECOMENDADO GESSAGEM")
-        st.success(f"✅ Quantidade de gesso agrícola: {ng_total:.1f} t/ha")
+        st.markdown(f"""
+        <div class="warning-box">
+            <h3 style="color: #856404;">⚠️ É RECOMENDADO GESSAGEM</h3>
+            <p><strong>Motivo(s):</strong></p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        for motivo in motivos:
+            st.warning(motivo)
+        
+        # Card com resultado
+        st.markdown(f"""
+        <div class="result-card" style="background: linear-gradient(135deg, #1a5f3e, #2ecc71);">
+            <h2>📦 QUANTIDADE DE GESSO AGRÍCOLA</h2>
+            <p class="result-number">{ng_total:.1f} t/ha</p>
+            <p>Considerando aplicação superficial (sem incorporação)</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        with st.expander("📖 Ver detalhes do cálculo"):
+            st.markdown(f"""
+            **Cálculo da necessidade de gessagem (método Embrapa):**
+            
+            1. **Necessidade para neutralizar Al³⁺:**
+               - NG_Al = Al³⁺ × 1.5
+               - NG_Al = {dados['aluminum']:.2f} × 1.5 = **{ng_al:.2f} t/ha**
+            
+            2. **Necessidade para suprir Cálcio (se Ca²⁺ < 2.0):**
+               - NG_Ca = (2.0 - Ca²⁺) × 1.5
+               - NG_Ca = (2.0 - {dados['calcium']:.2f}) × 1.5 = **{ng_ca:.2f} t/ha**
+            
+            3. **Necessidade total:**
+               - NG_total = NG_Al + NG_Ca
+               - NG_total = {ng_al:.2f} + {ng_ca:.2f} = **{ng_total:.2f} t/ha**
+            """)
         
         with st.expander("📖 Recomendações de Aplicação"):
             st.markdown("""
-            - **Época:** Aplicar após a calagem (30-60 dias de intervalo)
-            - **Aplicação:** A lanço, SEM incorporar (deixar na superfície)
-            - **Benefícios:** Neutraliza Al³⁺ em profundidade, fornece Ca²⁺ e S
+            ✅ **Época:** Aplicar após a calagem (30-60 dias de intervalo)
+            ✅ **Aplicação:** A lanço, SEM incorporar (deixar na superfície)
+            ✅ **Benefícios:** Neutraliza Al³⁺ em profundidade, fornece Ca²⁺ e S
+            ✅ **Profundidade de ação:** Atua até 40cm de profundidade
+            ✅ **Cuidado:** Não exagerar na dose para evitar lixiviação de bases
             """)
     else:
-        st.success("✅ NÃO HÁ NECESSIDADE DE GESSAGEM")
-        st.write("Os parâmetros estão dentro dos limites ideais.")
+        st.markdown(f"""
+        <div class="success-box">
+            <h3 style="color: #155724;">✅ NÃO HÁ NECESSIDADE DE GESSAGEM</h3>
+            <p>Os parâmetros estão dentro dos limites ideais:</p>
+            <p>• Al³⁺ = {dados['aluminum']:.2f} cmolc/dm³ (≤ 0.5)</p>
+            <p>• Ca²⁺ = {dados['calcium']:.2f} cmolc/dm³ (≥ 1.5)</p>
+            <p>• m% = {m_percent:.1f}% (≤ 20%)</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ========== SEÇÃO 5: RELATÓRIO ==========
 elif menu == "📈 Relatório":
@@ -509,49 +691,4 @@ elif menu == "📈 Relatório":
     v_percent = st.session_state.get('v_percent', 0)
     ctc_potencial = st.session_state.get('ctc_potencial', 0)
     sb = st.session_state.get('sb', 0)
-    
-    resumo = pd.DataFrame({
-        "Parâmetro": ["Nitrogênio (N)", "Fósforo (P)", "Potássio (K)", 
-                     "Cálcio (Ca)", "Magnésio (Mg)", "pH", "Alumínio (Al³⁺)",
-                     "H + Al", "Soma de Bases (SB)", "CTC Potencial",
-                     "Saturação por Bases (V%)", "Matéria Orgânica",
-                     "Densidade do Solo", "Areia", "Silte", "Argila"],
-        "Valor": [f"{dados['nitrogen']:.1f} mg/dm³", f"{dados['phosphorus']:.1f} mg/dm³",
-                 f"{dados['potassium']:.1f} mmolc/dm³", f"{dados['calcium']:.1f} cmolc/dm³",
-                 f"{dados['magnesium']:.1f} cmolc/dm³", f"{dados['ph']:.1f}",
-                 f"{dados['aluminum']:.2f} cmolc/dm³", f"{dados['h_al']:.2f} cmolc/dm³",
-                 f"{sb:.2f} cmolc/dm³", f"{ctc_potencial:.2f} cmolc/dm³",
-                 f"{v_percent:.1f}%", f"{dados['organic_matter']:.1f} g/kg",
-                 f"{dados['bulk_density']:.2f} g/cm³",
-                 f"{dados['sand']:.1f} g/kg", f"{dados['silt']:.1f} g/kg",
-                 f"{dados['clay']:.1f} g/kg"]
-    })
-    
-    st.dataframe(resumo, hide_index=True, use_container_width=True)
-    
-    csv = resumo.to_csv(index=False).encode('utf-8')
-    st.download_button(
-        label="📥 Baixar Relatório (CSV)",
-        data=csv,
-        file_name="analise_solo.csv",
-        mime="text/csv",
-        use_container_width=True
-    )
-
-# ========== CORREÇÃO DE VISIBILIDADE ==========
-st.markdown("""
-<style>
-    .stMarkdown p, .stMarkdown li { color: #ffffff !important; }
-    div[data-testid="stMetric"] label { color: #a8e6cf !important; font-weight: bold !important; }
-    div[data-testid="stMetric"] div[data-testid="stMetricValue"] { color: #2ecc71 !important; font-size: 1.5rem !important; font-weight: 900 !important; }
-    .stAlert p, .stAlert li { color: #1a2a1a !important; }
-    .streamlit-expanderHeader p { color: white !important; }
-    .streamlit-expanderContent p, .streamlit-expanderContent li { color: #1a2a1a !important; }
-    label, .stSlider label, .stNumberInput label, .stSelectbox label, .stRadio label { color: #a8e6cf !important; font-weight: 600 !important; }
-    input { color: white !important; background-color: #2c3e50 !important; border: 1px solid #2ecc71 !important; border-radius: 8px !important; }
-    h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 { color: #2ecc71 !important; }
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("---")
-st.caption("© 2025 - Classificador de Fertilidade do Solo | Baseado no SiBCS - Embrapa")
+    score = st
