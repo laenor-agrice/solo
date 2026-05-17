@@ -6,7 +6,6 @@ import joblib
 # ==================================
 
 modelo = joblib.load('modelo.pkl')
-
 features = joblib.load('features.pkl')
 # ============================================================================
 # CONFIGURACAO DA PAGINA
