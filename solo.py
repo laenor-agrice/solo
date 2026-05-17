@@ -176,27 +176,12 @@ st.markdown("""
 # ============================================================================
 
 with st.sidebar:
-
-    st.image(
-        "https://cdn-icons-png.flaticon.com/512/2934/2934128.png",
-        width=90
-    )
-
-    st.markdown("## 📊 Sobre o Sistema")
-
     st.markdown("""
-- 🧪 Avaliação da fertilidade do solo
-- ⚖️ Cálculo de saturação por bases (V%)
-- 🔬 Avaliação de alumínio tóxico
-- 🧱 Estimativa da CTC
-- 🌱 Adequação para culturas agrícolas
-- 📈 Recomendações de manejo
+    - 🧪 Avaliação da fertilidade do solo
+    - 🌱 Classificação agrícola
+    - ⚖️ Recomendação de calagem
+    - 📈 Relatórios técnicos
     """)
-
-    st.markdown("---")
-
-    st.caption("Versão 3.0")
-    st.caption("Baseado no SiBCS - Embrapa")
 
 # ============================================================================
 # SESSION STATE
