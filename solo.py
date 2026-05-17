@@ -772,29 +772,29 @@ elif menu == "🌱 2. Classificacao":
         except Exception:
             return 6.0
     
-        dados["ph"] = calcular_ph(dados)
+    dados["ph"] = calcular_ph(dados)
     
-        # Mostrar o pH calculado
-        st.info(f"🧪 pH calculado automaticamente: **{dados['ph']}**")
+    # Mostrar o pH calculado
+    st.info(f"🧪 pH calculado automaticamente: **{dados['ph']}**")
 
-        sb = dados["calcium"] + dados["magnesium"] + dados["potassium"]
-        ctc_efetiva = sb + dados["aluminum"]
-        ctc_potencial = sb + dados["h_al"]
+    sb = dados["calcium"] + dados["magnesium"] + dados["potassium"]
+    ctc_efetiva = sb + dados["aluminum"]
+    ctc_potencial = sb + dados["h_al"]
 
-        v_percent = (sb / ctc_potencial) * 100 if ctc_potencial > 0 else 0
-        m_percent = (dados["aluminum"] / ctc_efetiva) * 100 if ctc_efetiva > 0 else 0
+    v_percent = (sb / ctc_potencial) * 100 if ctc_potencial > 0 else 0
+    m_percent = (dados["aluminum"] / ctc_efetiva) * 100 if ctc_efetiva > 0 else 0
 
-        st.session_state.dados_calculados = dados
-        st.session_state.sb = sb
-        st.session_state.ctc_potencial = ctc_potencial
-        st.session_state.v_percent = v_percent
-        st.session_state.m_percent = m_percent
-        st.session_state.cultura = cultura
+    st.session_state.dados_calculados = dados
+    st.session_state.sb = sb
+    st.session_state.ctc_potencial = ctc_potencial
+    st.session_state.v_percent = v_percent
+    st.session_state.m_percent = m_percent
+    st.session_state.cultura = cultura
 
-        st.success("✅ Classificação realizada com sucesso!")
+    st.success("✅ Classificação realizada com sucesso!")
 
-        st.markdown("---")
-        st.markdown("## 🤖 Inteligência Artificial")
+    st.markdown("---")
+    st.markdown("## 🤖 Inteligência Artificial")
             
             if JOBLIB_AVAILABLE:
                 if modelo is not None and features is not None:
