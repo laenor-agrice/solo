@@ -743,38 +743,31 @@ elif menu == "🌱 2. Classificacao":
 
     st.markdown("---")
 
-    try:
-    dados = st.session_state.dados_basicos.copy()
-    # LINHA DO ph REMOVIDA - agora calcula automaticamente
-    dados["aluminum"] = float(aluminum.replace(",", "."))
-    dados["h_al"] = float(h_al.replace(",", "."))
-    dados["calcium"] = float(calcium.replace(",", "."))
-    dados["magnesium"] = float(magnesium.replace(",", "."))
-
-    # CALCULAR O pH AUTOMATICAMENTE BASEADO NOS NUTRIENTES
-    def calcular_ph(dados):
-        """Calcula o pH baseado nos nutrientes do solo"""
         try:
-            # Fatores de acidez
-            fator_acidez = dados.get('aluminum', 0.5) * 0.3
-            # Fatores de basicidade
-            fator_basicidade = (
-                dados.get('calcium', 3.0) * 0.2 +
-                dados.get('magnesium', 1.5) * 0.15 +
-                dados.get('potassium', 0.25) * 0.5
-            )
-            # Matéria orgânica
-            om = dados.get('organic_matter', 25) / 100
-            # Cálculo do pH
-            ph_base = 5.5 + (fator_basicidade - fator_acidez) - (om * 0.5)
-            ph = max(4.0, min(8.0, ph_base))
-            return round(ph, 1)
-        except Exception:
-            return 6.0
-    
-    dados["ph"] = calcular_ph(dados)
-    
-    # Mostrar o pH calculado
+        dados = st.session_state.dados_basicos.copy()
+        dados["aluminum"] = float(aluminum.replace(",", "."))
+        dados["h_al"] = float(h_al.replace(",", "."))
+        dados["calcium"] = float(calcium.replace(",", "."))
+        dados["magnesium"] = float(magnesium.replace(",", "."))
+
+        # CALCULAR O pH AUTOMATICAMENTE
+        def calcular_ph(dados):
+            """Calcula o pH baseado nos nutrientes do solo"""
+            try:
+                fator_acidez = dados.get('aluminum', 0.5) * 0.3
+                fator_basicidade = (
+                    dados.get('calcium', 3.0) * 0.2 +
+                    dados.get('magnesium', 1.5) * 0.15 +
+                    dados.get('potassium', 0.25) * 0.5
+                )
+                om = dados.get('organic_matter', 25) / 100
+                ph_base = 5.5 + (fator_basicidade - fator_acidez) - (om * 0.5)
+                ph = max(4.0, min(8.0, ph_base))
+                return round(ph, 1)
+            except Exception:
+                return 6.0
+        
+        dados["ph"] = calcular_ph(dados)
         st.info(f"🧪 pH calculado automaticamente: **{dados['ph']}**")
 
         sb = dados["calcium"] + dados["magnesium"] + dados["potassium"]
@@ -793,8 +786,8 @@ elif menu == "🌱 2. Classificacao":
 
         st.success("✅ Classificação realizada com sucesso!")
 
-    st.markdown("---")
-    st.markdown("## 🤖 Inteligência Artificial")
+        st.markdown("---")
+        st.markdown("## 🤖 Inteligência Artificial")
             
             if JOBLIB_AVAILABLE:
                 if modelo is not None and features is not None:
