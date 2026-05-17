@@ -1,38 +1,835 @@
-
-**Onde:**
-- **Al3+** = Aluminio trocavel (cmolc/dm3)
-- **CTC_efetiva** = SB + Al3+ (cmolc/dm3)
-""")
-
-with st.expander("🌾 Tabela de Necessidades por Cultura"):
-st.markdown("""
-| Cultura | V% Ideal | N min | P min | K min | pH ideal |
-|---------|----------|-------|-------|-------|----------|
-| **Soja** | 60% | 40 mg/dm3 | 15 mg/dm3 | 0,35 cmolc/dm3 | 5,5-6,5 |
-| **Milho (grao)** | 65% | 50 mg/dm3 | 20 mg/dm3 | 0,40 cmolc/dm3 | 5,5-6,5 |
-| **Feijao** | 65% | 35 mg/dm3 | 20 mg/dm3 | 0,35 cmolc/dm3 | 5,5-6,5 |
-| **Cafe** | 70% | 40 mg/dm3 | 25 mg/dm3 | 0,40 cmolc/dm3 | 5,5-6,5 |
-| **Pastagem** | 50% | 30 mg/dm3 | 10 mg/dm3 | 0,25 cmolc/dm3 | 5,0-6,5 |
-""")
-
-with st.expander("📏 Unidades de Medida"):
-st.markdown("""
-| Parametro | Unidade | Equivalencia |
-|-----------|---------|--------------|
-| Nitrogenio (N) | mg/dm3 | 1 mg/dm3 = 1 ppm |
-| Fosforo (P) | mg/dm3 | 1 mg/dm3 = 1 ppm |
-| Potassio (K+) | cmolc/dm3 | 1 cmolc/dm3 = 10 mmolc/dm3 |
-| Calcio (Ca2+) | cmolc/dm3 | 1 cmolc/dm3 = 10 mmolc/dm3 |
-| Magnesio (Mg2+) | cmolc/dm3 | 1 cmolc/dm3 = 10 mmolc/dm3 |
-| Aluminio (Al3+) | cmolc/dm3 | - |
-| CTC | cmolc/dm3 | - |
-| Materia Organica | g/kg | 1 g/kg = 0,1% |
-| Densidade | g/cm3 | - |
-""")
+import streamlit as st
+import pandas as pd
 
 # ============================================================================
-# RODAPE
+# CONFIGURACAO DA PAGINA
+# ============================================================================
+
+st.set_page_config(
+    page_title="Classificador de Fertilidade do Solo - SiBCS",
+    page_icon="🌱",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# ============================================================================
+# CSS PERSONALIZADO (CORRIGIDO - SEM ERRO DE FECHAMENTO)
+# ============================================================================
+
+st.markdown("""
+<style>
+    * {
+        font-family: 'Times New Roman', Times, serif !important;
+    }
+
+    .stApp {
+        background-color: #0a0a0a !important;
+    }
+
+    .main > div {
+        background-color: #0a0a0a !important;
+    }
+
+    h1, h2, h3, h4, h5, h6,
+    .stMarkdown h1,
+    .stMarkdown h2,
+    .stMarkdown h3 {
+        color: #2ecc71 !important;
+        font-weight: bold !important;
+    }
+
+    p, li, span, div, .stMarkdown p {
+        color: #ffffff !important;
+    }
+
+    label, .stTextInput label, .stNumberInput label, .stSelectbox label {
+        color: #a8e6cf !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+    }
+
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0a0a0a, #1a1a1a) !important;
+        border-right: 2px solid #2ecc71 !important;
+    }
+
+    .stSidebar .stMarkdown p,
+    .stSidebar .stMarkdown li,
+    .stSidebar .stCaption {
+        color: #a8e6cf !important;
+    }
+
+    .stButton button {
+        background: linear-gradient(135deg, #1a5f3e, #2ecc71);
+        color: white !important;
+        font-weight: bold;
+        border: none;
+        border-radius: 30px;
+        padding: 0.75rem 2rem;
+        transition: 0.3s;
+        width: 100%;
+    }
+
+    .stButton button:hover {
+        transform: scale(1.03);
+        box-shadow: 0 4px 15px rgba(46,204,113,0.5);
+    }
+
+    input, .stTextInput input, .stNumberInput input {
+        color: #1a1a1a !important;
+        background-color: #ffffff !important;
+        border: 2px solid #2ecc71 !important;
+        border-radius: 8px !important;
+        padding: 8px !important;
+        font-weight: 500 !important;
+    }
+
+    input:focus {
+        border-color: #1a5f3e !important;
+        box-shadow: 0 0 0 2px rgba(46,204,113,0.3) !important;
+    }
+
+    .metric-card {
+        background: linear-gradient(135deg, #ffffff, #f8f8f8) !important;
+        padding: 1rem;
+        border-radius: 18px;
+        text-align: center;
+        border: 2px solid #2ecc71 !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        margin-bottom: 1rem;
+    }
+
+    .metric-card h3 {
+        color: #0d5c2a !important;
+        font-weight: bold !important;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+    }
+
+    .metric-card h2 {
+        color: #1a5f3e !important;
+        font-size: 2.2rem !important;
+        font-weight: 900 !important;
+        margin: 0;
+    }
+
+    .metric-card small {
+        color: #2c5a3a !important;
+        font-weight: 500 !important;
+    }
+
+    .result-card {
+        background: linear-gradient(135deg, #ffffff, #f0f0f0) !important;
+        padding: 1.5rem;
+        border-radius: 20px;
+        border: 2px solid #2ecc71 !important;
+        text-align: center;
+        margin-top: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .result-card h2 {
+        color: #0d5c2a !important;
+        font-weight: bold !important;
+    }
+
+    .result-card p {
+        color: #1a5f3e !important;
+        font-weight: 500 !important;
+    }
+
+    .result-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #1a5f3e !important;
+    }
+
+    .progress-container {
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .progress-bar {
+        background: linear-gradient(90deg, #1a5f3e, #2ecc71);
+        color: white;
+        text-align: center;
+        padding: 8px;
+        font-weight: bold;
+    }
+
+    .dataframe {
+        background-color: white !important;
+        border-radius: 15px !important;
+        overflow: hidden;
+    }
+
+    .dataframe th {
+        background: linear-gradient(135deg, #1a5f3e, #2ecc71) !important;
+        color: white !important;
+        font-weight: bold !important;
+        padding: 10px !important;
+    }
+
+    .dataframe td {
+        color: #1a1a1a !important;
+        background-color: white !important;
+        padding: 8px !important;
+    }
+
+    .stAlert {
+        border-radius: 15px !important;
+        border-left: 5px solid !important;
+        padding: 1rem !important;
+    }
+
+    .stAlert p {
+        color: #1a1a1a !important;
+        font-weight: 500 !important;
+    }
+
+    .stAlert.st-success {
+        background-color: #d4edda !important;
+        border-left-color: #28a745 !important;
+    }
+
+    .stAlert.st-success p {
+        color: #155724 !important;
+    }
+
+    .stAlert.st-error {
+        background-color: #f8d7da !important;
+        border-left-color: #dc3545 !important;
+    }
+
+    .stAlert.st-error p {
+        color: #721c24 !important;
+    }
+
+    .stAlert.st-warning {
+        background-color: #fff3cd !important;
+        border-left-color: #ffc107 !important;
+    }
+
+    .stAlert.st-warning p {
+        color: #856404 !important;
+    }
+
+    .stAlert.st-info {
+        background-color: #d1ecf1 !important;
+        border-left-color: #17a2b8 !important;
+    }
+
+    .stAlert.st-info p {
+        color: #0c5460 !important;
+    }
+
+    .streamlit-expanderHeader {
+        background: linear-gradient(135deg, #1a5f3e, #2ecc71) !important;
+        border-radius: 10px !important;
+        color: white !important;
+        font-weight: bold !important;
+    }
+
+    .streamlit-expanderHeader p {
+        color: white !important;
+    }
+
+    .streamlit-expanderContent {
+        background-color: #ffffff !important;
+        border-radius: 0 0 10px 10px !important;
+        padding: 15px !important;
+    }
+
+    .streamlit-expanderContent p {
+        color: #1a1a1a !important;
+    }
+
+    .stRadio > div {
+        gap: 15px;
+    }
+
+    .stRadio label {
+        background: #2c3e50 !important;
+        color: #a8e6cf !important;
+        padding: 8px 20px !important;
+        border-radius: 30px !important;
+        border: 1px solid #2ecc71 !important;
+    }
+
+    .stRadio label:hover {
+        background: #1a5f3e !important;
+        color: white !important;
+    }
+
+    .stSelectbox div[data-baseweb="select"] {
+        background-color: white !important;
+        border-radius: 8px !important;
+        border: 1px solid #2ecc71 !important;
+    }
+
+    .stSelectbox div[data-baseweb="select"] span {
+        color: #1a1a1a !important;
+    }
+
+    hr {
+        border: none;
+        height: 3px;
+        background: linear-gradient(90deg, #1a5f3e, #2ecc71, #1a5f3e);
+        margin: 2rem 0;
+    }
+
+    .stCaption, footer {
+        color: #a8e6cf !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ============================================================================
+# CABECALHO
+# ============================================================================
+
+st.markdown("""
+<div style="background: linear-gradient(135deg, #1a5f3e, #2ecc71); padding: 2rem; border-radius: 20px; text-align: center; margin-bottom: 2rem;">
+    <h1 style="color: white;">🌾 Classificador Inteligente de Fertilidade do Solo</h1>
+    <p style="font-size: 1.2rem; color: white;">Baseado no Sistema Brasileiro de Classificacao de Solos (SiBCS) - Embrapa</p>
+</div>
+""", unsafe_allow_html=True)
+
+# ============================================================================
+# SIDEBAR
+# ============================================================================
+
+with st.sidebar:
+    st.image(
+        "https://cdn-icons-png.flaticon.com/512/2934/2934128.png",
+        width=80
+    )
+
+    st.markdown("### 📊 Sobre o Sistema")
+
+    st.markdown("""
+    Este classificador utiliza parametros do **SiBCS (Embrapa)** para:
+
+    - ✅ Avaliacao da fertilidade do solo
+    - ✅ Classificacao agricola
+    - ✅ Recomendacao de calagem
+    - ✅ Relatorios tecnicos
+    - ✅ Calculo de CTC e saturacao por bases
+    """)
+
+    st.markdown("---")
+
+    st.caption("Versao 3.0")
+    st.caption("Desenvolvido em Streamlit")
+
+# ============================================================================
+# SESSION STATE
+# ============================================================================
+
+if "dados_basicos" not in st.session_state:
+    st.session_state.dados_basicos = {}
+
+if "dados_calculados" not in st.session_state:
+    st.session_state.dados_calculados = {}
+
+# ============================================================================
+# MENU
+# ============================================================================
+
+menu = st.radio(
+    "Navegacao",
+    [
+        "📊 1. Dados do Solo",
+        "🌱 2. Classificacao",
+        "📈 3. Relatorio",
+        "ℹ️ 4. Metodos"
+    ],
+    horizontal=True,
+    label_visibility="collapsed"
+)
+
+# ============================================================================
+# DICIONARIO DAS CULTURAS
+# ============================================================================
+
+necessidades_culturas = {
+    "Soja": {
+        "v_desejado": 60,
+        "n_min": 40,
+        "p_min": 15,
+        "k_min": 0.35,
+        "ph_min": 5.5,
+        "ph_max": 6.5
+    },
+    "Milho (grao)": {
+        "v_desejado": 65,
+        "n_min": 50,
+        "p_min": 20,
+        "k_min": 0.40,
+        "ph_min": 5.5,
+        "ph_max": 6.5
+    },
+    "Feijao": {
+        "v_desejado": 65,
+        "n_min": 35,
+        "p_min": 20,
+        "k_min": 0.35,
+        "ph_min": 5.5,
+        "ph_max": 6.5
+    },
+    "Cafe": {
+        "v_desejado": 70,
+        "n_min": 40,
+        "p_min": 25,
+        "k_min": 0.40,
+        "ph_min": 5.5,
+        "ph_max": 6.5
+    },
+    "Pastagem": {
+        "v_desejado": 50,
+        "n_min": 30,
+        "p_min": 10,
+        "k_min": 0.25,
+        "ph_min": 5.0,
+        "ph_max": 6.5
+    }
+}
+
+# ============================================================================
+# ABA 1 - DADOS DO SOLO
+# ============================================================================
+
+if menu == "📊 1. Dados do Solo":
+
+    st.markdown("## 📋 Dados Basicos do Solo")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.markdown("### 🧪 Macronutrientes")
+
+        nitrogen = st.text_input(
+            "🌱 Nitrogenio (N) - mg/dm3",
+            value="30.0",
+            key="n_input"
+        )
+
+        phosphorus = st.text_input(
+            "🔴 Fosforo (P) - mg/dm3",
+            value="20.0",
+            key="p_input"
+        )
+
+        potassium = st.text_input(
+            "🟡 Potassio (K+) - cmolc/dm3",
+            value="0.25",
+            key="k_input"
+        )
+
+        st.markdown("### 🌿 Materia Organica")
+
+        organic_matter = st.text_input(
+            "🌱 Materia Organica (g/kg)",
+            value="25.0",
+            key="om_input"
+        )
+
+    with col2:
+
+        st.markdown("### ⚖️ Densidade")
+
+        bulk_density = st.text_input(
+            "📦 Densidade do Solo (g/cm3)",
+            value="1.20",
+            key="bd_input"
+        )
+
+        particle_density = st.text_input(
+            "💎 Densidade de Particula (g/cm3)",
+            value="2.65",
+            key="pd_input"
+        )
+
+        st.markdown("### 🏺 Textura")
+
+        sand = st.text_input("🏖️ Areia (g/kg)", value="350", key="sand_input")
+        silt = st.text_input("🏞️ Silte (g/kg)", value="300", key="silt_input")
+        clay = st.text_input("🏺 Argila (g/kg)", value="350", key="clay_input")
+
+        try:
+            soma_textura = (
+                float(sand.replace(",", ".")) +
+                float(silt.replace(",", ".")) +
+                float(clay.replace(",", "."))
+            )
+
+            if abs(soma_textura - 1000) > 10:
+                st.warning(f"⚠️ Soma da textura = {soma_textura:.0f} g/kg. O ideal é 1000 g/kg.")
+
+        except:
+            pass
+
+    st.markdown("---")
+
+    if st.button("✅ SALVAR DADOS BASICOS", key="salvar_basicos"):
+
+        try:
+            st.session_state.dados_basicos = {
+                "nitrogen": float(nitrogen.replace(",", ".")),
+                "phosphorus": float(phosphorus.replace(",", ".")),
+                "potassium": float(potassium.replace(",", ".")),
+                "organic_matter": float(organic_matter.replace(",", ".")),
+                "bulk_density": float(bulk_density.replace(",", ".")),
+                "particle_density": float(particle_density.replace(",", ".")),
+                "sand": float(sand.replace(",", ".")),
+                "silt": float(silt.replace(",", ".")),
+                "clay": float(clay.replace(",", "."))
+            }
+
+            st.success("✅ Dados basicos salvos com sucesso! Vá para a aba 'Classificacao'.")
+
+        except ValueError:
+            st.error("❌ Verifique os valores numericos inseridos. Use ponto decimal (ex: 1.5)")
+
+# ============================================================================
+# ABA 2 - CLASSIFICACAO
+# ============================================================================
+
+elif menu == "🌱 2. Classificacao":
+
+    if not st.session_state.dados_basicos:
+        st.warning("⚠️ Preencha primeiro os dados basicos na aba 'Dados do Solo'.")
+        st.stop()
+
+    st.markdown("## 🌱 Classificacao da Fertilidade")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        ph = st.text_input(
+            "🧪 pH do Solo",
+            value="6.0",
+            key="ph_input"
+        )
+
+        aluminum = st.text_input(
+            "⚠️ Aluminio (Al3+) - cmolc/dm3",
+            value="0.50",
+            key="al_input"
+        )
+
+        h_al = st.text_input(
+            "📊 H + Al - cmolc/dm3",
+            value="3.50",
+            key="hal_input"
+        )
+
+    with col2:
+
+        calcium = st.text_input(
+            "🥛 Calcio (Ca2+) - cmolc/dm3",
+            value="3.00",
+            key="ca_input"
+        )
+
+        magnesium = st.text_input(
+            "🧂 Magnesio (Mg2+) - cmolc/dm3",
+            value="1.50",
+            key="mg_input"
+        )
+
+        cultura = st.selectbox(
+            "🌾 Cultura",
+            list(necessidades_culturas.keys()),
+            key="cultura_select"
+        )
+
+    st.markdown("---")
+
+    if st.button("🔬 CALCULAR CLASSIFICACAO", key="calcular_classificacao"):
+
+        try:
+            dados = st.session_state.dados_basicos.copy()
+
+            dados["ph"] = float(ph.replace(",", "."))
+            dados["aluminum"] = float(aluminum.replace(",", "."))
+            dados["h_al"] = float(h_al.replace(",", "."))
+            dados["calcium"] = float(calcium.replace(",", "."))
+            dados["magnesium"] = float(magnesium.replace(",", "."))
+
+            sb = dados["calcium"] + dados["magnesium"] + dados["potassium"]
+            ctc_efetiva = sb + dados["aluminum"]
+            ctc_potencial = sb + dados["h_al"]
+            v_percent = (sb / ctc_potencial * 100) if ctc_potencial > 0 else 0
+            m_percent = (dados["aluminum"] / ctc_efetiva * 100) if ctc_efetiva > 0 else 0
+
+            st.session_state.dados_calculados = dados
+            st.session_state.sb = sb
+            st.session_state.ctc_potencial = ctc_potencial
+            st.session_state.v_percent = v_percent
+            st.session_state.m_percent = m_percent
+            st.session_state.cultura = cultura
+
+            st.success("✅ Classificacao realizada com sucesso!")
+
+        except ValueError as e:
+            st.error(f"❌ Erro ao converter os dados: {e}")
+
+    # ========================
+    # EXIBIR RESULTADOS
+    # ========================
+
+    if "v_percent" in st.session_state:
+
+        dados = st.session_state.dados_calculados
+        sb = st.session_state.sb
+        ctc_potencial = st.session_state.ctc_potencial
+        v_percent = st.session_state.v_percent
+        m_percent = st.session_state.m_percent
+
+        st.markdown("---")
+        st.markdown("## 📊 Resultados da Analise")
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        with col1:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>🟢 Soma de Bases (SB)</h3>
+                <h2>{sb:.2f}</h2>
+                <small>cmolc/dm3</small>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with col2:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>🟡 CTC Potencial</h3>
+                <h2>{ctc_potencial:.2f}</h2>
+                <small>cmolc/dm3</small>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with col3:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>🟢 Saturacao por Bases</h3>
+                <h2>{v_percent:.1f}%</h2>
+                <small>V%</small>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with col4:
+            st.markdown(f"""
+            <div class="metric-card">
+                <h3>🔴 Saturacao por Al</h3>
+                <h2>{m_percent:.1f}%</h2>
+                <small>m%</small>
+            </div>
+            """, unsafe_allow_html=True)
+
+        # Barra de progresso
+        st.markdown("### 📈 Indice de Fertilidade (V%)")
+
+        progress_html = f"""
+        <div class="progress-container">
+            <div class="progress-bar" style="width:{min(v_percent, 100)}%;">
+                {v_percent:.1f}%
+            </div>
+        </div>
+        """
+        st.markdown(progress_html, unsafe_allow_html=True)
+
+        # Classificacao
+        if v_percent >= 70:
+            classe = "Eutrofico (Muito Fertil)"
+            cor = "🟢"
+        elif v_percent >= 50:
+            classe = "Eutrofico (Fertil)"
+            cor = "🟢"
+        elif v_percent >= 25:
+            classe = "Distrofico (Baixa Fertilidade)"
+            cor = "🟡"
+        else:
+            classe = "Alico (Muito Pobre)"
+            cor = "🔴"
+
+        resultado_html = f"""
+        <div class="result-card">
+            <h2>{cor} Classificacao SiBCS</h2>
+            <p class="result-number">{classe}</p>
+        </div>
+        """
+        st.markdown(resultado_html, unsafe_allow_html=True)
+
+        # Adequacao
+        st.markdown("## 🌾 Adequacao da Cultura")
+        nec = necessidades_culturas[st.session_state.cultura]
+
+        if v_percent >= nec["v_desejado"]:
+            st.success(f"✅ V% = {v_percent:.1f}% - Adequado para {st.session_state.cultura}")
+        else:
+            st.error(f"❌ V% = {v_percent:.1f}% - Necessario calagem para {st.session_state.cultura}")
+
+        if dados["phosphorus"] >= nec["p_min"]:
+            st.success(f"✅ Fosforo = {dados['phosphorus']:.1f} mg/dm3 - Adequado")
+        else:
+            st.error(f"❌ Fosforo = {dados['phosphorus']:.1f} mg/dm3 - Abaixo do ideal")
+
+        if dados["potassium"] >= nec["k_min"]:
+            st.success(f"✅ Potassio = {dados['potassium']:.2f} cmolc/dm3 - Adequado")
+        else:
+            st.error(f"❌ Potassio = {dados['potassium']:.2f} cmolc/dm3 - Abaixo do ideal")
+
+        if nec["ph_min"] <= dados["ph"] <= nec["ph_max"]:
+            st.success(f"✅ pH = {dados['ph']:.1f} - Adequado")
+        else:
+            st.error(f"❌ pH = {dados['ph']:.1f} - Fora da faixa ideal")
+
+        # Score
+        score = 0
+        if v_percent >= 70:
+            score += 5
+        elif v_percent >= 50:
+            score += 3
+        if dados["phosphorus"] >= 20:
+            score += 3
+        if dados["potassium"] >= 0.35:
+            score += 3
+        if dados["aluminum"] < 0.5:
+            score += 4
+        if 5.5 <= dados["ph"] <= 6.5:
+            score += 5
+
+        st.markdown("---")
+
+        if score >= 15:
+            resultado = "🟢 ALTA FERTILIDADE"
+        elif score >= 8:
+            resultado = "🟡 FERTILIDADE MEDIA"
+        else:
+            resultado = "🔴 BAIXA FERTILIDADE"
+
+        resultado_final_html = f"""
+        <div class="result-card">
+            <h2>RESULTADO FINAL</h2>
+            <p class="result-number">{resultado}</p>
+            <p>Score: {score}/20 pontos</p>
+        </div>
+        """
+        st.markdown(resultado_final_html, unsafe_allow_html=True)
+
+# ============================================================================
+# ABA 3 - RELATORIO
+# ============================================================================
+
+elif menu == "📈 3. Relatorio":
+
+    st.markdown("## 📈 Relatorio Tecnico")
+
+    if "v_percent" not in st.session_state:
+        st.warning("⚠️ Execute a classificacao primeiro na aba 'Classificacao'.")
+    else:
+        dados = st.session_state.dados_calculados
+
+        relatorio = pd.DataFrame({
+            "Parametro": [
+                "pH",
+                "Nitrogenio (N)",
+                "Fosforo (P)",
+                "Potassio (K+)",
+                "Calcio (Ca2+)",
+                "Magnesio (Mg2+)",
+                "Aluminio (Al3+)",
+                "H + Al",
+                "Soma de Bases (SB)",
+                "CTC Potencial",
+                "Saturacao por Bases (V%)",
+                "Saturacao por Al (m%)",
+                "Materia Organica",
+                "Densidade do Solo"
+            ],
+            "Valor": [
+                f"{dados['ph']:.1f}",
+                f"{dados['nitrogen']:.1f} mg/dm3",
+                f"{dados['phosphorus']:.1f} mg/dm3",
+                f"{dados['potassium']:.2f} cmolc/dm3",
+                f"{dados['calcium']:.2f} cmolc/dm3",
+                f"{dados['magnesium']:.2f} cmolc/dm3",
+                f"{dados['aluminum']:.2f} cmolc/dm3",
+                f"{dados['h_al']:.2f} cmolc/dm3",
+                f"{st.session_state.sb:.2f} cmolc/dm3",
+                f"{st.session_state.ctc_potencial:.2f} cmolc/dm3",
+                f"{st.session_state.v_percent:.1f}%",
+                f"{st.session_state.m_percent:.1f}%",
+                f"{dados['organic_matter']:.1f} g/kg",
+                f"{dados['bulk_density']:.2f} g/cm3"
+            ]
+        })
+
+        st.dataframe(relatorio, hide_index=True, use_container_width=True)
+
+        csv = relatorio.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Baixar Relatorio (CSV)",
+            data=csv,
+            file_name="relatorio_solo.csv",
+            mime="text/csv",
+            key="download_csv"
+        )
+
+# ============================================================================
+# MÉTODOS
+# ============================================================================
+
+elif menu == "ℹ️ 4. Métodos":
+
+    st.markdown("## ℹ️ Métodos Utilizados")
+
+    with st.expander("📊 Saturação por Bases (V%)"):
+
+        st.markdown("""
+### Fórmula:
+
+V% = (SB / CTC) × 100
+
+Onde:
+
+- SB = Soma de Bases
+- CTC = Capacidade de Troca de Cátions
+        """)
+
+    with st.expander("🔬 Saturação por Alumínio (m%)"):
+
+        st.markdown("""
+### Fórmula:
+
+m% = (Al³⁺ / CTC efetiva) × 100
+        """)
+
+    with st.expander("🌾 Interpretação Agronômica"):
+
+        st.markdown("""
+| V% | Interpretação |
+|---|---|
+| > 70 | Muito fértil |
+| 50-70 | Fértil |
+| 25-50 | Distrófico |
+| < 25 | Álico |
+        """)
+
+# ============================================================================
+# RODAPÉ
 # ============================================================================
 
 st.markdown("---")
-st.caption("© 2026 - Classificador de Fertilidade do Solo | Baseado no SiBCS - Embrapa")
+
+st.caption(
+    "© 2026 - Classificador de Fertilidade do Solo | SiBCS - Embrapa"
+)
