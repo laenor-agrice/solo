@@ -1175,59 +1175,59 @@ st.markdown(f"""
 
 st.markdown("## 🌾 Adequação da Cultura")
 
-     nec = necessidades_culturas[
-        st.session_state.cultura
-    ]
+    nec = necessidades_culturas[
+    st.session_state.cultura
+]
 
-    if v_percent >= nec["v_desejado"]:
+ if v_percent >= nec["v_desejado"]:
 
-        st.success(
-              "✅ Saturação por bases adequada"
-          )
+     st.success(
+          "✅ Saturação por bases adequada"
+      )
 
-     else:
+  else:
 
-         st.error(
-             "❌ Necessidade de calagem"
-         )
+      st.error(
+            "❌ Necessidade de calagem"
+      )
 
-     if dados["phosphorus"] >= nec["p_min"]:
+ if dados["phosphorus"] >= nec["p_min"]:
 
-         st.success(
-              "✅ Fósforo adequado"
-         )
+     st.success(
+          "✅ Fósforo adequado"
+      )
 
-     else:
+ else:
 
-         st.error(
-              "❌ Fósforo abaixo do ideal"
-           )
+     st.error(
+            "❌ Fósforo abaixo do ideal"
+       )
 
-     if dados["potassium"] >= nec["k_min"]:
+ if dados["potassium"] >= nec["k_min"]:
 
-         st.success(
-             "✅ Potássio adequado"
-         )
+     st.success(
+          "✅ Potássio adequado"
+      )
 
-     else:
+    else:
+
+    st.error(
+         "❌ Potássio abaixo do ideal"
+       )
+
+    if (
+      nec["ph_min"] <= dados["ph"] <= nec["ph_max"]
+  ):
+
+     st.success(
+          "✅ pH adequado"
+       )
+
+  else:
 
         st.error(
-             "❌ Potássio abaixo do ideal"
-           )
-
-      if (
-         nec["ph_min"] <= dados["ph"] <= nec["ph_max"]
-     ):
-
-         st.success(
-             "✅ pH adequado"
-          )
-
-     else:
-
-         st.error(
-            "❌ pH fora da faixa ideal"
-          )
+          "❌ pH fora da faixa ideal"
+      )
 
         # =====================================================================
         # SCORE
