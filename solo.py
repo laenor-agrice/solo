@@ -307,6 +307,74 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
+# CAIXAS DOS RESULTADOS
+# ============================================================================
+
+st.markdown("""
+<style>
+
+/* ==========================================================================
+   CONTAINER DOS RESULTADOS
+========================================================================== */
+
+.analysis-box {
+    background: linear-gradient(145deg, #0f172a, #111827);
+    border: 2px solid #2563eb;
+    border-left: 6px solid #60a5fa;
+    border-radius: 18px;
+    padding: 22px;
+    margin-top: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 0 18px rgba(37,99,235,0.18);
+    transition: all 0.3s ease;
+}
+
+/* Efeito hover */
+
+.analysis-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 28px rgba(96,165,250,0.35);
+}
+
+/* Título do resultado */
+
+.analysis-box h3 {
+    color: #60a5fa !important;
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+/* Texto interno */
+
+.analysis-box p {
+    color: #ffffff !important;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+/* Número destacado */
+
+.analysis-highlight {
+    color: #93c5fd !important;
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+/* Linha separadora */
+
+.analysis-divider {
+    height: 2px;
+    background: linear-gradient(to right, #2563eb, transparent);
+    margin: 12px 0;
+    border-radius: 10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ============================================================================
 # SIDEBAR
 # ============================================================================
 
