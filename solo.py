@@ -919,14 +919,14 @@ elif menu == "🌱 2. Classificacao":
             # IA - CLASSIFICAÇÃO AUTOMÁTICA
             # ==================================================
 
-entrada_ia = pd.DataFrame([[
+            entrada_ia = pd.DataFrame([[
 
-    dados["nitrogen"],
-    dados["phosphorus"],
-    dados["potassium"],
-    dados["ph"],
-    dados["organic_matter"],
-    dados["bulk_density"]
+                dados["nitrogen"],
+                dados["phosphorus"],
+                dados["potassium"],
+                dados["ph"],
+                dados["organic_matter"],
+                dados["bulk_density"]
 
 ]], columns=features)
 
