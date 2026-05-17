@@ -491,9 +491,6 @@ st.markdown("---")
 st.caption("© 2025 - Classificador de Fertilidade do Solo | Baseado no SiBCS - Embrapa")
 
 
-# Cole isto no FINAL do solo.py
-from pyngrok import ngrok
-import time
 
 # Aguarda o Streamlit iniciar
 time.sleep(3)
