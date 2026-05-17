@@ -538,70 +538,160 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ========== CORREÇÃO ESPECÍFICA PARA ABA DE CALAGEM ==========
+# ========== CORREÇÃO DE VISIBILIDADE - TEXTO BRANCO E VERDE VÍVIDO ==========
 st.markdown("""
 <style>
-    /* Forçar texto escuro na aba de calagem */
-    .stMarkdown p, .stMarkdown li, .stMarkdown span {
-        color: #1a2a1a !important;
+    /* Garantir texto branco em todo o conteúdo escuro */
+    .stMarkdown p, .stMarkdown li, .stMarkdown span, .stMarkdown div {
+        color: #ffffff !important;
     }
     
-    /* Corrigir textos dentro de info boxes */
-    .stAlert .stMarkdown p, .stAlert p {
-        color: #1a2a1a !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Corrigir métricas na calagem */
+    /* Métricas - texto branco com números destacados */
     div[data-testid="stMetric"] label {
-        color: #0d2e1d !important;
+        color: #a8e6cf !important;
         font-weight: bold !important;
+        font-size: 1rem !important;
     }
     
     div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
-        color: #0a4a2a !important;
+        color: #2ecc71 !important;
+        font-size: 2.2rem !important;
         font-weight: 900 !important;
+        text-shadow: 0 0 5px rgba(46,204,113,0.3) !important;
     }
     
-    /* Corrigir textos dos sliders e labels */
-    .stSlider label, .stNumberInput label, .stSelectbox label, .stRadio label {
-        color: #1a2a1a !important;
-        font-weight: 600 !important;
+    div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {
+        color: #f1c40f !important;
+        font-weight: bold !important;
     }
     
-    /* Corrigir textos dos expanders na calagem */
-    .streamlit-expanderHeader p {
-        color: white !important;
-    }
-    
-    /* Garantir que textos do success/warning/info fiquem escuros */
-    .stAlert.st-success p, .stAlert.st-warning p, .stAlert.st-info p {
+    /* Alertas/Success/Warning/Info - texto escuro porque fundo é claro */
+    .stAlert p, .stAlert li, .stAlert span {
         color: #1a2a1a !important;
     }
     
-    /* Cor específica para textos com .st-warning */
-    .stAlert.st-warning {
-        background: #fff3cd !important;
+    .stAlert.st-success p, .stAlert.st-success li {
+        color: #155724 !important;
     }
     
-    .stAlert.st-warning p {
+    .stAlert.st-warning p, .stAlert.st-warning li {
         color: #856404 !important;
     }
     
-    /* Garantir legibilidade em todas as abas */
-    .st-emotion-cache-1v0mbdj p, .st-emotion-cache-1v0mbdj li {
+    .stAlert.st-info p, .stAlert.st-info li {
+        color: #0c5460 !important;
+    }
+    
+    /* Expanders - texto branco no cabeçalho, escuro no conteúdo */
+    .streamlit-expanderHeader p {
+        color: white !important;
+        font-weight: bold !important;
+    }
+    
+    .streamlit-expanderContent p, .streamlit-expanderContent li {
         color: #1a2a1a !important;
     }
     
-    /* Inputs de número - texto escuro */
+    /* Labels dos inputs - texto verde claro */
+    label, .stSlider label, .stNumberInput label, .stSelectbox label, .stRadio label {
+        color: #a8e6cf !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Inputs - texto branco dentro */
     input {
-        color: #1a2a1a !important;
-        font-weight: 500 !important;
+        color: white !important;
+        background-color: #2c3e50 !important;
+        border: 1px solid #2ecc71 !important;
+        border-radius: 8px !important;
     }
     
-    /* Selectbox - texto escuro */
+    input:focus {
+        border-color: #2ecc71 !important;
+        box-shadow: 0 0 0 2px rgba(46,204,113,0.3) !important;
+    }
+    
+    /* Selectbox - texto branco */
     .stSelectbox div[data-baseweb="select"] span {
-        color: #1a2a1a !important;
+        color: white !important;
+    }
+    
+    .stSelectbox div[data-baseweb="select"] {
+        background-color: #2c3e50 !important;
+    }
+    
+    /* Radio buttons - texto verde claro */
+    .stRadio div[role="radiogroup"] label {
+        color: #a8e6cf !important;
+        background: #2c3e50 !important;
+        padding: 8px 20px !important;
+        border-radius: 30px !important;
+        transition: all 0.3s !important;
+    }
+    
+    .stRadio div[role="radiogroup"] label:hover {
+        background: #1a5f3e !important;
+        color: white !important;
+    }
+    
+    /* Sliders */
+    .stSlider div[data-baseweb="slider"] div {
+        color: #2ecc71 !important;
+    }
+    
+    .stSlider div[data-testid="stTickBar"] {
+        background: #2ecc71 !important;
+    }
+    
+    /* Números dos sliders */
+    .stSlider div[data-testid="stThumbValue"] {
+        color: #2ecc71 !important;
+        font-weight: bold !important;
+    }
+    
+    /* Títulos */
+    h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+        color: #2ecc71 !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+    }
+    
+    /* Texto de informação no sidebar */
+    .stSidebar .stMarkdown p, .stSidebar .stMarkdown li {
+        color: #a8e6cf !important;
+    }
+    
+    /* Valores das métricas na calagem */
+    .stMetric .stMetricValue {
+        color: #2ecc71 !important;
+    }
+    
+    /* Resultado da classificação */
+    .success-box h2, .success-box p {
+        color: #155724 !important;
+    }
+    
+    .warning-box h2, .warning-box p {
+        color: #856404 !important;
+    }
+    
+    .info-box h2, .info-box p {
+        color: #0c5460 !important;
+    }
+    
+    /* Footer */
+    footer p {
+        color: #a8e6cf !important;
+    }
+    
+    /* Links */
+    a {
+        color: #2ecc71 !important;
+        text-decoration: none !important;
+    }
+    
+    a:hover {
+        color: #27ae60 !important;
+        text-decoration: underline !important;
     }
 </style>
 """, unsafe_allow_html=True)
