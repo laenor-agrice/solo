@@ -1059,7 +1059,7 @@ elif menu == "📈 3. Relatorio":
         nc = ((v2 - v_percent) * ctc_potencial) / 100
 
             if nc < 0:
-                nc = 0
+             nc = 0
 
         prnt = 80
 
