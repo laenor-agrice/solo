@@ -598,6 +598,26 @@ def fazer_predicao_ia(dados):
         
         # Fazer predição
         predicao = modelo.predict(entrada_ia)
+
+        # Mapeamento de classes para texto legível
+        def mapear_classe_fertilidade(valor):
+            """Converte valores numéricos da IA em texto legível"""
+            mapeamento = {
+                0: "🔴 BAIXA FERTILIDADE",
+                1: "🟢 ALTA FERTILIDADE"
+            }
+            
+            # Se for string ou outro valor, tenta converter
+            if isinstance(valor, str):
+                return valor
+            
+            return mapeamento.get(valor, f"Classe {valor}")
+    # Se for string ou outro valor, tenta converter
+    if isinstance(valor, str):
+        return valor
+    
+    # Retorna o mapeamento ou valor original se não encontrar
+    return mapeamento.get(valor, f"Classe {valor}")
         
         if hasattr(modelo, 'classes_'):
             return modelo.classes_[predicao[0]], "Sucesso"
