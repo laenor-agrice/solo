@@ -1,12 +1,39 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import os
+import traceback
+
 # ==================================
 # CARREGAR MODELO IA
 # ==================================
 
-modelo = joblib.load('modelo.pkl')
-features = joblib.load('features.pkl')
+@st.cache_resource
+def carregar_modelo():
+    """Carrega o modelo e features com tratamento de erro"""
+    try:
+        # Verifica se os arquivos existem
+        if not os.path.exists('modelo.pkl'):
+            st.error("❌ Arquivo 'modelo.pkl' não encontrado!")
+            return None, None
+        
+        if not os.path.exists('features.pkl'):
+            st.error("❌ Arquivo 'features.pkl' não encontrado!")
+            return None, None
+        
+        modelo = joblib.load('modelo.pkl')
+        features = joblib.load('features.pkl')
+        
+        return modelo, features
+    
+    except Exception as e:
+        st.error(f"❌ Erro ao carregar o modelo de IA: {str(e)}")
+        st.code(traceback.format_exc())
+        return None, None
+
+# Carregar modelo e features
+modelo, features = carregar_modelo()
+
 # ============================================================================
 # CONFIGURACAO DA PAGINA
 # ============================================================================
@@ -350,7 +377,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
 """, unsafe_allow_html=True)
 
 #=============================================================
-# ABA 2
+# ABA 2 - CSS Adicional
 #=============================================================
 
 st.markdown("""
@@ -424,62 +451,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# CAIXAS DOS RESULTADOS PRINCIPAIS
-# ============================================================================
-
-st.markdown("""
-<style>
-
-/* Cards dos resultados */
-
-.result-box {
-    background: linear-gradient(145deg, #0f172a, #111827) !important;
-    border: 2px solid #2563eb !important;
-    border-radius: 18px !important;
-    padding: 22px !important;
-    margin-bottom: 15px !important;
-    box-shadow: 0 0 18px rgba(37,99,235,0.18) !important;
-    transition: all 0.3s ease !important;
-    text-align: center !important;
-}
-
-/* Hover */
-
-.result-box:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 0 28px rgba(96,165,250,0.35) !important;
-}
-
-/* Título */
-
-.result-title {
-    color: #93c5fd !important;
-    font-size: 1.15rem !important;
-    font-weight: 700 !important;
-    margin-bottom: 15px !important;
-}
-
-/* Valor */
-
-.result-value {
-    color: #ffffff !important;
-    font-size: 2.3rem !important;
-    font-weight: 900 !important;
-    margin-bottom: 8px !important;
-}
-
-/* Unidade */
-
-.result-unit {
-    color: #cbd5e1 !important;
-    font-size: 0.95rem !important;
-    font-weight: 500 !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# ============================================================================
 # SIDEBAR
 # ============================================================================
 
@@ -501,6 +472,17 @@ with st.sidebar:
     - ✅ Calculo de CTC e saturacao por bases
     """)
 
+    # Exibir status da IA na sidebar
+    st.markdown("---")
+    st.markdown("### 🤖 Status da IA")
+    
+    if modelo is not None and features is not None:
+        st.success("✅ IA carregada com sucesso!")
+        st.caption(f"Features: {len(features)} parâmetros")
+    else:
+        st.error("⚠️ IA não disponível")
+        st.caption("Verifique os arquivos modelo.pkl e features.pkl")
+
     st.markdown("---")
 
     st.caption("Versao 3.0")
@@ -515,6 +497,9 @@ if "dados_basicos" not in st.session_state:
 
 if "dados_calculados" not in st.session_state:
     st.session_state.dados_calculados = {}
+
+if "dados_salvos" not in st.session_state:
+    st.session_state.dados_salvos = False
 
 # MENU
 menu = st.radio(
@@ -640,6 +625,45 @@ necessidades_culturas = {
         "k_min": 0.25
     }
 }
+
+# ============================================================================
+# FUNÇÃO PARA PREDIÇÃO DA IA
+# ============================================================================
+
+def fazer_predicao_ia(dados):
+    """Faz a predição usando o modelo de IA carregado"""
+    
+    if modelo is None or features is None:
+        return None, "Modelo não disponível"
+    
+    try:
+        # Verificar se todas as features necessárias estão presentes
+        features_necessarias = [
+            "nitrogen", "phosphorus", "potassium", 
+            "ph", "organic_matter", "bulk_density"
+        ]
+        
+        for feature in features_necessarias:
+            if feature not in dados:
+                return None, f"Feature '{feature}' não encontrada"
+        
+        # Criar DataFrame com as mesmas colunas do treinamento
+        entrada_ia = pd.DataFrame([[
+            dados["nitrogen"],
+            dados["phosphorus"],
+            dados["potassium"],
+            dados["ph"],
+            dados["organic_matter"],
+            dados["bulk_density"]
+        ]], columns=features_necessarias)
+        
+        # Fazer predição
+        predicao = modelo.predict(entrada_ia)
+        
+        return predicao[0], "Sucesso"
+    
+    except Exception as e:
+        return None, f"Erro na predição: {str(e)}"
 
 # ============================================================================
 # ABA 1 - DADOS DO SOLO
@@ -793,10 +817,10 @@ if menu == "📊 1. Dados do Solo":
                 "Agora vá para a aba 'Classificação'."
             )
 
-        except ValueError:
+        except ValueError as e:
 
             st.error(
-                "❌ Verifique os valores numéricos inseridos."
+                f"❌ Verifique os valores numéricos inseridos. Erro: {str(e)}"
             )
 # ============================================================================
 # ABA 2 - CLASSIFICACAO
@@ -918,31 +942,43 @@ elif menu == "🌱 2. Classificacao":
             # ==================================================
             # IA - CLASSIFICAÇÃO AUTOMÁTICA
             # ==================================================
-
-            entrada_ia = pd.DataFrame([[
-
-                dados["nitrogen"],
-                dados["phosphorus"],
-                dados["potassium"],
-                dados["ph"],
-                dados["organic_matter"],
-                dados["bulk_density"]
-
-            ]], columns=features)
-
-            pred_ia = modelo.predict(entrada_ia)
-
+            
             st.markdown("---")
-
             st.markdown("## 🤖 Inteligência Artificial")
+            
+            if modelo is not None and features is not None:
+                predicao, status = fazer_predicao_ia(dados)
+                
+                if predicao is not None:
+                    st.success(f"🌾 Classe prevista pela IA: **{predicao}**")
+                    
+                    # Explicação da predição
+                    with st.expander("ℹ️ Sobre esta classificação"):
+                        st.markdown("""
+                        A IA analisou os seguintes parâmetros:
+                        - Nitrogênio (N)
+                        - Fósforo (P)
+                        - Potássio (K+)
+                        - pH do solo
+                        - Matéria Orgânica
+                        - Densidade do solo
+                        
+                        Com base nesses dados, o modelo classificou a fertilidade do solo.
+                        """)
+                else:
+                    st.warning(f"⚠️ IA não pôde fazer a predição: {status}")
+            else:
+                st.error("⚠️ Modelo de IA não disponível. Verifique os arquivos 'modelo.pkl' e 'features.pkl'.")
 
-            st.success(f"Classe prevista pela IA: {pred_ia[0]}")
-
-        except ValueError:
+        except ValueError as e:
 
             st.error(
-                "❌ Verifique os valores digitados."
+                f"❌ Verifique os valores digitados. Erro: {str(e)}"
             )
+        
+        except Exception as e:
+            st.error(f"❌ Erro inesperado: {str(e)}")
+            st.code(traceback.format_exc())
 
     # ==========================================================
     # MOSTRAR RESULTADOS
@@ -1231,210 +1267,4 @@ elif menu == "📈 3. Relatorio":
     csv = relatorio.to_csv(index=False).encode("utf-8")
 
     st.download_button(
-        label="📥 Baixar Relatorio (CSV)",
-        data=csv,
-        file_name="relatorio_solo.csv",
-        mime="text/csv",
-        key="download_csv"
-    )
-
-    # ==========================================================
-    # RECOMENDACOES
-    # ==========================================================
-
-    st.markdown("---")
-    st.markdown("## 🌾 Recomendações Agronômicas")
-
-    st.success(
-        f"✅ Cultura selecionada: {cultura}"
-    )
-
-    # ==========================================================
-    # CALAGEM
-    # ==========================================================
-
-    v2 = necessidades_culturas[
-        cultura
-    ]["v_desejado"]
-
-    nc = (
-        (v2 - v_percent)
-        * ctc_potencial
-    ) / 100
-
-    if nc < 0:
-        nc = 0
-
-    prnt = 80
-
-    nc_corrigida = nc * (100 / prnt)
-
-    # ==========================================================
-    # GESSAGEM
-    # ==========================================================
-
-    if dados["clay"] >= 350:
-        gesso = nc_corrigida * 0.5
-    else:
-        gesso = 0
-
-    # ==========================================================
-    # SESSION STATE
-    # ==========================================================
-
-    st.session_state.nc_corrigida = nc_corrigida
-    st.session_state.prnt = prnt
-    st.session_state.gesso = gesso
-
-    # ==========================================================
-    # RESULTADOS
-    # ==========================================================
-
-    st.info(
-        f"🪨 Aplicar {nc_corrigida:.2f} t/ha "
-        f"de calcário com PRNT {prnt}%"
-    )
-
-    if gesso > 0:
-
-        st.warning(
-            f"🌱 Recomenda-se gessagem de "
-            f"{gesso:.2f} t/ha"
-        )
-
-    else:
-
-        st.success(
-            "✅ Gessagem não necessária"
-        )
-
-    # ==========================================================
-    # ADUBACAO
-    # ==========================================================
-
-    if dados["phosphorus"] < 15:
-
-        st.error(
-            "🔴 Necessária adubação fosfatada"
-        )
-
-    else:
-
-        st.success(
-            "✅ Fósforo em nível adequado"
-        )
-
-    if dados["potassium"] < 0.30:
-
-        st.error(
-            "🔴 Necessária adubação potássica"
-        )
-
-    else:
-
-        st.success(
-            "✅ Potássio em nível adequado"
-        )
-# ============================================================================
-# MÉTODOS
-# ============================================================================
-
-elif menu == "ℹ️ 4. Métodos":
-
-    st.markdown("## ℹ️ Métodos Utilizados")
-
-    # ==========================================================
-    # SATURAÇÃO POR BASES
-    # ==========================================================
-
-    with st.expander("📊 Saturação por Bases (V%)"):
-
-        st.markdown("### Fórmula:")
-
-        st.latex(
-            r"V\% = \frac{SB}{CTC} \times 100"
-        )
-
-        st.markdown("""
-Onde:
-
-- SB = Soma de Bases
-- CTC = Capacidade de Troca de Cátions
-        """)
-
-    # ==========================================================
-    # SATURAÇÃO POR ALUMÍNIO
-    # ==========================================================
-
-    with st.expander("🔬 Saturação por Alumínio (m%)"):
-
-        st.markdown("### Fórmula:")
-
-        st.latex(
-            r"m\% = \frac{Al^{3+}}{CTC\ efetiva} \times 100"
-        )
-
-        st.markdown("""
-Onde:
-
-- Al³⁺ = Alumínio trocável
-- CTC efetiva = SB + Al³⁺
-        """)
-
-    # ==========================================================
-    # INTERPRETAÇÃO
-    # ==========================================================
-
-    with st.expander("🌾 Interpretação Agronômica"):
-
-        st.markdown("""
-| V% | Interpretação |
-|---|---|
-| > 70 | Muito fértil |
-| 50-70 | Fértil |
-| 25-50 | Distrófico |
-| < 25 | Álico |
-        """)
-
-    # ==========================================================
-    # CALAGEM
-    # ==========================================================
-
-    with st.expander("🪨 Cálculo da Calagem"):
-
-        st.markdown("### Fórmula utilizada:")
-
-        st.latex(
-            r"NC = \frac{(V_2 - V_1) \times CTC}{100}"
-        )
-
-        st.markdown("""
-Onde:
-
-- NC = Necessidade de calcário
-- V₂ = Saturação desejada
-- V₁ = Saturação atual
-- CTC = Capacidade de troca catiônica
-        """)
-
-    # ==========================================================
-    # GESSAGEM
-    # ==========================================================
-
-    with st.expander("🌱 Cálculo da Gessagem"):
-
-        st.markdown("""
-### Critério utilizado:
-
-- Solos com argila > 350 g/kg
-- Gessagem = 50% da dose de calcário
-        """)
-# ============================================================================
-# RODAPÉ
-# ============================================================================
-
-st.markdown("---")
-
-st.caption(
-    "© 2026 - Classificador de Fertilidade do Solo | Créditos ao SiBCS - Embrapa"
-)
+        label="📥 Baixar Relatorio (
