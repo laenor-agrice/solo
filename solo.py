@@ -168,8 +168,9 @@ st.markdown("""
     </h1>
 
     <p style="font-size:1.2rem !important; color:white !important;">
-    Baseado no Sistema Brasileiro de Classificação de Solos (SiBCS) - Embrapa
-</p>
+        Baseado no Sistema Brasileiro de Classificação de Solos (SiBCS) - Embrapa
+    </p>
+
 </div>
 """, unsafe_allow_html=True)
 
