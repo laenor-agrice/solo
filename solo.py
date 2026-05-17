@@ -13,378 +13,285 @@ st.set_page_config(
 )
 
 # ============================================================================
-# CSS PERSONALIZADO (CORRIGIDO DEFINITIVO - TEXTOS LEGÍVEIS)
+# CSS PERSONALIZADO - DESIGN ESCURO PROFISSIONAL
 # ============================================================================
 
 st.markdown("""
 <style>
-    /* =========================
-       CONFIGURACOES GERAIS
-    ========================= */
-
-    * {
-        font-family: 'Times New Roman', Times, serif !important;
-    }
-
-    .stApp {
-        background-color: #0a0a0a !important;
-    }
-
-    .main > div {
-        background-color: #0a0a0a !important;
-    }
-
-    /* =========================
-       TITULOS
-    ========================= */
-
-    h1, h2, h3, h4, h5, h6,
-    .stMarkdown h1,
-    .stMarkdown h2,
-    .stMarkdown h3 {
-        color: #2ecc71 !important;
-        font-weight: bold !important;
-    }
-
-    /* =========================
-       TEXTOS GERAIS
-    ========================= */
-
-    p, li, span, .stMarkdown p {
-        color: #ffffff !important;
-    }
-
-    /* =========================
-       LABELS
-    ========================= */
-
-    label, .stTextInput label, .stNumberInput label, .stSelectbox label {
-        color: #a8e6cf !important;
-        font-weight: 600 !important;
-        font-size: 0.95rem !important;
-    }
-
-    /* =========================
-       SIDEBAR
-    ========================= */
-
-    section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0a0a0a, #1a1a1a) !important;
-        border-right: 2px solid #2ecc71 !important;
-    }
-
-    .stSidebar .stMarkdown p,
-    .stSidebar .stMarkdown li,
-    .stSidebar .stCaption {
-        color: #a8e6cf !important;
-    }
-
-    /* =========================
-       BOTOES
-    ========================= */
-
-    .stButton button {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71) !important;
-        color: white !important;
-        font-weight: bold !important;
-        border: none !important;
-        border-radius: 30px !important;
-        padding: 0.75rem 2rem !important;
-        transition: 0.3s !important;
-        width: 100% !important;
-    }
-
-    .stButton button:hover {
-        transform: scale(1.03);
-        box-shadow: 0 4px 15px rgba(46,204,113,0.5);
-    }
-
-    /* =========================
-       INPUTS
-    ========================= */
-
-    input, textarea, .stTextInput input, .stNumberInput input {
-        color: #111111 !important;
-        background-color: #ffffff !important;
-        border: 2px solid #2ecc71 !important;
-        border-radius: 8px !important;
-        padding: 8px !important;
-        font-weight: 600 !important;
-    }
-
-    input:focus, textarea:focus {
-        border-color: #1a5f3e !important;
-        box-shadow: 0 0 0 2px rgba(46,204,113,0.3) !important;
-    }
-
-    /* =========================
-       CARDS DE METRICAS
-    ========================= */
-
-    .metric-card {
-        background: linear-gradient(135deg, #ffffff, #f4f4f4) !important;
-        padding: 1rem !important;
-        border-radius: 18px !important;
-        text-align: center !important;
-        border: 2px solid #2ecc71 !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.35) !important;
-        margin-bottom: 1rem !important;
-    }
-
-    .metric-card h3 {
-        color: #000000 !important;
-        font-weight: bold !important;
-        font-size: 1.05rem !important;
-        margin-bottom: 12px !important;
-    }
-
-    .metric-card h2 {
-        color: #000000 !important;
-        font-size: 2.2rem !important;
-        font-weight: bold !important;
-        margin: 0 !important;
-    }
-
-    .metric-card small {
-        color: #222222 !important;
-        font-size: 1rem !important;
-        font-weight: 600 !important;
-    }
-
-    /* =========================
-       CARD RESULTADO
-    ========================= */
-
-    .result-card {
-        background: linear-gradient(135deg, #ffffff, #f5f5f5) !important;
-        padding: 1.5rem !important;
-        border-radius: 20px !important;
-        border: 2px solid #2ecc71 !important;
-        text-align: center !important;
-        margin-top: 1rem !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.35) !important;
-    }
-
-    .result-card h2 {
-        color: #000000 !important;
-        font-weight: bold !important;
-        font-size: 1.8rem !important;
-    }
-
-    .result-card p {
-        color: #000000 !important;
-        font-size: 1.2rem !important;
-        font-weight: 700 !important;
-    }
-
-    .result-number {
-        color: #000000 !important;
-        font-size: 2rem !important;
-        font-weight: bold !important;
-    }
-
-    /* =========================
-       BARRA DE PROGRESSO
-    ========================= */
-
-    .progress-container {
-        width: 100% !important;
-        background-color: #d9d9d9 !important;
-        border-radius: 14px !important;
-        overflow: hidden !important;
-        margin-top: 10px !important;
-        margin-bottom: 15px !important;
-    }
-
-    .progress-bar {
-        background: linear-gradient(90deg, #1a5f3e, #2ecc71) !important;
-        color: white !important;
-        text-align: center !important;
-        padding: 10px !important;
-        font-weight: bold !important;
-        font-size: 1rem !important;
-    }
-
-    /* =========================
-       DATAFRAME
-    ========================= */
-
-    .dataframe {
-        background-color: white !important;
-        border-radius: 15px !important;
-        overflow: hidden !important;
-    }
-
-    .dataframe th {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71) !important;
-        color: white !important;
-        font-weight: bold !important;
-        padding: 10px !important;
-    }
-
-    .dataframe td {
-        color: #111111 !important;
-        background-color: white !important;
-        padding: 8px !important;
-    }
-
-    /* =========================
-       ALERTAS
-    ========================= */
-
-    .stAlert {
-        border-radius: 15px !important;
-        padding: 1rem !important;
-    }
-
-    .stAlert p {
-        color: #111111 !important;
-        font-weight: bold !important;
-        font-size: 1rem !important;
-    }
-
-    .stAlert.st-success {
-        background-color: #d4edda !important;
-        border-left: 5px solid #28a745 !important;
-    }
-
-    .stAlert.st-success p {
-        color: #155724 !important;
-    }
-
-    .stAlert.st-error {
-        background-color: #f8d7da !important;
-        border-left: 5px solid #dc3545 !important;
-    }
-
-    .stAlert.st-error p {
-        color: #721c24 !important;
-    }
-
-    .stAlert.st-warning {
-        background-color: #fff3cd !important;
-        border-left: 5px solid #ffc107 !important;
-    }
-
-    .stAlert.st-warning p {
-        color: #856404 !important;
-    }
-
-    .stAlert.st-info {
-        background-color: #d1ecf1 !important;
-        border-left: 5px solid #17a2b8 !important;
-    }
-
-    .stAlert.st-info p {
-        color: #0c5460 !important;
-    }
-
-    /* =========================
-       EXPANDER
-    ========================= */
-
-    .streamlit-expanderHeader {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71) !important;
-        border-radius: 10px !important;
-        color: white !important;
-        font-weight: bold !important;
-    }
-
-    .streamlit-expanderHeader p {
-        color: white !important;
-    }
-
-    .streamlit-expanderContent {
-        background-color: #ffffff !important;
-        border-radius: 0 0 10px 10px !important;
-        padding: 15px !important;
-    }
-
-    .streamlit-expanderContent p,
-    .streamlit-expanderContent li {
-        color: #111111 !important;
-    }
-
-    /* =========================
-       RADIO BUTTONS
-    ========================= */
-
-    .stRadio > div {
-        gap: 15px !important;
-    }
-
-    .stRadio label {
-        background: #2c3e50 !important;
-        color: #a8e6cf !important;
-        padding: 8px 20px !important;
-        border-radius: 30px !important;
-        border: 1px solid #2ecc71 !important;
-    }
-
-    .stRadio label:hover {
-        background: #1a5f3e !important;
-        color: white !important;
-    }
-
-    /* =========================
-       SELECTBOX
-    ========================= */
-
-    .stSelectbox div[data-baseweb="select"] {
-        background-color: white !important;
-        border-radius: 8px !important;
-        border: 2px solid #2ecc71 !important;
-    }
-
-    .stSelectbox div[data-baseweb="select"] span {
-        color: #111111 !important;
-        font-weight: 600 !important;
-    }
-
-    /* =========================
-       LINHA SEPARADORA
-    ========================= */
-
-    hr {
-        border: none !important;
-        height: 3px !important;
-        background: linear-gradient(90deg, #1a5f3e, #2ecc71, #1a5f3e) !important;
-        margin: 2rem 0 !important;
-    }
-
-    /* =========================
-       FOOTER
-    ========================= */
-
-    .stCaption, footer {
-        color: #a8e6cf !important;
-    }
-
-    /* =========================
-       METRICS DO STREAMLIT
-    ========================= */
-
-    div[data-testid="stMetric"] {
-        background: linear-gradient(135deg, #ffffff, #f8f9fa) !important;
-        padding: 1rem !important;
-        border-radius: 15px !important;
-        border: 2px solid #2ecc71 !important;
-    }
-
-    div[data-testid="stMetric"] label {
-        color: #000000 !important;
-        font-weight: bold !important;
-    }
-
-    div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
-        color: #000000 !important;
-        font-size: 1.8rem !important;
-        font-weight: 900 !important;
-    }
-
-    div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {
-        color: #1a5f3e !important;
-    }
+
+/* ==========================================================================
+   FUNDO GERAL
+========================================================================== */
+
+.stApp {
+    background: #050816 !important;
+    color: #ffffff !important;
+    font-family: 'Segoe UI', sans-serif !important;
+}
+
+.main > div {
+    background: #050816 !important;
+}
+
+/* ==========================================================================
+   TEXTOS GERAIS
+========================================================================== */
+
+html, body, p, span, div, li {
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   TITULOS
+========================================================================== */
+
+h1, h2, h3, h4, h5, h6 {
+    color: #4da6ff !important;
+    font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   SIDEBAR
+========================================================================== */
+
+section[data-testid="stSidebar"] {
+    background: #0b132b !important;
+    border-right: 2px solid #2563eb !important;
+}
+
+section[data-testid="stSidebar"] * {
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   INPUTS
+========================================================================== */
+
+.stTextInput input,
+.stNumberInput input,
+textarea,
+input {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #2563eb !important;
+    border-radius: 10px !important;
+    padding: 10px !important;
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   SELECTBOX
+========================================================================== */
+
+.stSelectbox div[data-baseweb="select"] {
+    background-color: #ffffff !important;
+    border-radius: 10px !important;
+    border: 2px solid #2563eb !important;
+}
+
+.stSelectbox span {
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   LABELS
+========================================================================== */
+
+label {
+    color: #dbeafe !important;
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   BOTÕES
+========================================================================== */
+
+.stButton button {
+    background: linear-gradient(135deg, #2563eb, #1e40af) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 0.7rem 1.5rem !important;
+    font-weight: bold !important;
+    transition: 0.3s ease !important;
+}
+
+.stButton button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(37, 99, 235, 0.6);
+}
+
+/* ==========================================================================
+   CARD RESULTADO
+========================================================================== */
+
+.result-card {
+    background: linear-gradient(145deg, #0f172a, #111827) !important;
+    border: 2px solid #2563eb !important;
+    border-radius: 18px !important;
+    padding: 25px !important;
+    margin-top: 20px !important;
+    box-shadow: 0 0 20px rgba(37,99,235,0.25) !important;
+}
+
+/* Título do card */
+
+.result-card h2 {
+    color: #60a5fa !important;
+    font-size: 2rem !important;
+    font-weight: 800 !important;
+}
+
+/* Texto do card */
+
+.result-card p {
+    color: #ffffff !important;
+    font-size: 1.15rem !important;
+    font-weight: 500 !important;
+}
+
+/* Número principal */
+
+.result-number {
+    color: #ffffff !important;
+    font-size: 2.8rem !important;
+    font-weight: 900 !important;
+}
+
+/* ==========================================================================
+   METRICS STREAMLIT
+========================================================================== */
+
+div[data-testid="stMetric"] {
+    background: #111827 !important;
+    border: 2px solid #2563eb !important;
+    border-radius: 16px !important;
+    padding: 1rem !important;
+    box-shadow: 0 0 15px rgba(37,99,235,0.15);
+}
+
+div[data-testid="stMetricLabel"] {
+    color: #93c5fd !important;
+    font-weight: 700 !important;
+}
+
+div[data-testid="stMetricValue"] {
+    color: #ffffff !important;
+    font-size: 2rem !important;
+    font-weight: 900 !important;
+}
+
+div[data-testid="stMetricDelta"] {
+    color: #22c55e !important;
+}
+
+/* ==========================================================================
+   DATAFRAME
+========================================================================== */
+
+.dataframe {
+    background-color: #ffffff !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+}
+
+.dataframe th {
+    background: #1e3a8a !important;
+    color: white !important;
+    font-weight: bold !important;
+}
+
+.dataframe td {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* ==========================================================================
+   ALERTAS
+========================================================================== */
+
+.stAlert {
+    border-radius: 14px !important;
+    border: none !important;
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   EXPANDER
+========================================================================== */
+
+.streamlit-expanderHeader {
+    background: #1e3a8a !important;
+    color: white !important;
+    border-radius: 10px !important;
+    font-weight: bold !important;
+}
+
+.streamlit-expanderContent {
+    background: #0f172a !important;
+    border-radius: 0 0 10px 10px !important;
+}
+
+.streamlit-expanderContent p,
+.streamlit-expanderContent li {
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   RADIO BUTTONS
+========================================================================== */
+
+.stRadio label {
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   LINHA
+========================================================================== */
+
+hr {
+    border: none !important;
+    height: 2px !important;
+    background: linear-gradient(to right, #2563eb, #60a5fa) !important;
+}
+
+/* ==========================================================================
+   TABS
+========================================================================== */
+
+button[data-baseweb="tab"] {
+    background-color: #111827 !important;
+    color: #ffffff !important;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+button[data-baseweb="tab"][aria-selected="true"] {
+    background-color: #2563eb !important;
+    color: white !important;
+}
+
+/* ==========================================================================
+   SCROLLBAR
+========================================================================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2563eb;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #60a5fa;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
