@@ -186,11 +186,11 @@ with st.sidebar:
     st.markdown("""
     Este classificador utiliza parâmetros do **SiBCS (Embrapa)** para:
 
-    - 🧪 Avaliação da fertilidade do solo
-    - 🌱 Classificação agrícola
-    - ⚖️ Recomendação de calagem
-    - 📈 Relatórios técnicos
-    - 🧱 Cálculo de CTC e saturação por bases
+    - Avaliação da fertilidade do solo
+    - Classificação agrícola
+    - Recomendação de calagem
+    - Relatórios técnicos
+    - Cálculo de CTC e saturação por bases
     """)
 
     st.markdown("---")
