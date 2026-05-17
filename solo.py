@@ -471,220 +471,250 @@ elif menu == "🌱 2. Classificação":
             )
 
     # =========================
-    # RESULTADOS
+# RESULTADOS
+# =========================
+
+if "v_percent" in st.session_state:
+
+    dados = st.session_state.dados_calculados
+
+    sb = st.session_state.sb
+    ctc_potencial = st.session_state.ctc_potencial
+    v_percent = st.session_state.v_percent
+    m_percent = st.session_state.m_percent
+
+    st.markdown("---")
+    st.markdown("## 📊 Resultados")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    # =========================
+    # CARD 1 - SB
     # =========================
 
-    if "v_percent" in st.session_state:
+    with col1:
 
-        dados = st.session_state.dados_calculados
-
-        sb = st.session_state.sb
-        ctc_potencial = st.session_state.ctc_potencial
-        v_percent = st.session_state.v_percent
-        m_percent = st.session_state.m_percent
-
-        st.markdown("---")
-        st.markdown("## 📊 Resultados")
-
-        col1, col2, col3, col4 = st.columns(4)
-
-        with col1:
-
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <h3>SB</h3>
-                    <h2>{sb:.2f}</h2>
-                    <small>cmolc/dm³</small>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with col2:
-
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <h3>CTC Potencial</h3>
-                    <h2>{ctc_potencial:.2f}</h2>
-                    <small>cmolc/dm³</small>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with col3:
-
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <h3>V%</h3>
-                    <h2>{v_percent:.1f}%</h2>
-                    <small>Saturação por bases</small>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        with col4:
-
-            st.markdown(
-                f"""
-                <div class="metric-card">
-                    <h3>m%</h3>
-                    <h2>{m_percent:.1f}%</h2>
-                    <small>Saturação por Al</small>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        # =========================
-        # BARRA DE PROGRESSO
-        # =========================
-
-        st.markdown("### 📈 Índice de Fertilidade")
+        html_sb = f"""
+        <div class="metric-card">
+            <h3>SB</h3>
+            <h2>{sb:.2f}</h2>
+            <small>cmolc/dm³</small>
+        </div>
+        """
 
         st.markdown(
-            f"""
-            <div class="progress-container">
-                <div class="progress-bar"
-                     style="width:{min(v_percent, 100)}%;">
-                     {v_percent:.1f}%
-                </div>
-            </div>
-            """,
+            html_sb,
             unsafe_allow_html=True
         )
 
-        # =========================
-        # CLASSIFICAÇÃO
-        # =========================
+    # =========================
+    # CARD 2 - CTC
+    # =========================
 
-        if v_percent >= 70:
-            classe = "Eutrófico (Muito Fértil)"
-            cor = "🟢"
+    with col2:
 
-        elif v_percent >= 50:
-            classe = "Eutrófico"
-            cor = "🟢"
-
-        elif v_percent >= 25:
-            classe = "Distrófico"
-            cor = "🟡"
-
-        else:
-            classe = "Álico"
-            cor = "🔴"
+        html_ctc = f"""
+        <div class="metric-card">
+            <h3>CTC Potencial</h3>
+            <h2>{ctc_potencial:.2f}</h2>
+            <small>cmolc/dm³</small>
+        </div>
+        """
 
         st.markdown(
-            f"""
-            <div class="result-card">
-                <h2>{cor} Classificação SiBCS</h2>
-                <p class="result-number">{classe}</p>
-            </div>
-            """,
+            html_ctc,
             unsafe_allow_html=True
         )
 
-        # =========================
-        # ADEQUAÇÃO
-        # =========================
+    # =========================
+    # CARD 3 - V%
+    # =========================
 
-        st.markdown("## 🌾 Adequação da Cultura")
+    with col3:
 
-        nec = necessidades_culturas[
-            st.session_state.cultura
-        ]
-
-        if v_percent >= nec["v_desejado"]:
-            st.success(
-                "✅ Saturação por bases adequada"
-            )
-        else:
-            st.error(
-                "❌ Necessidade de calagem"
-            )
-
-        if dados["phosphorus"] >= nec["p_min"]:
-            st.success(
-                "✅ Fósforo adequado"
-            )
-        else:
-            st.error(
-                "❌ Fósforo abaixo do ideal"
-            )
-
-        if dados["potassium"] >= nec["k_min"]:
-            st.success(
-                "✅ Potássio adequado"
-            )
-        else:
-            st.error(
-                "❌ Potássio abaixo do ideal"
-            )
-
-        if (
-            nec["ph_min"]
-            <= dados["ph"]
-            <= nec["ph_max"]
-        ):
-            st.success(
-                "✅ pH adequado"
-            )
-        else:
-            st.error(
-                "❌ pH fora da faixa ideal"
-            )
-
-        # =========================
-        # SCORE
-        # =========================
-
-        score = 0
-
-        if v_percent >= 70:
-            score += 5
-
-        elif v_percent >= 50:
-            score += 3
-
-        if dados["phosphorus"] >= 20:
-            score += 3
-
-        if dados["potassium"] >= 0.35:
-            score += 3
-
-        if dados["aluminum"] < 0.5:
-            score += 4
-
-        if 5.5 <= dados["ph"] <= 6.5:
-            score += 5
-
-        st.markdown("---")
-
-        if score >= 15:
-            resultado = "🟢 ALTA FERTILIDADE"
-
-        elif score >= 8:
-            resultado = "🟡 FERTILIDADE MÉDIA"
-
-        else:
-            resultado = "🔴 BAIXA FERTILIDADE"
+        html_v = f"""
+        <div class="metric-card">
+            <h3>V%</h3>
+            <h2>{v_percent:.1f}%</h2>
+            <small>Saturação por bases</small>
+        </div>
+        """
 
         st.markdown(
-            f"""
-            <div class="result-card">
-                <h2>RESULTADO FINAL</h2>
-                <p class="result-number">
-                    {resultado}
-                </p>
-                <p>Score: {score}/20</p>
-            </div>
-            """,
+            html_v,
             unsafe_allow_html=True
         )
+
+    # =========================
+    # CARD 4 - m%
+    # =========================
+
+    with col4:
+
+        html_m = f"""
+        <div class="metric-card">
+            <h3>m%</h3>
+            <h2>{m_percent:.1f}%</h2>
+            <small>Saturação por Al</small>
+        </div>
+        """
+
+        st.markdown(
+            html_m,
+            unsafe_allow_html=True
+        )
+
+    # =========================
+    # BARRA DE PROGRESSO
+    # =========================
+
+    st.markdown("### 📈 Índice de Fertilidade")
+
+    progress_html = f"""
+    <div class="progress-container">
+        <div class="progress-bar"
+             style="width:{min(v_percent, 100)}%;">
+             {v_percent:.1f}%
+        </div>
+    </div>
+    """
+
+    st.markdown(
+        progress_html,
+        unsafe_allow_html=True
+    )
+
+    # =========================
+    # CLASSIFICAÇÃO
+    # =========================
+
+    if v_percent >= 70:
+        classe = "Eutrófico (Muito Fértil)"
+        cor = "🟢"
+
+    elif v_percent >= 50:
+        classe = "Eutrófico"
+        cor = "🟢"
+
+    elif v_percent >= 25:
+        classe = "Distrófico"
+        cor = "🟡"
+
+    else:
+        classe = "Álico"
+        cor = "🔴"
+
+    resultado_html = f"""
+    <div class="result-card">
+        <h2>{cor} Classificação SiBCS</h2>
+        <p class="result-number">{classe}</p>
+    </div>
+    """
+
+    st.markdown(
+        resultado_html,
+        unsafe_allow_html=True
+    )
+
+    # =========================
+    # ADEQUAÇÃO
+    # =========================
+
+    st.markdown("## 🌾 Adequação da Cultura")
+
+    nec = necessidades_culturas[
+        st.session_state.cultura
+    ]
+
+    if v_percent >= nec["v_desejado"]:
+        st.success(
+            "✅ Saturação por bases adequada"
+        )
+    else:
+        st.error(
+            "❌ Necessidade de calagem"
+        )
+
+    if dados["phosphorus"] >= nec["p_min"]:
+        st.success(
+            "✅ Fósforo adequado"
+        )
+    else:
+        st.error(
+            "❌ Fósforo abaixo do ideal"
+        )
+
+    if dados["potassium"] >= nec["k_min"]:
+        st.success(
+            "✅ Potássio adequado"
+        )
+    else:
+        st.error(
+            "❌ Potássio abaixo do ideal"
+        )
+
+    if (
+        nec["ph_min"]
+        <= dados["ph"]
+        <= nec["ph_max"]
+    ):
+        st.success(
+            "✅ pH adequado"
+        )
+    else:
+        st.error(
+            "❌ pH fora da faixa ideal"
+        )
+
+    # =========================
+    # SCORE
+    # =========================
+
+    score = 0
+
+    if v_percent >= 70:
+        score += 5
+
+    elif v_percent >= 50:
+        score += 3
+
+    if dados["phosphorus"] >= 20:
+        score += 3
+
+    if dados["potassium"] >= 0.35:
+        score += 3
+
+    if dados["aluminum"] < 0.5:
+        score += 4
+
+    if 5.5 <= dados["ph"] <= 6.5:
+        score += 5
+
+    st.markdown("---")
+
+    if score >= 15:
+        resultado = "🟢 ALTA FERTILIDADE"
+
+    elif score >= 8:
+        resultado = "🟡 FERTILIDADE MÉDIA"
+
+    else:
+        resultado = "🔴 BAIXA FERTILIDADE"
+
+    resultado_final_html = f"""
+    <div class="result-card">
+        <h2>RESULTADO FINAL</h2>
+        <p class="result-number">
+            {resultado}
+        </p>
+        <p>Score: {score}/20</p>
+    </div>
+    """
+
+    st.markdown(
+        resultado_final_html,
+        unsafe_allow_html=True
+    )
 # ============================================================================
 # RELATÓRIO
 # ============================================================================
