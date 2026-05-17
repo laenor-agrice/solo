@@ -1056,10 +1056,10 @@ elif menu == "📈 3. Relatorio":
 
         v2 = necessidades_culturas[cultura]["v_desejado"]
 
-         nc = ((v2 - v_percent) * ctc_potencial) / 100
+        nc = ((v2 - v_percent) * ctc_potencial) / 100
 
-         if nc < 0:
-            nc = 0
+        if nc < 0:
+         nc = 0
 
         prnt = 80
 
