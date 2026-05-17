@@ -13,11 +13,16 @@ st.set_page_config(
 )
 
 # ============================================================================
-# CSS PERSONALIZADO (CORRIGIDO - SEM ERRO DE FECHAMENTO)
+# CSS PERSONALIZADO (CORRIGIDO)
 # ============================================================================
 
 st.markdown("""
 <style>
+
+    /* =========================
+       CONFIGURAÇÕES GERAIS
+    ========================= */
+
     * {
         font-family: 'Times New Roman', Times, serif !important;
     }
@@ -30,6 +35,10 @@ st.markdown("""
         background-color: #0a0a0a !important;
     }
 
+    /* =========================
+       TEXTOS GERAIS
+    ========================= */
+
     h1, h2, h3, h4, h5, h6,
     .stMarkdown h1,
     .stMarkdown h2,
@@ -38,18 +47,38 @@ st.markdown("""
         font-weight: bold !important;
     }
 
-    p, li, span, div, .stMarkdown p {
+    p,
+    li,
+    span,
+    div,
+    .stMarkdown p {
         color: #ffffff !important;
     }
 
-    label, .stTextInput label, .stNumberInput label, .stSelectbox label {
+    /* =========================
+       LABELS
+    ========================= */
+
+    label,
+    .stTextInput label,
+    .stNumberInput label,
+    .stSelectbox label {
         color: #a8e6cf !important;
         font-weight: 600 !important;
-        font-size: 0.9rem !important;
+        font-size: 0.95rem !important;
     }
 
+    /* =========================
+       SIDEBAR
+    ========================= */
+
     section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0a0a0a, #1a1a1a) !important;
+        background: linear-gradient(
+            180deg,
+            #0a0a0a,
+            #1a1a1a
+        ) !important;
+
         border-right: 2px solid #2ecc71 !important;
     }
 
@@ -59,15 +88,24 @@ st.markdown("""
         color: #a8e6cf !important;
     }
 
+    /* =========================
+       BOTÕES
+    ========================= */
+
     .stButton button {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71);
+        background: linear-gradient(
+            135deg,
+            #1a5f3e,
+            #2ecc71
+        ) !important;
+
         color: white !important;
-        font-weight: bold;
-        border: none;
-        border-radius: 30px;
-        padding: 0.75rem 2rem;
-        transition: 0.3s;
-        width: 100%;
+        font-weight: bold !important;
+        border: none !important;
+        border-radius: 30px !important;
+        padding: 0.75rem 2rem !important;
+        transition: 0.3s !important;
+        width: 100% !important;
     }
 
     .stButton button:hover {
@@ -75,147 +113,268 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(46,204,113,0.5);
     }
 
-    input, .stTextInput input, .stNumberInput input {
-        color: #1a1a1a !important;
+    /* =========================
+       INPUTS
+    ========================= */
+
+    input,
+    textarea,
+    .stTextInput input,
+    .stNumberInput input {
+
+        color: #111111 !important;
         background-color: #ffffff !important;
+
         border: 2px solid #2ecc71 !important;
         border-radius: 8px !important;
+
         padding: 8px !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
     }
 
-    input:focus {
+    input:focus,
+    textarea:focus {
         border-color: #1a5f3e !important;
-        box-shadow: 0 0 0 2px rgba(46,204,113,0.3) !important;
+
+        box-shadow:
+            0 0 0 2px rgba(46,204,113,0.3) !important;
     }
+
+    /* =========================
+       CARDS DE MÉTRICAS
+    ========================= */
 
     .metric-card {
-        background: linear-gradient(135deg, #ffffff, #f8f8f8) !important;
-        padding: 1rem;
-        border-radius: 18px;
-        text-align: center;
+
+        background: linear-gradient(
+            135deg,
+            #ffffff,
+            #f4f4f4
+        ) !important;
+
+        padding: 1rem !important;
+
+        border-radius: 18px !important;
+
+        text-align: center !important;
+
         border: 2px solid #2ecc71 !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        margin-bottom: 1rem;
+
+        box-shadow:
+            0 4px 15px rgba(0,0,0,0.35) !important;
+
+        margin-bottom: 1rem !important;
     }
 
     .metric-card h3 {
-    color: #111111 !important;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
 
-.metric-card h2 {
-    color: #000000 !important;
-    font-size: 2rem;
-    margin: 0;
-    font-weight: bold;
-}
+        color: #111111 !important;
 
-.metric-card small {
-    color: #222222 !important;
-    font-weight: bold;
-}
+        font-weight: bold !important;
 
-.result-card p,
-.result-card h2 {
-    color: #111111 !important;
-    font-weight: bold;
-}
+        font-size: 1.05rem !important;
 
-.result-number {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #000000 !important;
-}
+        margin-bottom: 12px !important;
+    }
+
+    .metric-card h2 {
+
+        color: #000000 !important;
+
+        font-size: 2.2rem !important;
+
+        font-weight: bold !important;
+
+        margin: 0 !important;
+    }
+
+    .metric-card small {
+
+        color: #222222 !important;
+
+        font-size: 1rem !important;
+
+        font-weight: 600 !important;
+    }
+
+    /* =========================
+       RESULT CARD
+    ========================= */
+
+    .result-card {
+
+        background: linear-gradient(
+            135deg,
+            #ffffff,
+            #f5f5f5
+        ) !important;
+
+        padding: 1.5rem !important;
+
+        border-radius: 20px !important;
+
+        border: 2px solid #2ecc71 !important;
+
+        text-align: center !important;
+
+        margin-top: 1rem !important;
+
+        box-shadow:
+            0 4px 15px rgba(0,0,0,0.35) !important;
+    }
+
+    .result-card h2 {
+
+        color: #111111 !important;
+
+        font-weight: bold !important;
+
+        font-size: 2rem !important;
+    }
+
+    .result-card p {
+
+        color: #111111 !important;
+
+        font-size: 1.2rem !important;
+
+        font-weight: 600 !important;
+    }
+
+    .result-number {
+
+        font-size: 2.4rem !important;
+
+        font-weight: bold !important;
+
+        color: #000000 !important;
+    }
+
+    /* =========================
+       BARRA DE PROGRESSO
+    ========================= */
 
     .progress-container {
-        width: 100%;
-        background-color: #e0e0e0;
-        border-radius: 12px;
-        overflow: hidden;
-        margin-top: 10px;
-        margin-bottom: 10px;
+
+        width: 100% !important;
+
+        background-color: #d9d9d9 !important;
+
+        border-radius: 14px !important;
+
+        overflow: hidden !important;
+
+        margin-top: 10px !important;
+
+        margin-bottom: 15px !important;
     }
 
     .progress-bar {
-        background: linear-gradient(90deg, #1a5f3e, #2ecc71);
-        color: white;
-        text-align: center;
-        padding: 8px;
-        font-weight: bold;
+
+        background: linear-gradient(
+            90deg,
+            #1a5f3e,
+            #2ecc71
+        ) !important;
+
+        color: white !important;
+
+        text-align: center !important;
+
+        padding: 10px !important;
+
+        font-weight: bold !important;
+
+        font-size: 1rem !important;
     }
 
+    /* =========================
+       DATAFRAME
+    ========================= */
+
     .dataframe {
+
         background-color: white !important;
+
         border-radius: 15px !important;
-        overflow: hidden;
+
+        overflow: hidden !important;
     }
 
     .dataframe th {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71) !important;
+
+        background: linear-gradient(
+            135deg,
+            #1a5f3e,
+            #2ecc71
+        ) !important;
+
         color: white !important;
+
         font-weight: bold !important;
+
         padding: 10px !important;
     }
 
     .dataframe td {
-        color: #1a1a1a !important;
+
+        color: #111111 !important;
+
         background-color: white !important;
+
         padding: 8px !important;
     }
 
+    /* =========================
+       ALERTAS
+    ========================= */
+
     .stAlert {
+
         border-radius: 15px !important;
-        border-left: 5px solid !important;
+
         padding: 1rem !important;
+
+        border-left-width: 6px !important;
     }
 
     .stAlert p {
-        color: #1a1a1a !important;
-        font-weight: 500 !important;
+
+        font-weight: bold !important;
+
+        font-size: 1rem !important;
     }
 
-    .stAlert.st-success {
-        background-color: #d4edda !important;
-        border-left-color: #28a745 !important;
+    /* SUCESSO */
+
+    div[data-baseweb="notification"] {
+
+        color: #111111 !important;
     }
 
-    .stAlert.st-success p {
-        color: #155724 !important;
+    div[data-baseweb="notification"] p {
+
+        color: #111111 !important;
+
+        font-weight: bold !important;
     }
 
-    .stAlert.st-error {
-        background-color: #f8d7da !important;
-        border-left-color: #dc3545 !important;
-    }
-
-    .stAlert.st-error p {
-        color: #721c24 !important;
-    }
-
-    .stAlert.st-warning {
-        background-color: #fff3cd !important;
-        border-left-color: #ffc107 !important;
-    }
-
-    .stAlert.st-warning p {
-        color: #856404 !important;
-    }
-
-    .stAlert.st-info {
-        background-color: #d1ecf1 !important;
-        border-left-color: #17a2b8 !important;
-    }
-
-    .stAlert.st-info p {
-        color: #0c5460 !important;
-    }
+    /* =========================
+       EXPANDER
+    ========================= */
 
     .streamlit-expanderHeader {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71) !important;
+
+        background: linear-gradient(
+            135deg,
+            #1a5f3e,
+            #2ecc71
+        ) !important;
+
         border-radius: 10px !important;
+
         color: white !important;
+
         font-weight: bold !important;
     }
 
@@ -224,52 +383,98 @@ st.markdown("""
     }
 
     .streamlit-expanderContent {
+
         background-color: #ffffff !important;
+
         border-radius: 0 0 10px 10px !important;
+
         padding: 15px !important;
     }
 
-    .streamlit-expanderContent p {
-        color: #1a1a1a !important;
+    .streamlit-expanderContent p,
+    .streamlit-expanderContent li {
+
+        color: #111111 !important;
     }
 
+    /* =========================
+       RADIO BUTTONS
+    ========================= */
+
     .stRadio > div {
-        gap: 15px;
+        gap: 15px !important;
     }
 
     .stRadio label {
+
         background: #2c3e50 !important;
+
         color: #a8e6cf !important;
+
         padding: 8px 20px !important;
+
         border-radius: 30px !important;
+
         border: 1px solid #2ecc71 !important;
     }
 
     .stRadio label:hover {
+
         background: #1a5f3e !important;
+
         color: white !important;
     }
 
+    /* =========================
+       SELECTBOX
+    ========================= */
+
     .stSelectbox div[data-baseweb="select"] {
+
         background-color: white !important;
+
         border-radius: 8px !important;
-        border: 1px solid #2ecc71 !important;
+
+        border: 2px solid #2ecc71 !important;
     }
 
     .stSelectbox div[data-baseweb="select"] span {
-        color: #1a1a1a !important;
+
+        color: #111111 !important;
+
+        font-weight: 600 !important;
     }
+
+    /* =========================
+       LINHA HORIZONTAL
+    ========================= */
 
     hr {
-        border: none;
-        height: 3px;
-        background: linear-gradient(90deg, #1a5f3e, #2ecc71, #1a5f3e);
-        margin: 2rem 0;
+
+        border: none !important;
+
+        height: 3px !important;
+
+        background: linear-gradient(
+            90deg,
+            #1a5f3e,
+            #2ecc71,
+            #1a5f3e
+        ) !important;
+
+        margin: 2rem 0 !important;
     }
 
-    .stCaption, footer {
+    /* =========================
+       FOOTER
+    ========================= */
+
+    .stCaption,
+    footer {
+
         color: #a8e6cf !important;
     }
+
 </style>
 """, unsafe_allow_html=True)
 
