@@ -1352,26 +1352,47 @@ elif menu == "ℹ️ 4. Métodos":
 
     st.markdown("## ℹ️ Métodos Utilizados")
 
+    # ==========================================================
+    # SATURACAO POR BASES
+    # ==========================================================
+
     with st.expander("📊 Saturação por Bases (V%)"):
 
         st.markdown("""
 ### Fórmula:
+""")
 
-V% = (SB / CTC) × 100
+        :contentReference[oaicite:0]{index=0}
 
+        st.markdown("""
 Onde:
 
 - SB = Soma de Bases
 - CTC = Capacidade de Troca de Cátions
         """)
 
+    # ==========================================================
+    # SATURACAO POR ALUMINIO
+    # ==========================================================
+
     with st.expander("🔬 Saturação por Alumínio (m%)"):
 
         st.markdown("""
 ### Fórmula:
+""")
 
-m% = (Al³⁺ / CTC efetiva) × 100
+        :contentReference[oaicite:1]{index=1}
+
+        st.markdown("""
+Onde:
+
+- Al³⁺ = Alumínio trocável
+- CTC efetiva = SB + Al³⁺
         """)
+
+    # ==========================================================
+    # INTERPRETACAO
+    # ==========================================================
 
     with st.expander("🌾 Interpretação Agronômica"):
 
@@ -1379,10 +1400,14 @@ m% = (Al³⁺ / CTC efetiva) × 100
 | V% | Interpretação |
 |---|---|
 | > 70 | Muito fértil |
-| 50-70 | Fértil |
-| 25-50 | Distrófico |
+| 50–70 | Fértil |
+| 25–50 | Distrófico |
 | < 25 | Álico |
         """)
+
+    # ==========================================================
+    # CALAGEM
+    # ==========================================================
 
     with st.expander("🪨 Cálculo da Calagem"):
 
@@ -1390,18 +1415,20 @@ m% = (Al³⁺ / CTC efetiva) × 100
 ### Fórmula utilizada:
 """)
 
-        st.latex(
-            r"NC = \frac{(V_2 - V_1) \times CTC}{100}"
-        )
+        :contentReference[oaicite:2]{index=2}
 
         st.markdown("""
 Onde:
 
-- NC = necessidade de calcário
-- V₂ = saturação desejada
-- V₁ = saturação atual
-- CTC = capacidade de troca catiônica
-""")
+- NC = Necessidade de calcário
+- V₂ = Saturação desejada
+- V₁ = Saturação atual
+- CTC = Capacidade de troca catiônica
+        """)
+
+    # ==========================================================
+    # GESSAGEM
+    # ==========================================================
 
     with st.expander("🌱 Cálculo da Gessagem"):
 
@@ -1410,7 +1437,7 @@ Onde:
 
 - Solos com argila > 350 g/kg
 - Gessagem = 50% da dose de calcário
-""")
+        """)
 
 # ============================================================================
 # RODAPÉ
