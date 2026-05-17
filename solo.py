@@ -677,7 +677,7 @@ if menu == "📊 1. Dados do Solo":
 # ABA 3 - RELATORIO
 # ============================================================================
 
-eelif menu == "📈 3. Relatorio":
+elif menu == "📈 3. Relatorio":
 
     st.markdown("## 📈 Relatorio Tecnico")
 
