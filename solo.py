@@ -743,7 +743,7 @@ elif menu == "🌱 2. Classificacao":
 
     st.markdown("---")
 
-        try:
+    try:
         dados = st.session_state.dados_basicos.copy()
         dados["aluminum"] = float(aluminum.replace(",", "."))
         dados["h_al"] = float(h_al.replace(",", "."))
