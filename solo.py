@@ -963,4 +963,4 @@ elif menu == "ℹ️ 4. Metodos":
 # ============================================================================
 
 st.markdown("---")
-st.caption("© 2026 - Classificador de Fertilidade do Solo | Créditos ao SiBCS - Embrapa")
+st.caption("© 2026 - Classificador de Fertilidade do Solo | Créditos ao SiBCS - Embrapa | Ferramenta acadêmica | Direitos reservados")
