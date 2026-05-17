@@ -308,7 +308,7 @@ if menu == "📊 1. Dados do Solo":
     
     st.markdown("---")
     
-    if st.button("✅ SALVAR DADOS BÁSICOS", use_container_width=True):
+   if st.button("✅ SALVAR DADOS BÁSICOS", use_container_width=True):
     try:
         # Converter K de cmolc/dm³
         k_value = float(potassium.replace(',', '.'))
