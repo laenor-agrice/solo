@@ -4,6 +4,48 @@ import traceback
 import sys
 
 # ============================================================================
+# FUNÇÃO PARA CALCULAR pH BASEADO NOS NUTRIENTES
+# ============================================================================
+
+def calcular_ph(dados):
+    """
+    Calcula o pH do solo com base nos nutrientes e matéria orgânica
+    Fórmula adaptada para solos tropicais
+    """
+    try:
+        # Fatores que influenciam o pH
+        # Quanto maior a matéria orgânica, mais ácido (se não corrigido)
+        # Quanto maior os cátions (Ca, Mg, K), mais alcalino
+        
+        # Fatores de acidez (contribuem para pH baixo)
+        fator_acidez = (
+            dados.get('aluminum', 0.5) * 0.3 +  # Alumínio é ácido
+            dados.get('h_al', 3.5) * 0.1         # H+Al contribui para acidez
+        )
+        
+        # Fatores de basicidade (contribuem para pH alto)
+        fator_basicidade = (
+            dados.get('calcium', 3.0) * 0.2 +
+            dados.get('magnesium', 1.5) * 0.15 +
+            dados.get('potassium', 0.25) * 0.5
+        )
+        
+        # Matéria orgânica (pode acidificar ou tamponar)
+        om = dados.get('organic_matter', 25) / 100  # Normalizar
+        
+        # Cálculo do pH base (valores entre 4.5 e 7.5)
+        ph_base = 5.5 + (fator_basicidade - fator_acidez) - (om * 0.5)
+        
+        # Limitar o pH entre 4.0 e 8.0 (valores realistas)
+        ph = max(4.0, min(8.0, ph_base))
+        
+        return round(ph, 1)
+    
+    except Exception:
+        # Valor padrão caso erro no cálculo
+        return 6.0
+
+# ============================================================================
 # TRATAMENTO DE ERROS DE IMPORTAÇÃO
 # ============================================================================
 
@@ -691,7 +733,6 @@ elif menu == "🌱 2. Classificacao":
     col1, col2 = st.columns(2)
 
     with col1:
-        ph = st.text_input("🧪 pH do Solo", value="6.0")
         aluminum = st.text_input("⚠️ Alumínio (Al³⁺) - cmolc/dm³", value="0.50")
         h_al = st.text_input("📊 H + Al - cmolc/dm³", value="3.50")
 
@@ -702,33 +743,58 @@ elif menu == "🌱 2. Classificacao":
 
     st.markdown("---")
 
-    if st.button("🔬 CALCULAR CLASSIFICACAO"):
+    try:
+    dados = st.session_state.dados_basicos.copy()
+    # LINHA DO ph REMOVIDA - agora calcula automaticamente
+    dados["aluminum"] = float(aluminum.replace(",", "."))
+    dados["h_al"] = float(h_al.replace(",", "."))
+    dados["calcium"] = float(calcium.replace(",", "."))
+    dados["magnesium"] = float(magnesium.replace(",", "."))
+
+    # CALCULAR O pH AUTOMATICAMENTE BASEADO NOS NUTRIENTES
+    def calcular_ph(dados):
+        """Calcula o pH baseado nos nutrientes do solo"""
         try:
-            dados = st.session_state.dados_basicos.copy()
-            dados["ph"] = float(ph.replace(",", "."))
-            dados["aluminum"] = float(aluminum.replace(",", "."))
-            dados["h_al"] = float(h_al.replace(",", "."))
-            dados["calcium"] = float(calcium.replace(",", "."))
-            dados["magnesium"] = float(magnesium.replace(",", "."))
+            # Fatores de acidez
+            fator_acidez = dados.get('aluminum', 0.5) * 0.3
+            # Fatores de basicidade
+            fator_basicidade = (
+                dados.get('calcium', 3.0) * 0.2 +
+                dados.get('magnesium', 1.5) * 0.15 +
+                dados.get('potassium', 0.25) * 0.5
+            )
+            # Matéria orgânica
+            om = dados.get('organic_matter', 25) / 100
+            # Cálculo do pH
+            ph_base = 5.5 + (fator_basicidade - fator_acidez) - (om * 0.5)
+            ph = max(4.0, min(8.0, ph_base))
+            return round(ph, 1)
+        except Exception:
+            return 6.0
+    
+        dados["ph"] = calcular_ph(dados)
+    
+        # Mostrar o pH calculado
+        st.info(f"🧪 pH calculado automaticamente: **{dados['ph']}**")
 
-            sb = dados["calcium"] + dados["magnesium"] + dados["potassium"]
-            ctc_efetiva = sb + dados["aluminum"]
-            ctc_potencial = sb + dados["h_al"]
+        sb = dados["calcium"] + dados["magnesium"] + dados["potassium"]
+        ctc_efetiva = sb + dados["aluminum"]
+        ctc_potencial = sb + dados["h_al"]
 
-            v_percent = (sb / ctc_potencial) * 100 if ctc_potencial > 0 else 0
-            m_percent = (dados["aluminum"] / ctc_efetiva) * 100 if ctc_efetiva > 0 else 0
+        v_percent = (sb / ctc_potencial) * 100 if ctc_potencial > 0 else 0
+        m_percent = (dados["aluminum"] / ctc_efetiva) * 100 if ctc_efetiva > 0 else 0
 
-            st.session_state.dados_calculados = dados
-            st.session_state.sb = sb
-            st.session_state.ctc_potencial = ctc_potencial
-            st.session_state.v_percent = v_percent
-            st.session_state.m_percent = m_percent
-            st.session_state.cultura = cultura
+        st.session_state.dados_calculados = dados
+        st.session_state.sb = sb
+        st.session_state.ctc_potencial = ctc_potencial
+        st.session_state.v_percent = v_percent
+        st.session_state.m_percent = m_percent
+        st.session_state.cultura = cultura
 
-            st.success("✅ Classificação realizada com sucesso!")
+        st.success("✅ Classificação realizada com sucesso!")
 
-            st.markdown("---")
-            st.markdown("## 🤖 Inteligência Artificial")
+        st.markdown("---")
+        st.markdown("## 🤖 Inteligência Artificial")
             
             if JOBLIB_AVAILABLE:
                 if modelo is not None and features is not None:
