@@ -865,7 +865,7 @@ elif menu == "🌱 2. Classificacao":
     # BOTAO CALCULAR
     # ==========================================================
 
-if st.button("🔬 CALCULAR CLASSIFICACAO"):
+    if st.button("🔬 CALCULAR CLASSIFICACAO"):
 
         try:
 
