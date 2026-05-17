@@ -724,7 +724,7 @@ elif menu == "📈 3. Relatorio":
         st.dataframe(relatorio, hide_index=True, use_container_width=True)
 
         csv = relatorio.to_csv(index=False).encode('utf-8')
-        st.download_button(
+         st.download_button(
             label="📥 Baixar Relatorio (CSV)",
             data=csv,
             file_name="relatorio_solo.csv",
