@@ -928,9 +928,9 @@ elif menu == "🌱 2. Classificacao":
                 dados["organic_matter"],
                 dados["bulk_density"]
 
-]], columns=features)
+                ]], columns=features)
 
-pred_ia = modelo.predict(entrada_ia)
+                pred_ia = modelo.predict(entrada_ia)
 
 st.markdown("---")
 
