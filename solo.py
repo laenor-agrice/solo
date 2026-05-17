@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # ============================================================================
-# CSS PERSONALIZADO (CORRIGIDO)
+# CSS PERSONALIZADO (CORRIGIDO DEFINITIVO - TEXTOS LEGÍVEIS)
 # ============================================================================
 
 st.markdown("""
@@ -36,7 +36,7 @@ st.markdown("""
     }
 
     /* =========================
-       TEXTOS GERAIS
+       TÍTULOS
     ========================= */
 
     h1, h2, h3, h4, h5, h6,
@@ -47,12 +47,20 @@ st.markdown("""
         font-weight: bold !important;
     }
 
+    /* =========================
+       TEXTOS GERAIS
+    ========================= */
+
     p,
     li,
     span,
-    div,
     .stMarkdown p {
         color: #ffffff !important;
+    }
+
+    /* NÃO aplicar branco em TODOS os divs */
+    div {
+        color: inherit !important;
     }
 
     /* =========================
@@ -93,6 +101,7 @@ st.markdown("""
     ========================= */
 
     .stButton button {
+
         background: linear-gradient(
             135deg,
             #1a5f3e,
@@ -100,17 +109,26 @@ st.markdown("""
         ) !important;
 
         color: white !important;
+
         font-weight: bold !important;
+
         border: none !important;
+
         border-radius: 30px !important;
+
         padding: 0.75rem 2rem !important;
+
         transition: 0.3s !important;
+
         width: 100% !important;
     }
 
     .stButton button:hover {
+
         transform: scale(1.03);
-        box-shadow: 0 4px 15px rgba(46,204,113,0.5);
+
+        box-shadow:
+            0 4px 15px rgba(46,204,113,0.5);
     }
 
     /* =========================
@@ -123,17 +141,21 @@ st.markdown("""
     .stNumberInput input {
 
         color: #111111 !important;
+
         background-color: #ffffff !important;
 
         border: 2px solid #2ecc71 !important;
+
         border-radius: 8px !important;
 
         padding: 8px !important;
+
         font-weight: 600 !important;
     }
 
     input:focus,
     textarea:focus {
+
         border-color: #1a5f3e !important;
 
         box-shadow:
@@ -198,7 +220,7 @@ st.markdown("""
     }
 
     /* =========================
-       RESULT CARD
+       CARD RESULTADO
     ========================= */
 
     .result-card {
@@ -238,16 +260,16 @@ st.markdown("""
 
         font-size: 1.2rem !important;
 
-        font-weight: 600 !important;
+        font-weight: 700 !important;
     }
 
     .result-number {
 
-        font-size: 2.4rem !important;
+        color: #000000 !important;
+
+        font-size: 2.5rem !important;
 
         font-weight: bold !important;
-
-        color: #000000 !important;
     }
 
     /* =========================
@@ -329,27 +351,11 @@ st.markdown("""
        ALERTAS
     ========================= */
 
-    .stAlert {
+    div[data-baseweb="notification"] {
 
         border-radius: 15px !important;
 
         padding: 1rem !important;
-
-        border-left-width: 6px !important;
-    }
-
-    .stAlert p {
-
-        font-weight: bold !important;
-
-        font-size: 1rem !important;
-    }
-
-    /* SUCESSO */
-
-    div[data-baseweb="notification"] {
-
-        color: #111111 !important;
     }
 
     div[data-baseweb="notification"] p {
@@ -357,6 +363,8 @@ st.markdown("""
         color: #111111 !important;
 
         font-weight: bold !important;
+
+        font-size: 1rem !important;
     }
 
     /* =========================
@@ -446,7 +454,7 @@ st.markdown("""
     }
 
     /* =========================
-       LINHA HORIZONTAL
+       LINHA
     ========================= */
 
     hr {
