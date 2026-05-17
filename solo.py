@@ -1220,7 +1220,9 @@ elif menu == "📈 3. Relatorio":
         # CALAGEM
         # ======================================================
 
-        v2 = necessidades_culturas[cultura]["v_desejado"]
+        v2 = necessidades_culturas[
+            st.session_state.cultura
+        ]["v_desejado"]
 
         nc = ((v2 - v_percent) * ctc_potencial) / 100
 
