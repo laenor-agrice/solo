@@ -184,8 +184,6 @@ with st.sidebar:
     st.markdown("## 📊 Sobre o Sistema")
 
     st.markdown("""
-Este sistema realiza:
-
 - 🧪 Avaliação da fertilidade do solo
 - ⚖️ Cálculo de saturação por bases (V%)
 - 🔬 Avaliação de alumínio tóxico
