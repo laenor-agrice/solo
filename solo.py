@@ -1224,10 +1224,13 @@ elif menu == "📈 3. Relatorio":
             st.session_state.cultura
         ]["v_desejado"]
 
+        v_percent = st.session_state.v_percent
+        ctc_potencial = st.session_state.ctc_potencial
+
         nc = ((v2 - v_percent) * ctc_potencial) / 100
 
         if nc < 0:
-         nc = 0
+            nc = 0
 
         prnt = 80
 
