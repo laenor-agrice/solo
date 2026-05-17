@@ -1115,23 +1115,23 @@ elif menu == "🌱 2. Classificacao":
             """, unsafe_allow_html=True)
 
         # =====================================================================
-        # BARRA DE FERTILIDADE
-        # =====================================================================
+# BARRA DE FERTILIDADE
+# =====================================================================
 
-        st.markdown("### 📈 Índice de Fertilidade")
+st.markdown("### 📈 Índice de Fertilidade")
 
-        st.markdown(f"""
-        <div class="progress-container">
+st.markdown(f"""
+<div class="progress-container">
 
-            <div
-                class="progress-bar"
-                style="width:{min(v_percent,100)}%;"
-            >
-                {v_percent:.1f}%
-            </div>
+    <div
+        class="progress-bar"
+        style="width:{min(v_percent,100)}%;"
+    >
+        {v_percent:.1f}%
+    </div>
 
-        </div>
-        """, unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
 
         # =====================================================================
         # CLASSIFICACAO
