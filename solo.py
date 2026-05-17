@@ -586,10 +586,12 @@ elif menu == "🌱 2. Classificação":
         st.session_state.score = score
 
 
+st.markdown("""
 **Quando indicar:**
-        - Al^3+ > 0,5 cmolc/dm3
-        - Ca^2+ < 1,0 cmolc/dm3
-        - Saturação por Al (m%) > 20%
+- Al³⁺ > 0,5 cmolc/dm³
+- Ca²⁺ < 1,0 cmolc/dm³
+- Saturação por Al (m%) > 20%
+""")
 
 with st.expander("🌾 Tabela de Necessidades por Cultura"):
 st.markdown("""
