@@ -1050,37 +1050,37 @@ elif menu == "📈 3. Relatorio":
 
         st.success(f"✅ Cultura selecionada: {st.session_state.cultura}")
 
-                    # ======================================================
-            # CALAGEM
-            # ======================================================
+        # ======================================================
+        # CALAGEM
+        # ======================================================
 
-            v2 = necessidades_culturas[cultura]["v_desejado"]
+        v2 = necessidades_culturas[cultura]["v_desejado"]
 
-            nc = ((v2 - v_percent) * ctc_potencial) / 100
+         nc = ((v2 - v_percent) * ctc_potencial) / 100
 
-            if nc < 0:
-                nc = 0
+         if nc < 0:
+            nc = 0
 
-            prnt = 80
+        prnt = 80
 
-            nc_corrigida = nc * (100 / prnt)
+        nc_corrigida = nc * (100 / prnt)
 
-            # ======================================================
-            # GESSAGEM
-            # ======================================================
+        # ======================================================
+        # GESSAGEM
+        # ======================================================
 
-            if dados["clay"] >= 350:
-                gesso = nc_corrigida * 0.5
-            else:
-                gesso = 0
+        if dados["clay"] >= 350:
+             gesso = nc_corrigida * 0.5
+         else:
+             gesso = 0
 
-            # ======================================================
-            # SESSION STATE
-            # ======================================================
+        # ======================================================
+        # SESSION STATE
+        # ======================================================
 
-            st.session_state.nc_corrigida = nc_corrigida
-            st.session_state.prnt = prnt
-            st.session_state.gesso = gesso
+        st.session_state.nc_corrigida = nc_corrigida
+        st.session_state.prnt = prnt
+        st.session_state.gesso = gesso
 # ============================================================================
 # MÉTODOS
 # ============================================================================
