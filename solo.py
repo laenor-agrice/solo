@@ -786,7 +786,7 @@ elif menu == "🌱 2. Classificacao":
 
         st.success("✅ Classificação realizada com sucesso!")
 
-                st.markdown("---")
+        st.markdown("---")
         st.markdown("## 🤖 Inteligência Artificial")
         
         if JOBLIB_AVAILABLE:
