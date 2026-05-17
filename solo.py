@@ -487,59 +487,53 @@ elif menu == "📈 Relatório":
         use_container_width=True
     )
 
-# ========== CORREÇÃO DE VISIBILIDADE DAS CAIXAS BRANCAS ==========
+# ========== CORREÇÃO DA COR DO TEXTO NAS CAIXAS ==========
 st.markdown("""
 <style>
-    /* Corrigir fundo das métricas */
-    div[data-testid="stMetric"] {
-        background: linear-gradient(135deg, #1a5f3e, #2ecc71) !important;
-        padding: 15px !important;
-        border-radius: 15px !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
-    }
-    
-    /* Corrigir texto das métricas */
+    /* Forçar texto escuro em todas as caixas */
     div[data-testid="stMetric"] label {
-        color: white !important;
+        color: #1a3a2a !important;
         font-weight: bold !important;
+        font-size: 1rem !important;
     }
     
     div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
-        color: white !important;
+        color: #0d2e1d !important;
         font-size: 2rem !important;
-        font-weight: bold !important;
+        font-weight: 900 !important;
     }
     
     div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {
-        color: #f8f9fa !important;
+        color: #1a5f3e !important;
+        font-weight: bold !important;
     }
     
-    /* Corrigir caixas de informação */
-    .stAlert {
-        background: #f8f9fa !important;
-        border-left: 5px solid #1a5f3e !important;
-        border-radius: 10px !important;
-        color: #2c3e50 !important;
+    /* Texto das info boxes */
+    .stAlert p {
+        color: #1a2a1a !important;
+        font-weight: 500 !important;
     }
     
-    /* Corrigir expanders */
-    .streamlit-expanderHeader {
-        background: #1a5f3e !important;
+    .stAlert strong {
+        color: #0d2e1d !important;
+    }
+    
+    /* Texto dos expanders */
+    .streamlit-expanderHeader p {
         color: white !important;
-        border-radius: 10px !important;
     }
     
-    .streamlit-expanderContent {
-        background: #f8f9fa !important;
-        border-radius: 0 0 10px 10px !important;
-        padding: 15px !important;
+    /* Texto geral das caixas de resultado */
+    .success-box p, .warning-box p, .info-box p,
+    .success-box h2, .warning-box h2, .info-box h2,
+    .success-box h3, .warning-box h3, .info-box h3 {
+        color: #1a2a1a !important;
+        font-weight: bold !important;
     }
     
-    /* Corrigir abas */
-    .stRadio > div {
-        background: #f8f9fa !important;
-        padding: 10px !important;
-        border-radius: 10px !important;
+    /* Cor do texto nos cards das métricas */
+    .metric-card h3, .metric-card h2, .metric-card p, .metric-card small {
+        color: #0d2e1d !important;
     }
 </style>
 """, unsafe_allow_html=True)
