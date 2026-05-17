@@ -484,7 +484,6 @@ with st.sidebar:
     elif modelo is not None and features is not None:
         st.success("✅ IA carregada com sucesso!")
         st.caption(f"Features esperadas: {len(features)}")
-        # Mostrar as primeiras features
         with st.expander("📋 Features do modelo"):
             for i, f in enumerate(features[:10]):
                 st.caption(f"{i+1}. {f}")
@@ -562,10 +561,7 @@ def fazer_predicao_ia(dados):
         return None, "Modelo não disponível"
     
     try:
-        # Criar um dicionário com todas as features que o modelo espera
-        # Para features que não temos no sistema, usar valores padrão (média ou zero)
-        
-        # Features básicas que temos no sistema
+        # Features que temos no sistema
         features_disponiveis = {
             "nitrogen": dados.get("nitrogen", 0),
             "phosphorus": dados.get("phosphorus", 0),
@@ -591,21 +587,18 @@ def fazer_predicao_ia(dados):
             if feature in features_disponiveis:
                 valores.append(features_disponiveis[feature])
             else:
-                # Se a feature não está disponível, usar 0 e registrar aviso
                 valores.append(0)
                 features_faltando.append(feature)
         
-        # Mostrar aviso se houver features faltando
         if features_faltando:
             st.warning(f"⚠️ Features não disponíveis (usando 0): {features_faltando[:5]}")
         
-        # Criar DataFrame com a ordem correta das features
+        # Criar DataFrame com a ordem correta
         entrada_ia = pd.DataFrame([valores], columns=features)
         
         # Fazer predição
         predicao = modelo.predict(entrada_ia)
         
-        # Se for classificação, pegar a classe
         if hasattr(modelo, 'classes_'):
             return modelo.classes_[predicao[0]], "Sucesso"
         else:
@@ -730,7 +723,6 @@ elif menu == "🌱 2. Classificacao":
                     if predicao is not None:
                         st.success(f"🌾 **Classe prevista pela IA:** {predicao}")
                         
-                        # Mostrar informações sobre as features usadas
                         with st.expander("ℹ️ Sobre a classificação da IA"):
                             st.markdown(f"""
                             **Modelo:** RandomForestClassifier  
@@ -872,4 +864,88 @@ elif menu == "📈 3. Relatorio":
             f"{dados['aluminum']:.2f} cmolc/dm3", f"{dados['h_al']:.2f} cmolc/dm3",
             f"{sb:.2f} cmolc/dm3", f"{ctc_potencial:.2f} cmolc/dm3",
             f"{v_percent:.1f}%", f"{m_percent:.1f}%",
-            f"{d}}}}]
+            f"{dados['organic_matter']:.1f} g/kg", f"{dados['bulk_density']:.2f} g/cm3"
+        ]
+    })
+
+    st.dataframe(relatorio, hide_index=True, use_container_width=True)
+
+    csv = relatorio.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label="📥 Baixar Relatorio (CSV)",
+        data=csv,
+        file_name="relatorio_solo.csv",
+        mime="text/csv",
+        key="download_csv"
+    )
+
+    st.markdown("---")
+    st.markdown("## 🌾 Recomendações Agronômicas")
+    st.success(f"✅ Cultura selecionada: {cultura}")
+
+    v2 = necessidades_culturas[cultura]["v_desejado"]
+    nc = max(((v2 - v_percent) * ctc_potencial) / 100, 0)
+    prnt = 80
+    nc_corrigida = nc * (100 / prnt)
+    gesso = nc_corrigida * 0.5 if dados["clay"] >= 350 else 0
+
+    st.info(f"🪨 Aplicar {nc_corrigida:.2f} t/ha de calcário com PRNT {prnt}%")
+    
+    if gesso > 0:
+        st.warning(f"🌱 Recomenda-se gessagem de {gesso:.2f} t/ha")
+    else:
+        st.success("✅ Gessagem não necessária")
+
+    if dados["phosphorus"] < 15:
+        st.error("🔴 Necessária adubação fosfatada")
+    else:
+        st.success("✅ Fósforo em nível adequado")
+
+    if dados["potassium"] < 0.30:
+        st.error("🔴 Necessária adubação potássica")
+    else:
+        st.success("✅ Potássio em nível adequado")
+
+# ============================================================================
+# ABA 4 - METODOS
+# ============================================================================
+
+elif menu == "ℹ️ 4. Metodos":
+    st.markdown("## ℹ️ Métodos Utilizados")
+
+    with st.expander("📊 Saturação por Bases (V%)"):
+        st.markdown("### Fórmula:")
+        st.latex(r"V\% = \frac{SB}{CTC} \times 100")
+        st.markdown("Onde: SB = Soma de Bases, CTC = Capacidade de Troca de Cátions")
+
+    with st.expander("🔬 Saturação por Alumínio (m%)"):
+        st.markdown("### Fórmula:")
+        st.latex(r"m\% = \frac{Al^{3+}}{CTC\ efetiva} \times 100")
+        st.markdown("Onde: Al³⁺ = Alumínio trocável, CTC efetiva = SB + Al³⁺")
+
+    with st.expander("🌾 Interpretação Agronômica"):
+        st.markdown("""
+        | V% | Interpretação |
+        |---|---|---|
+        | > 70 | Muito fértil |
+        | 50-70 | Fértil |
+        | 25-50 | Distrófico |
+        | < 25 | Álico |
+        """)
+
+    with st.expander("🪨 Cálculo da Calagem"):
+        st.markdown("### Fórmula utilizada:")
+        st.latex(r"NC = \frac{(V_2 - V_1) \times CTC}{100}")
+        st.markdown("Onde: NC = Necessidade de calcário, V₂ = Saturação desejada, V₁ = Saturação atual, CTC = Capacidade de troca catiônica")
+
+    with st.expander("🌱 Cálculo da Gessagem"):
+        st.markdown("### Critério utilizado:")
+        st.markdown("- Solos com argila > 350 g/kg")
+        st.markdown("- Gessagem = 50% da dose de calcário")
+
+# ============================================================================
+# RODAPÉ
+# ============================================================================
+
+st.markdown("---")
+st.caption("© 2026 - Classificador de Fertilidade do Solo | Créditos ao SiBCS - Embrapa")
