@@ -1353,14 +1353,12 @@ elif menu == "ℹ️ 4. Métodos":
     st.markdown("## ℹ️ Métodos Utilizados")
 
     # ==========================================================
-    # SATURACAO POR BASES
+    # SATURAÇÃO POR BASES
     # ==========================================================
 
     with st.expander("📊 Saturação por Bases (V%)"):
 
-        st.markdown("""
-### Fórmula:
-""")
+        st.markdown("### Fórmula:")
 
         st.latex(
             r"V\% = \frac{SB}{CTC} \times 100"
@@ -1374,14 +1372,12 @@ Onde:
         """)
 
     # ==========================================================
-    # SATURACAO POR ALUMINIO
+    # SATURAÇÃO POR ALUMÍNIO
     # ==========================================================
 
     with st.expander("🔬 Saturação por Alumínio (m%)"):
 
-        st.markdown("""
-### Fórmula:
-""")
+        st.markdown("### Fórmula:")
 
         st.latex(
             r"m\% = \frac{Al^{3+}}{CTC\ efetiva} \times 100"
@@ -1395,7 +1391,7 @@ Onde:
         """)
 
     # ==========================================================
-    # INTERPRETACAO
+    # INTERPRETAÇÃO
     # ==========================================================
 
     with st.expander("🌾 Interpretação Agronômica"):
@@ -1404,8 +1400,8 @@ Onde:
 | V% | Interpretação |
 |---|---|
 | > 70 | Muito fértil |
-| 50–70 | Fértil |
-| 25–50 | Distrófico |
+| 50-70 | Fértil |
+| 25-50 | Distrófico |
 | < 25 | Álico |
         """)
 
@@ -1415,9 +1411,7 @@ Onde:
 
     with st.expander("🪨 Cálculo da Calagem"):
 
-        st.markdown("""
-### Fórmula utilizada:
-""")
+        st.markdown("### Fórmula utilizada:")
 
         st.latex(
             r"NC = \frac{(V_2 - V_1) \times CTC}{100}"
