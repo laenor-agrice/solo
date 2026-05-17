@@ -167,11 +167,9 @@ st.markdown("""
         🌾 Classificador Inteligente de Fertilidade do Solo
     </h1>
 
-    <p style="font-size:1.2rem; color:white;">
-        Baseado no Sistema Brasileiro de Classificação de Solos (SiBCS) - Embrapa
-    </p>
-</div>
-""", unsafe_allow_html=True)
+    <p style="font-size:1.2rem !important; color:white !important;">
+    Baseado no Sistema Brasileiro de Classificação de Solos (SiBCS) - Embrapa
+</p>
 
 # ============================================================================
 # SIDEBAR
