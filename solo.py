@@ -492,15 +492,7 @@ st.caption("© 2025 - Classificador de Fertilidade do Solo | Baseado no SiBCS - 
 
 
 
-# Aguarda o Streamlit iniciar
-time.sleep(3)
 
-# Cria túnel público
-public_url = ngrok.connect(8501)
-print("\n" + "="*50)
-print(f"🔗 LINK PÚBLICO: {public_url}")
-print("Compartilhe este link com quem quiser!")
-print("="*50)
 
 # Mantém o túnel ativo
 try:
