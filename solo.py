@@ -100,49 +100,34 @@ st.markdown("""
     }
 
     .metric-card h3 {
-        color: #0d5c2a !important;
-        font-weight: bold !important;
-        margin-bottom: 10px;
-        font-size: 1.1rem;
-    }
+    color: #111111 !important;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
 
-    .metric-card h2 {
-        color: #1a5f3e !important;
-        font-size: 2.2rem !important;
-        font-weight: 900 !important;
-        margin: 0;
-    }
+.metric-card h2 {
+    color: #000000 !important;
+    font-size: 2rem;
+    margin: 0;
+    font-weight: bold;
+}
 
-    .metric-card small {
-        color: #2c5a3a !important;
-        font-weight: 500 !important;
-    }
+.metric-card small {
+    color: #222222 !important;
+    font-weight: bold;
+}
 
-    .result-card {
-        background: linear-gradient(135deg, #ffffff, #f0f0f0) !important;
-        padding: 1.5rem;
-        border-radius: 20px;
-        border: 2px solid #2ecc71 !important;
-        text-align: center;
-        margin-top: 1rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
+.result-card p,
+.result-card h2 {
+    color: #111111 !important;
+    font-weight: bold;
+}
 
-    .result-card h2 {
-        color: #0d5c2a !important;
-        font-weight: bold !important;
-    }
-
-    .result-card p {
-        color: #1a5f3e !important;
-        font-weight: 500 !important;
-    }
-
-    .result-number {
-        font-size: 2rem;
-        font-weight: bold;
-        color: #1a5f3e !important;
-    }
+.result-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #000000 !important;
+}
 
     .progress-container {
         width: 100%;
