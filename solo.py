@@ -915,34 +915,28 @@ elif menu == "🌱 2. Classificacao":
             st.session_state.cultura = cultura
 
             st.success("✅ Classificação realizada com sucesso!")
-            # ==================================================
-            # IA - CLASSIFICAÇÃO AUTOMÁTICA
-            # ==================================================
+# ==================================================
+# IA - CLASSIFICAÇÃO AUTOMÁTICA
+# ==================================================
 
-            entrada_ia = pd.DataFrame([[
+entrada_ia = pd.DataFrame([[
 
-                dados["nitrogen"],
-                dados["phosphorus"],
-                dados["potassium"],
-                dados["ph"],
-                dados["organic_matter"],
-                dados["bulk_density"]
+    dados["nitrogen"],
+    dados["phosphorus"],
+    dados["potassium"],
+    dados["ph"],
+    dados["organic_matter"],
+    dados["bulk_density"]
 
-                ]], columns=features)
+]], columns=features)
 
-                pred_ia = modelo.predict(entrada_ia)
+pred_ia = modelo.predict(entrada_ia)
 
 st.markdown("---")
 
 st.markdown("## 🤖 Inteligência Artificial")
 
 st.success(f"Classe prevista pela IA: {pred_ia[0]}")
-
-        except ValueError:
-
-            st.error(
-                "❌ Verifique os valores digitados."
-            )
 
     # ==========================================================
     # MOSTRAR RESULTADOS
