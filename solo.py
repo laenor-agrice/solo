@@ -590,8 +590,8 @@ def fazer_predicao_ia(dados):
                 valores.append(0)
                 features_faltando.append(feature)
         
-        if features_faltando:
-            st.warning(f"⚠️ Features não disponíveis (usando 0): {features_faltando[:5]}")
+        #if features_faltando:
+            #st.warning(f"⚠️ Features não disponíveis (usando 0): {features_faltando[:5]}")
         
         # Criar DataFrame com a ordem correta
         entrada_ia = pd.DataFrame([valores], columns=features)
