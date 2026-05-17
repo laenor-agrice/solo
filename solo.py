@@ -170,6 +170,7 @@ st.markdown("""
     <p style="font-size:1.2rem !important; color:white !important;">
     Baseado no Sistema Brasileiro de Classificação de Solos (SiBCS) - Embrapa
 </p>
+""")
 
 # ============================================================================
 # SIDEBAR
