@@ -89,7 +89,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Menu com radio buttons (alternativa ao option_menu)
+# Menu com radio buttons
 menu = st.radio(
     "Navegação",
     ["📊 Dados do Solo", "🌱 Classificação", "🧪 Calagem", "⚖️ Gessagem", "📈 Relatório"],
@@ -117,103 +117,156 @@ with st.sidebar:
 if 'dados_calculados' not in st.session_state:
     st.session_state.dados_calculados = {}
 
+if 'dados_basicos_salvos' not in st.session_state:
+    st.session_state.dados_basicos_salvos = False
+
 # ========== SEÇÃO 1: DADOS DO SOLO ==========
 if menu == "📊 Dados do Solo":
     st.markdown("## 📋 Coleta de Dados do Solo")
-    st.markdown("Preencha todas as informações abaixo para uma análise completa.")
+    st.markdown("Preencha as informações básicas primeiro. Após salvar, você poderá inserir os dados de acidez e cátions.")
     
     col1, col2 = st.columns(2, gap="large")
     
     with col1:
-        st.markdown("### 🧪 Nutrientes e Química")
+        st.markdown("### 🧪 Nutrientes e Química Básica")
         
         nitrogen = st.number_input(
             "🌱 Nitrogênio (mg/dm³)", 
             min_value=0.0, max_value=500.0, value=30.0, step=5.0,
-            key="nitrogen"
+            key="nitrogen",
+            help="N disponível - análise de laboratório"
         )
         phosphorus = st.number_input(
             "🔴 Fósforo (mg/dm³)", 
             min_value=0.0, max_value=300.0, value=20.0, step=2.0,
-            key="phosphorus"
+            key="phosphorus",
+            help="P disponível (Mehlich-1 ou Resina)"
         )
         potassium = st.number_input(
             "🟡 Potássio (mmolc/dm³)", 
             min_value=0.0, max_value=200.0, value=25.0, step=2.0,
-            key="potassium"
+            key="potassium",
+            help="K trocável"
         )
         
         st.markdown("### 🧫 Matéria Orgânica")
         organic_matter = st.number_input(
             "🌿 Matéria Orgânica (g/kg)", 
             min_value=0.0, max_value=200.0, value=25.0, step=5.0,
-            key="organic_matter"
-        )
-        clay = st.number_input(
-            "🏺 Argila (g/kg)", 
-            min_value=0.0, max_value=900.0, value=350.0, step=10.0,
-            key="clay"
-        )
-        
-    with col2:
-        st.markdown("### 🔬 Acidez e Bases")
-        
-        ph = st.slider(
-            "🧪 pH do Solo (CaCl₂)", 
-            min_value=3.0, max_value=9.0, value=6.0, step=0.1,
-            key="ph"
-        )
-        
-        aluminum = st.number_input(
-            "⚠️ Alumínio (Al³⁺) (cmolc/dm³)", 
-            min_value=0.0, max_value=15.0, value=0.5, step=0.1,
-            key="aluminum"
-        )
-        
-        h_al = st.number_input(
-            "📊 H + Al (cmolc/dm³)", 
-            min_value=0.0, max_value=30.0, value=3.5, step=0.5,
-            key="h_al"
-        )
-        
-        st.markdown("### 🧱 Cátions Trocáveis")
-        
-        calcium = st.number_input(
-            "🥛 Cálcio (Ca²⁺) (cmolc/dm³)", 
-            min_value=0.0, max_value=25.0, value=3.0, step=0.5,
-            key="calcium"
-        )
-        magnesium = st.number_input(
-            "🧂 Magnésio (Mg²⁺) (cmolc/dm³)", 
-            min_value=0.0, max_value=15.0, value=1.5, step=0.5,
-            key="magnesium"
+            key="organic_matter",
+            help="MO - método Walkley-Black"
         )
         
         st.markdown("### ⚖️ Densidade do Solo")
-        
         bulk_density = st.number_input(
             "📦 Densidade do Solo (g/cm³)", 
             min_value=0.5, max_value=2.5, value=1.2, step=0.05,
-            key="bulk_density"
+            key="bulk_density",
+            help="Ds - relação massa/volume total"
         )
         particle_density = st.number_input(
             "💎 Densidade de Partícula (g/cm³)", 
             min_value=2.0, max_value=3.0, value=2.65, step=0.05,
-            key="particle_density"
+            key="particle_density",
+            help="Dp - geralmente 2.65 g/cm³ para solos minerais"
+        )
+    
+    with col2:
+        st.markdown("### 🏺 Textura do Solo (Opcional)")
+        st.caption("Preencha para análise completa da dinâmica de nutrientes")
+        
+        sand = st.number_input(
+            "🏖️ Areia (g/kg)", 
+            min_value=0.0, max_value=1000.0, value=350.0, step=10.0,
+            key="sand",
+            help="Teor de areia total"
+        )
+        silt = st.number_input(
+            "🏞️ Silte (g/kg)", 
+            min_value=0.0, max_value=1000.0, value=300.0, step=10.0,
+            key="silt",
+            help="Teor de silte"
+        )
+        clay = st.number_input(
+            "🏺 Argila (g/kg)", 
+            min_value=0.0, max_value=1000.0, value=350.0, step=10.0,
+            key="clay",
+            help="Teor de argila"
+        )
+        
+        # Validar soma da textura
+        soma_textura = sand + silt + clay
+        if soma_textura > 0 and abs(soma_textura - 1000) > 10:
+            st.warning(f"⚠️ A soma de areia + silte + argila é {soma_textura} g/kg. O ideal é 1000 g/kg.")
+        
+        st.markdown("### 🧪 pH do Solo")
+        ph = st.slider(
+            "🧪 pH do Solo (CaCl₂ ou H₂O)", 
+            min_value=3.0, max_value=9.0, value=6.0, step=0.1,
+            key="ph",
+            help="Ideal para maioria das culturas: 5.5-6.5"
         )
     
     st.markdown("---")
     
-    if st.button("✅ Salvar Dados e Continuar", use_container_width=True):
-        st.session_state.dados_calculados = {
+    # Botão para salvar dados básicos
+    if st.button("✅ Salvar Dados Básicos e Continuar", use_container_width=True):
+        st.session_state.dados_basicos = {
             'nitrogen': nitrogen, 'phosphorus': phosphorus, 'potassium': potassium,
-            'ph': ph, 'aluminum': aluminum, 'h_al': h_al,
-            'calcium': calcium, 'magnesium': magnesium, 'clay': clay,
+            'ph': ph, 'organic_matter': organic_matter,
             'bulk_density': bulk_density, 'particle_density': particle_density,
-            'organic_matter': organic_matter
+            'sand': sand, 'silt': silt, 'clay': clay
         }
-        st.success("✅ Dados salvos com sucesso! Vá para a aba 'Classificação'.")
+        st.session_state.dados_basicos_salvos = True
+        st.success("✅ Dados básicos salvos! Agora preencha os dados de acidez e cátions abaixo.")
     
+    # ========== SEGUNDA PARTE: ACIDEZ E CÁTIONS (aparece só após salvar) ==========
+    if st.session_state.dados_basicos_salvos:
+        st.markdown("---")
+        st.markdown("## 🔬 Dados de Acidez e Cátions Trocáveis")
+        st.markdown("Preencha os dados da análise de solo para acidez e cátions.")
+        
+        col3, col4 = st.columns(2)
+        
+        with col3:
+            st.markdown("### 🔬 Acidez do Solo")
+            aluminum = st.number_input(
+                "⚠️ Alumínio (Al³⁺) (cmolc/dm³)", 
+                min_value=0.0, max_value=15.0, value=0.5, step=0.1,
+                key="aluminum",
+                help="Alumínio trocável - extraído com KCl 1M"
+            )
+            h_al = st.number_input(
+                "📊 H + Al (cmolc/dm³)", 
+                min_value=0.0, max_value=30.0, value=3.5, step=0.5,
+                key="h_al",
+                help="Acidez potencial - extraído com acetato de cálcio pH 7.0"
+            )
+        
+        with col4:
+            st.markdown("### 🧱 Cátions Trocáveis")
+            calcium = st.number_input(
+                "🥛 Cálcio (Ca²⁺) (cmolc/dm³)", 
+                min_value=0.0, max_value=25.0, value=3.0, step=0.5,
+                key="calcium",
+                help="Cálcio trocável - extraído com KCl 1M"
+            )
+            magnesium = st.number_input(
+                "🧂 Magnésio (Mg²⁺) (cmolc/dm³)", 
+                min_value=0.0, max_value=15.0, value=1.5, step=0.5,
+                key="magnesium",
+                help="Magnésio trocável - extraído com KCl 1M"
+            )
+        
+        if st.button("💾 Salvar Dados de Acidez e Finalizar", use_container_width=True):
+            st.session_state.dados_calculados = {
+                **st.session_state.dados_basicos,
+                'aluminum': aluminum, 'h_al': h_al,
+                'calcium': calcium, 'magnesium': magnesium
+            }
+            st.success("✅ Todos os dados salvos com sucesso! Vá para a aba 'Classificação'.")
+    
+    # Tabela de referência
     with st.expander("📖 Tabela de Referência - Níveis Críticos"):
         st.markdown("""
         | Parâmetro | Muito Baixo | Baixo | Médio | Bom | Muito Bom |
@@ -224,29 +277,103 @@ if menu == "📊 Dados do Solo":
         | **pH** | < 4.5 | 4.5-5.0 | 5.0-5.5 | 5.5-6.5 | > 6.5 |
         | **Al³⁺ (cmolc/dm³)** | > 1.5 | 1.0-1.5 | 0.5-1.0 | 0.2-0.5 | < 0.2 |
         | **V%** | < 25 | 25-40 | 40-55 | 55-70 | > 70 |
+        | **Textura** | Arenoso | Média | Argilosa | Muito Argilosa | - |
         """)
 
 # ========== SEÇÃO 2: CLASSIFICAÇÃO ==========
 elif menu == "🌱 Classificação":
     
     if not st.session_state.dados_calculados:
-        st.warning("⚠️ Por favor, preencha os dados do solo primeiro na aba '📊 Dados do Solo'.")
+        st.warning("⚠️ Por favor, preencha TODOS os dados do solo primeiro na aba '📊 Dados do Solo'.")
         st.stop()
     
     dados = st.session_state.dados_calculados
     
-    # Cálculos
+    # ========== CÁLCULOS ==========
+    # Soma de Bases (SB)
     sb = dados['calcium'] + dados['magnesium'] + dados['potassium']
-    ctc_efetiva = sb + dados['aluminum']
-    ctc_potencial = sb + dados['h_al']
-    v_percent = (sb / ctc_potencial * 100) if ctc_potencial > 0 else 0
-    m_percent = (dados['aluminum'] / ctc_efetiva * 100) if ctc_efetiva > 0 else 0
     
+    # CTC efetiva
+    ctc_efetiva = sb + dados['aluminum']
+    
+    # CTC potencial
+    ctc_potencial = sb + dados['h_al']
+    
+    # Saturação por Bases (V%)
+    if ctc_potencial > 0:
+        v_percent = (sb / ctc_potencial) * 100
+    else:
+        v_percent = 0
+    
+    # Saturação por Alumínio (m%)
+    if ctc_efetiva > 0:
+        m_percent = (dados['aluminum'] / ctc_efetiva) * 100
+    else:
+        m_percent = 0
+    
+    # Relação Ca/Mg
+    if dados['magnesium'] > 0:
+        ca_mg_ratio = dados['calcium'] / dados['magnesium']
+    else:
+        ca_mg_ratio = 0
+    
+    # Porosidade
+    if dados['particle_density'] > 0:
+        porosity = (1 - dados['bulk_density'] / dados['particle_density']) * 100
+    else:
+        porosity = 0
+    
+    # Classe textural (opcional)
+    if dados.get('sand', 0) > 0 and dados.get('clay', 0) > 0:
+        if dados['clay'] > 600:
+            textura = "Muito Argilosa"
+        elif dados['clay'] > 350:
+            textura = "Argilosa"
+        elif dados['clay'] > 150:
+            textura = "Média"
+        else:
+            textura = "Arenosa"
+    else:
+        textura = "Não informada"
+    
+    # ========== EXIBIÇÃO ==========
     st.markdown("## 📊 Resultado da Classificação")
+    
+    # Explicação dos cálculos
+    with st.expander("📐 Como os cálculos são realizados?"):
+        st.markdown(f"""
+        **1. Soma de Bases (SB)** = Ca²⁺ + Mg²⁺ + K⁺
+        - {dados['calcium']:.2f} + {dados['magnesium']:.2f} + {dados['potassium']:.2f} = **{sb:.2f} cmolc/dm³**
+        
+        **2. CTC potencial** = SB + H+Al
+        - {sb:.2f} + {dados['h_al']:.2f} = **{ctc_potencial:.2f} cmolc/dm³**
+        
+        **3. Saturação por Bases (V%)** = (SB / CTC) × 100
+        - ({sb:.2f} / {ctc_potencial:.2f}) × 100 = **{v_percent:.1f}%**
+        
+        **4. Saturação por Alumínio (m%)** = (Al³⁺ / CTC_efetiva) × 100
+        - ({dados['aluminum']:.2f} / {ctc_efetiva:.2f}) × 100 = **{m_percent:.1f}%**
+        """)
     
     # Cards de métricas
     col1, col2, col3, col4 = st.columns(4)
     with col1:
+        st.markdown(f"""
+        <div class="metric-card">
+            <h3>🟢 SB</h3>
+            <h2>{sb:.2f}</h2>
+            <small>Soma de Bases (cmolc/dm³)</small>
+        </div>
+        """, unsafe_allow_html=True)
+    with col2:
+        st.markdown(f"""
+        <div class="metric-card">
+            <h3>🟡 CTC</h3>
+            <h2>{ctc_potencial:.2f}</h2>
+            <small>CTC potencial (cmolc/dm³)</small>
+        </div>
+        """, unsafe_allow_html=True)
+    with col3:
         st.markdown(f"""
         <div class="metric-card">
             <h3>🟢 V%</h3>
@@ -254,32 +381,49 @@ elif menu == "🌱 Classificação":
             <small>Saturação por Bases</small>
         </div>
         """, unsafe_allow_html=True)
-    with col2:
-        st.markdown(f"""
-        <div class="metric-card">
-            <h3>🔴 Al³⁺</h3>
-            <h2>{dados['aluminum']:.2f}</h2>
-            <small>cmolc/dm³</small>
-        </div>
-        """, unsafe_allow_html=True)
-    with col3:
-        st.markdown(f"""
-        <div class="metric-card">
-            <h3>🧱 CTC</h3>
-            <h2>{ctc_potencial:.2f}</h2>
-            <small>cmolc/dm³</small>
-        </div>
-        """, unsafe_allow_html=True)
     with col4:
         st.markdown(f"""
         <div class="metric-card">
-            <h3>⚖️ Densidade</h3>
-            <h2>{dados['bulk_density']:.2f}</h2>
-            <small>g/cm³</small>
+            <h3>🔴 m%</h3>
+            <h2>{m_percent:.1f}%</h2>
+            <small>Saturação por Alumínio</small>
         </div>
         """, unsafe_allow_html=True)
     
-    # Score
+    st.markdown("---")
+    
+    # Informações adicionais de textura
+    st.markdown(f"""
+    <div class="info-box">
+        <h3>🏺 Informações Complementares</h3>
+        <p><strong>Classe Textural:</strong> {textura}</p>
+        <p><strong>Porosidade Total:</strong> {porosity:.1f}%</p>
+        <p><strong>Relação Ca/Mg:</strong> {ca_mg_ratio:.2f} (Ideal: 2:1 a 4:1)</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Classificação do solo baseada no V%
+    if v_percent >= 70:
+        classe_v = "🟢 **Eutrófico (Muito Fértil)** - V% > 70%"
+        cor_classe = "success-box"
+    elif v_percent >= 50:
+        classe_v = "🟢 **Eutrófico (Fértil)** - V% entre 50-70%"
+        cor_classe = "success-box"
+    elif v_percent >= 25:
+        classe_v = "🟡 **Distrófico (Baixa Fertilidade)** - V% entre 25-50%"
+        cor_classe = "warning-box"
+    else:
+        classe_v = "🔴 **Álico (Muito Pobre)** - V% < 25%"
+        cor_classe = "info-box"
+    
+    st.markdown(f"""
+    <div class="{cor_classe}">
+        <h3>📌 Classificação do Solo (SiBCS)</h3>
+        <p>{classe_v}</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Score de fertilidade
     score = 0
     if dados['nitrogen'] > 40: score += 2
     if dados['phosphorus'] > 25: score += 2
@@ -323,19 +467,30 @@ elif menu == "🌱 Classificação":
     st.session_state.v_percent = v_percent
     st.session_state.ctc_potencial = ctc_potencial
     st.session_state.m_percent = m_percent
+    st.session_state.sb = sb
 
 # ========== SEÇÃO 3: CALAGEM ==========
 elif menu == "🧪 Calagem":
     
     if not st.session_state.dados_calculados:
-        st.warning("⚠️ Por favor, preencha os dados do solo primeiro na aba '📊 Dados do Solo'.")
+        st.warning("⚠️ Por favor, preencha TODOS os dados do solo primeiro na aba '📊 Dados do Solo'.")
         st.stop()
     
     dados = st.session_state.dados_calculados
     v_percent = st.session_state.get('v_percent', 0)
     ctc_potencial = st.session_state.get('ctc_potencial', 0)
+    sb = st.session_state.get('sb', 0)
     
     st.markdown("## 🧪 Recomendação de Calagem")
+    
+    with st.expander("📐 Como a Necessidade de Calagem é calculada?"):
+        st.markdown(f"""
+        **Fórmula:** NC (t/ha) = (V_desejado - V_atual) × CTC_potencial / 100
+        
+        - **V_atual:** {v_percent:.1f}%
+        - **CTC_potencial:** {ctc_potencial:.2f} cmolc/dm³
+        - **V_desejado:** Varia conforme a cultura
+        """)
     
     col1, col2 = st.columns(2)
     
@@ -347,11 +502,10 @@ elif menu == "🧪 Calagem":
         )
         fator_profundidade = {"0-10 cm": 1.0, "10-15 cm": 1.5, "15-20 cm": 2.0}
         
-        # PRNT como caixa para digitar
         prnt = st.number_input(
             "📦 PRNT do calcário (%)",
             min_value=50.0, max_value=100.0, value=85.0, step=1.0,
-            help="Poder Relativo de Neutralização Total - informe o valor do seu calcário"
+            help="Poder Relativo de Neutralização Total"
         )
     
     with col2:
@@ -409,7 +563,7 @@ elif menu == "🧪 Calagem":
 elif menu == "⚖️ Gessagem":
     
     if not st.session_state.dados_calculados:
-        st.warning("⚠️ Por favor, preencha os dados do solo primeiro na aba '📊 Dados do Solo'.")
+        st.warning("⚠️ Por favor, preencha TODOS os dados do solo primeiro na aba '📊 Dados do Solo'.")
         st.stop()
     
     dados = st.session_state.dados_calculados
@@ -454,26 +608,43 @@ elif menu == "⚖️ Gessagem":
 elif menu == "📈 Relatório":
     
     if not st.session_state.dados_calculados:
-        st.warning("⚠️ Por favor, preencha os dados do solo primeiro.")
+        st.warning("⚠️ Por favor, preencha TODOS os dados do solo primeiro.")
         st.stop()
     
     st.markdown("## 📋 Relatório Completo da Análise")
     
     dados = st.session_state.dados_calculados
     v_percent = st.session_state.get('v_percent', 0)
+    ctc_potencial = st.session_state.get('ctc_potencial', 0)
+    sb = st.session_state.get('sb', 0)
+    
+    # Classe textural
+    if dados.get('sand', 0) > 0 and dados.get('clay', 0) > 0:
+        if dados['clay'] > 600:
+            textura = "Muito Argilosa"
+        elif dados['clay'] > 350:
+            textura = "Argilosa"
+        elif dados['clay'] > 150:
+            textura = "Média"
+        else:
+            textura = "Arenosa"
+    else:
+        textura = "Não informada"
     
     resumo = pd.DataFrame({
         "Parâmetro": ["Nitrogênio (N)", "Fósforo (P)", "Potássio (K)", 
                      "Cálcio (Ca)", "Magnésio (Mg)", "pH", "Alumínio (Al³⁺)",
-                     "CTC Potencial", "Saturação por Bases (V%)", "Matéria Orgânica",
-                     "Densidade do Solo"],
+                     "H + Al", "Soma de Bases (SB)", "CTC Potencial",
+                     "Saturação por Bases (V%)", "Matéria Orgânica",
+                     "Densidade do Solo", "Classe Textural", "Relação Ca/Mg"],
         "Valor": [f"{dados['nitrogen']:.1f} mg/dm³", f"{dados['phosphorus']:.1f} mg/dm³",
                  f"{dados['potassium']:.1f} mmolc/dm³", f"{dados['calcium']:.1f} cmolc/dm³",
                  f"{dados['magnesium']:.1f} cmolc/dm³", f"{dados['ph']:.1f}",
-                 f"{dados['aluminum']:.2f} cmolc/dm³", 
-                 f"{st.session_state.get('ctc_potencial', 0):.2f} cmolc/dm³",
+                 f"{dados['aluminum']:.2f} cmolc/dm³", f"{dados['h_al']:.2f} cmolc/dm³",
+                 f"{sb:.2f} cmolc/dm³", f"{ctc_potencial:.2f} cmolc/dm³",
                  f"{v_percent:.1f}%", f"{dados['organic_matter']:.1f} g/kg",
-                 f"{dados['bulk_density']:.2f} g/cm³"]
+                 f"{dados['bulk_density']:.2f} g/cm³", textura,
+                 f"{dados['calcium']/dados['magnesium']:.2f}" if dados['magnesium'] > 0 else "N/A"]
     })
     
     st.dataframe(resumo, hide_index=True, use_container_width=True)
@@ -487,58 +658,7 @@ elif menu == "📈 Relatório":
         use_container_width=True
     )
 
-# ========== CORREÇÃO DA COR DO TEXTO NAS CAIXAS ==========
-st.markdown("""
-<style>
-    /* Forçar texto escuro em todas as caixas */
-    div[data-testid="stMetric"] label {
-        color: #1a3a2a !important;
-        font-weight: bold !important;
-        font-size: 1rem !important;
-    }
-    
-    div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
-        color: #0d2e1d !important;
-        font-size: 2rem !important;
-        font-weight: 900 !important;
-    }
-    
-    div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {
-        color: #1a5f3e !important;
-        font-weight: bold !important;
-    }
-    
-    /* Texto das info boxes */
-    .stAlert p {
-        color: #1a2a1a !important;
-        font-weight: 500 !important;
-    }
-    
-    .stAlert strong {
-        color: #0d2e1d !important;
-    }
-    
-    /* Texto dos expanders */
-    .streamlit-expanderHeader p {
-        color: white !important;
-    }
-    
-    /* Texto geral das caixas de resultado */
-    .success-box p, .warning-box p, .info-box p,
-    .success-box h2, .warning-box h2, .info-box h2,
-    .success-box h3, .warning-box h3, .info-box h3 {
-        color: #1a2a1a !important;
-        font-weight: bold !important;
-    }
-    
-    /* Cor do texto nos cards das métricas */
-    .metric-card h3, .metric-card h2, .metric-card p, .metric-card small {
-        color: #0d2e1d !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# ========== CORREÇÃO DE VISIBILIDADE - TEXTO BRANCO E VERDE VÍVIDO ==========
+# ========== CORREÇÃO DE VISIBILIDADE ==========
 st.markdown("""
 <style>
     /* Garantir texto branco em todo o conteúdo escuro */
@@ -546,166 +666,40 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* Métricas - texto branco com números destacados */
+    /* Métricas */
     div[data-testid="stMetric"] label {
         color: #a8e6cf !important;
         font-weight: bold !important;
-        font-size: 1rem !important;
     }
     
     div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
         color: #2ecc71 !important;
-        font-size: 2.2rem !important;
+        font-size: 2rem !important;
         font-weight: 900 !important;
-        text-shadow: 0 0 5px rgba(46,204,113,0.3) !important;
     }
     
-    div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {
-        color: #f1c40f !important;
-        font-weight: bold !important;
-    }
-    
-    /* Alertas/Success/Warning/Info - texto escuro porque fundo é claro */
-    .stAlert p, .stAlert li, .stAlert span {
+    /* Alertas */
+    .stAlert p, .stAlert li {
         color: #1a2a1a !important;
     }
     
-    .stAlert.st-success p, .stAlert.st-success li {
-        color: #155724 !important;
-    }
-    
-    .stAlert.st-warning p, .stAlert.st-warning li {
-        color: #856404 !important;
-    }
-    
-    .stAlert.st-info p, .stAlert.st-info li {
-        color: #0c5460 !important;
-    }
-    
-    /* Expanders - texto branco no cabeçalho, escuro no conteúdo */
+    /* Expanders */
     .streamlit-expanderHeader p {
         color: white !important;
-        font-weight: bold !important;
     }
     
     .streamlit-expanderContent p, .streamlit-expanderContent li {
         color: #1a2a1a !important;
     }
     
-    /* Labels dos inputs - texto verde claro */
+    /* Labels */
     label, .stSlider label, .stNumberInput label, .stSelectbox label, .stRadio label {
         color: #a8e6cf !important;
         font-weight: 600 !important;
     }
     
-    /* Inputs - texto branco dentro */
+    /* Inputs */
     input {
         color: white !important;
         background-color: #2c3e50 !important;
-        border: 1px solid #2ecc71 !important;
-        border-radius: 8px !important;
-    }
-    
-    input:focus {
-        border-color: #2ecc71 !important;
-        box-shadow: 0 0 0 2px rgba(46,204,113,0.3) !important;
-    }
-    
-    /* Selectbox - texto branco */
-    .stSelectbox div[data-baseweb="select"] span {
-        color: white !important;
-    }
-    
-    .stSelectbox div[data-baseweb="select"] {
-        background-color: #2c3e50 !important;
-    }
-    
-    /* Radio buttons - texto verde claro */
-    .stRadio div[role="radiogroup"] label {
-        color: #a8e6cf !important;
-        background: #2c3e50 !important;
-        padding: 8px 20px !important;
-        border-radius: 30px !important;
-        transition: all 0.3s !important;
-    }
-    
-    .stRadio div[role="radiogroup"] label:hover {
-        background: #1a5f3e !important;
-        color: white !important;
-    }
-    
-    /* Sliders */
-    .stSlider div[data-baseweb="slider"] div {
-        color: #2ecc71 !important;
-    }
-    
-    .stSlider div[data-testid="stTickBar"] {
-        background: #2ecc71 !important;
-    }
-    
-    /* Números dos sliders */
-    .stSlider div[data-testid="stThumbValue"] {
-        color: #2ecc71 !important;
-        font-weight: bold !important;
-    }
-    
-    /* Títulos */
-    h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-        color: #2ecc71 !important;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
-    }
-    
-    /* Texto de informação no sidebar */
-    .stSidebar .stMarkdown p, .stSidebar .stMarkdown li {
-        color: #a8e6cf !important;
-    }
-    
-    /* Valores das métricas na calagem */
-    .stMetric .stMetricValue {
-        color: #2ecc71 !important;
-    }
-    
-    /* Resultado da classificação */
-    .success-box h2, .success-box p {
-        color: #155724 !important;
-    }
-    
-    .warning-box h2, .warning-box p {
-        color: #856404 !important;
-    }
-    
-    .info-box h2, .info-box p {
-        color: #0c5460 !important;
-    }
-    
-    /* Footer */
-    footer p {
-        color: #a8e6cf !important;
-    }
-    
-    /* Links */
-    a {
-        color: #2ecc71 !important;
-        text-decoration: none !important;
-    }
-    
-    a:hover {
-        color: #27ae60 !important;
-        text-decoration: underline !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("---")
-st.caption("© 2025 - Classificador de Fertilidade do Solo | Baseado no SiBCS - Embrapa")
-
-
-
-
-
-
-
-
-
-
-
+       
