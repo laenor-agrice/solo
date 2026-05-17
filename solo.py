@@ -538,6 +538,74 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ========== CORREÇÃO ESPECÍFICA PARA ABA DE CALAGEM ==========
+st.markdown("""
+<style>
+    /* Forçar texto escuro na aba de calagem */
+    .stMarkdown p, .stMarkdown li, .stMarkdown span {
+        color: #1a2a1a !important;
+    }
+    
+    /* Corrigir textos dentro de info boxes */
+    .stAlert .stMarkdown p, .stAlert p {
+        color: #1a2a1a !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Corrigir métricas na calagem */
+    div[data-testid="stMetric"] label {
+        color: #0d2e1d !important;
+        font-weight: bold !important;
+    }
+    
+    div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
+        color: #0a4a2a !important;
+        font-weight: 900 !important;
+    }
+    
+    /* Corrigir textos dos sliders e labels */
+    .stSlider label, .stNumberInput label, .stSelectbox label, .stRadio label {
+        color: #1a2a1a !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Corrigir textos dos expanders na calagem */
+    .streamlit-expanderHeader p {
+        color: white !important;
+    }
+    
+    /* Garantir que textos do success/warning/info fiquem escuros */
+    .stAlert.st-success p, .stAlert.st-warning p, .stAlert.st-info p {
+        color: #1a2a1a !important;
+    }
+    
+    /* Cor específica para textos com .st-warning */
+    .stAlert.st-warning {
+        background: #fff3cd !important;
+    }
+    
+    .stAlert.st-warning p {
+        color: #856404 !important;
+    }
+    
+    /* Garantir legibilidade em todas as abas */
+    .st-emotion-cache-1v0mbdj p, .st-emotion-cache-1v0mbdj li {
+        color: #1a2a1a !important;
+    }
+    
+    /* Inputs de número - texto escuro */
+    input {
+        color: #1a2a1a !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Selectbox - texto escuro */
+    .stSelectbox div[data-baseweb="select"] span {
+        color: #1a2a1a !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 st.markdown("---")
 st.caption("© 2025 - Classificador de Fertilidade do Solo | Baseado no SiBCS - Embrapa")
 
