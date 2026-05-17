@@ -160,6 +160,54 @@ label {
 }
 
 /* ==========================================================================
+   CAIXAS DOS RESULTADOS PRINCIPAIS
+========================================================================== */
+
+.result-box {
+    background: linear-gradient(145deg, #0f172a, #111827) !important;
+    border: 2px solid #2563eb !important;
+    border-radius: 18px !important;
+    padding: 22px !important;
+    margin-bottom: 15px !important;
+    box-shadow: 0 0 18px rgba(37,99,235,0.18) !important;
+    transition: all 0.3s ease !important;
+    text-align: center !important;
+}
+
+/* Hover */
+
+.result-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 28px rgba(96,165,250,0.35) !important;
+}
+
+/* Título */
+
+.result-title {
+    color: #93c5fd !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 15px !important;
+}
+
+/* Valor */
+
+.result-value {
+    color: #ffffff !important;
+    font-size: 2.3rem !important;
+    font-weight: 900 !important;
+    margin-bottom: 8px !important;
+}
+
+/* Unidade */
+
+.result-unit {
+    color: #cbd5e1 !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+}
+
+/* ==========================================================================
    METRICS STREAMLIT
 ========================================================================== */
 
@@ -307,68 +355,56 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# CAIXAS DOS RESULTADOS
+# CAIXAS DOS RESULTADOS PRINCIPAIS
 # ============================================================================
 
 st.markdown("""
 <style>
 
-/* ==========================================================================
-   CONTAINER DOS RESULTADOS
-========================================================================== */
+/* Cards dos resultados */
 
-.analysis-box {
-    background: linear-gradient(145deg, #0f172a, #111827);
-    border: 2px solid #2563eb;
-    border-left: 6px solid #60a5fa;
-    border-radius: 18px;
-    padding: 22px;
-    margin-top: 18px;
-    margin-bottom: 18px;
-    box-shadow: 0 0 18px rgba(37,99,235,0.18);
-    transition: all 0.3s ease;
+.result-box {
+    background: linear-gradient(145deg, #0f172a, #111827) !important;
+    border: 2px solid #2563eb !important;
+    border-radius: 18px !important;
+    padding: 22px !important;
+    margin-bottom: 15px !important;
+    box-shadow: 0 0 18px rgba(37,99,235,0.18) !important;
+    transition: all 0.3s ease !important;
+    text-align: center !important;
 }
 
-/* Efeito hover */
+/* Hover */
 
-.analysis-box:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 28px rgba(96,165,250,0.35);
+.result-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 28px rgba(96,165,250,0.35) !important;
 }
 
-/* Título do resultado */
+/* Título */
 
-.analysis-box h3 {
-    color: #60a5fa !important;
-    font-size: 1.3rem;
-    font-weight: 800;
-    margin-bottom: 12px;
-}
-
-/* Texto interno */
-
-.analysis-box p {
-    color: #ffffff !important;
-    font-size: 1.05rem;
-    line-height: 1.6;
-    margin-bottom: 8px;
-}
-
-/* Número destacado */
-
-.analysis-highlight {
+.result-title {
     color: #93c5fd !important;
-    font-size: 2rem;
-    font-weight: 900;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 15px !important;
 }
 
-/* Linha separadora */
+/* Valor */
 
-.analysis-divider {
-    height: 2px;
-    background: linear-gradient(to right, #2563eb, transparent);
-    margin: 12px 0;
-    border-radius: 10px;
+.result-value {
+    color: #ffffff !important;
+    font-size: 2.3rem !important;
+    font-weight: 900 !important;
+    margin-bottom: 8px !important;
+}
+
+/* Unidade */
+
+.result-unit {
+    color: #cbd5e1 !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
 }
 
 </style>
