@@ -671,30 +671,7 @@ if menu == "📊 1. Dados do Solo":
         except ValueError:
             st.error("❌ Verifique os valores numericos inseridos. Use ponto decimal (ex: 1.5)")
 
-# ======================================================
-# SCORE DE FERTILIDADE
-# ======================================================
 
-score = 0
-
-if v_percent >= 70:
-    score += 5
-elif v_percent >= 50:
-    score += 3
-
-if dados["phosphorus"] >= 20:
-    score += 3
-
-if dados["potassium"] >= 0.35:
-    score += 3
-
-if dados["aluminum"] < 0.5:
-    score += 4
-
-if 5.5 <= dados["ph"] <= 6.5:
-    score += 5
-
-st.session_state.score = score
 
 # ============================================================================
 # ABA 3 - RELATORIO
