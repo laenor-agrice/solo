@@ -1,5 +1,66 @@
 import streamlit as st
 import pandas as pd
+import joblib
+
+# ==================================
+# CARREGAR MODELO
+# ==================================
+
+modelo = joblib.load('modelo.pkl')
+
+features = joblib.load('features.pkl')
+
+# ==================================
+# TÍTULO
+# ==================================
+
+st.title("Classificação de Fertilidade do Solo")
+
+# ==================================
+# INPUTS
+# ==================================
+
+n = st.number_input("Nitrogênio (N)")
+p = st.number_input("Fósforo (P)")
+k = st.number_input("Potássio (K)")
+ph = st.number_input("pH")
+ec = st.number_input("Condutividade Elétrica")
+oc = st.number_input("Carbono Orgânico")
+
+# ==================================
+# BOTÃO
+# ==================================
+
+if st.button("Classificar Fertilidade"):
+
+    # ==================================
+    # ENTRADA
+    # ==================================
+
+    entrada = pd.DataFrame([[
+        n,
+        p,
+        k,
+        ph,
+        ec,
+        oc
+    ]], columns=features)
+
+    # ==================================
+    # PREVISÃO
+    # ==================================
+
+    pred = modelo.predict(entrada)
+
+    # ==================================
+    # RESULTADO
+    # ==================================
+
+    st.success(f"Classe prevista: {pred[0]}")
+
+##=======
+import streamlit as st
+import pandas as pd
 
 # ============================================================================
 # CONFIGURACAO DA PAGINA
