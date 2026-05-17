@@ -590,9 +590,6 @@ def fazer_predicao_ia(dados):
                 valores.append(0)
                 features_faltando.append(feature)
         
-        #if features_faltando:
-            #st.warning(f"⚠️ Features não disponíveis (usando 0): {features_faltando[:5]}")
-        
         # Criar DataFrame com a ordem correta
         entrada_ia = pd.DataFrame([valores], columns=features)
         
@@ -612,17 +609,15 @@ def fazer_predicao_ia(dados):
                 return valor
             
             return mapeamento.get(valor, f"Classe {valor}")
-    # Se for string ou outro valor, tenta converter
-    if isinstance(valor, str):
-        return valor
-    
-    # Retorna o mapeamento ou valor original se não encontrar
-    return mapeamento.get(valor, f"Classe {valor}")
         
+        # Aplicar o mapeamento
         if hasattr(modelo, 'classes_'):
-            return modelo.classes_[predicao[0]], "Sucesso"
+            classe_original = modelo.classes_[predicao[0]]
+            classe_legivel = mapear_classe_fertilidade(classe_original)
+            return classe_legivel, "Sucesso"
         else:
-            return predicao[0], "Sucesso"
+            classe_legivel = mapear_classe_fertilidade(predicao[0])
+            return classe_legivel, "Sucesso"
     
     except Exception as e:
         return None, f"Erro na predição: {str(e)}"
