@@ -309,24 +309,26 @@ if menu == "📊 1. Dados do Solo":
     st.markdown("---")
     
     if st.button("✅ SALVAR DADOS BÁSICOS", use_container_width=True):
-        try:
-            # Converter K de cmolc/dm³ (já está na unidade correta)
-            k_value = float(k_basico.replace(',', '.'))
-            
-            st.session_state.dados_basicos = {
-                'nitrogen': float(nitrogen.replace(',', '.')),
-                'phosphorus': float(phosphorus.replace(',', '.')),
-                'potassium': k_value,
-                'organic_matter': float(organic_matter.replace(',', '.')),
-                'bulk_density': float(bulk_density.replace(',', '.')),
-                'particle_density': float(particle_density.replace(',', '.')),
-                'sand': float(sand.replace(',', '.')),
-                'silt': float(silt.replace(',', '.')),
-                'clay': float(clay.replace(',', '.'))
-            }
-            st.success("✅ Dados básicos salvos! Vá para a aba 'Classificação'.")
-        except ValueError as e:
-            st.error(f"❌ Erro: {e}. Use números com ponto decimal (ex: 1.5)")
+    try:
+        # Converter K de cmolc/dm³
+        k_value = float(potassium.replace(',', '.'))
+
+        st.session_state.dados_basicos = {
+            'nitrogen': float(nitrogen.replace(',', '.')),
+            'phosphorus': float(phosphorus.replace(',', '.')),
+            'potassium': k_value,
+            'organic_matter': float(organic_matter.replace(',', '.')),
+            'bulk_density': float(bulk_density.replace(',', '.')),
+            'particle_density': float(particle_density.replace(',', '.')),
+            'sand': float(sand.replace(',', '.')),
+            'silt': float(silt.replace(',', '.')),
+            'clay': float(clay.replace(',', '.'))
+        }
+
+        st.success("✅ Dados básicos salvos! Vá para a aba 'Classificação'.")
+
+    except ValueError as e:
+        st.error(f"❌ Erro: {e}. Use números com ponto decimal (ex: 1.5)")
 
 # ============================================================================
 # BLOCO 2: CLASSIFICAÇÃO (pH, Acidez, Cátions e Análise por Cultura)
