@@ -513,8 +513,9 @@ if "dados_calculados" not in st.session_state:
 # ============================================================================
 # MENU
 # ============================================================================
-
-menu = st.radio(
+if "menu" not in st.session_state:
+    st.session_state.menu = "📊 1. Dados do Solo"
+menu = st.sidebar.radio(
     "Navegacao",
     [
         "📊 1. Dados do Solo",
@@ -695,11 +696,27 @@ if menu == "📊 1. Dados do Solo":
 
         st.markdown("### 🏺 Textura")
 
-        sand = st.text_input("🏖️ Areia (g/kg)", value="350", key="sand_input")
-        silt = st.text_input("🏞️ Silte (g/kg)", value="300", key="silt_input")
-        clay = st.text_input("🏺 Argila (g/kg)", value="350", key="clay_input")
+        sand = st.text_input(
+            "🏖️ Areia (g/kg)",
+            value="350",
+            key="sand_input"
+        )
 
+        silt = st.text_input(
+            "🏞️ Silte (g/kg)",
+            value="300",
+            key="silt_input"
+        )
+
+        clay = st.text_input(
+            "🏺 Argila (g/kg)",
+            value="350",
+            key="clay_input"
+        )
+
+        # SOMA DA TEXTURA
         try:
+
             soma_textura = (
                 float(sand.replace(",", ".")) +
                 float(silt.replace(",", ".")) +
@@ -707,46 +724,97 @@ if menu == "📊 1. Dados do Solo":
             )
 
             if abs(soma_textura - 1000) > 10:
-                st.warning(f"⚠️ Soma da textura = {soma_textura:.0f} g/kg. O ideal é 1000 g/kg.")
+
+                st.warning(
+                    f"⚠️ Soma da textura = {soma_textura:.0f} g/kg. "
+                    "O ideal é 1000 g/kg."
+                )
 
         except:
             pass
 
     st.markdown("---")
 
-    if st.button("✅ SALVAR DADOS BASICOS", key="salvar_basicos"):
+    # BOTÃO SALVAR
+    if st.button(
+        "✅ SALVAR DADOS BASICOS",
+        key="salvar_basicos"
+    ):
 
         try:
+
             st.session_state.dados_basicos = {
-                "nitrogen": float(nitrogen.replace(",", ".")),
-                "phosphorus": float(phosphorus.replace(",", ".")),
-                "potassium": float(potassium.replace(",", ".")),
-                "organic_matter": float(organic_matter.replace(",", ".")),
-                "bulk_density": float(bulk_density.replace(",", ".")),
-                "particle_density": float(particle_density.replace(",", ".")),
-                "sand": float(sand.replace(",", ".")),
-                "silt": float(silt.replace(",", ".")),
-                "clay": float(clay.replace(",", "."))
+
+                "nitrogen": float(
+                    nitrogen.replace(",", ".")
+                ),
+
+                "phosphorus": float(
+                    phosphorus.replace(",", ".")
+                ),
+
+                "potassium": float(
+                    potassium.replace(",", ".")
+                ),
+
+                "organic_matter": float(
+                    organic_matter.replace(",", ".")
+                ),
+
+                "bulk_density": float(
+                    bulk_density.replace(",", ".")
+                ),
+
+                "particle_density": float(
+                    particle_density.replace(",", ".")
+                ),
+
+                "sand": float(
+                    sand.replace(",", ".")
+                ),
+
+                "silt": float(
+                    silt.replace(",", ".")
+                ),
+
+                "clay": float(
+                    clay.replace(",", ".")
+                )
             }
 
-            st.success("✅ Dados basicos salvos com sucesso! Vá para a aba 'Classificacao'.")
+            # FLAG DE CONFIRMACAO
+            st.session_state.dados_salvos = True
+
+            st.success(
+                "✅ Dados básicos salvos com sucesso! "
+                "Agora vá para a aba 'Classificação'."
+            )
 
         except ValueError:
-            st.error("❌ Verifique os valores numericos inseridos. Use ponto decimal (ex: 1.5)")
 
+            st.error(
+                "❌ Verifique os valores numéricos inseridos."
+            )
 # ============================================================================
 # ABA 2 - CLASSIFICACAO
 # ============================================================================
 
 elif menu == "🌱 2. Classificacao":
 
-    if not st.session_state.dados_basicos:
+    # VERIFICA SE OS DADOS DA ABA 1 FORAM SALVOS
+    if not st.session_state.dados_salvos:
+
         st.warning(
-            "⚠️ Preencha primeiro os dados básicos."
+            "⚠️ Salve primeiro os dados da aba 'Dados do Solo'."
         )
+
         st.stop()
 
     st.markdown("## 🌱 Classificação da Fertilidade")
+
+    # =========================================================================
+    # CAMPOS
+    # =========================================================================
 
     col1, col2 = st.columns(2)
 
@@ -754,49 +822,88 @@ elif menu == "🌱 2. Classificacao":
 
         ph = st.text_input(
             "🧪 pH do Solo",
-            value="6.0"
+            value="6.0",
+            key="ph_input"
         )
 
         aluminum = st.text_input(
             "⚠️ Alumínio (Al³⁺) - cmolc/dm³",
-            value="0.50"
+            value="0.50",
+            key="al_input"
         )
 
         h_al = st.text_input(
             "📊 H + Al - cmolc/dm³",
-            value="3.50"
+            value="3.50",
+            key="hal_input"
         )
 
     with col2:
 
         calcium = st.text_input(
             "🥛 Cálcio (Ca²⁺)",
-            value="3.00"
+            value="3.00",
+            key="ca_input"
         )
 
         magnesium = st.text_input(
             "🧂 Magnésio (Mg²⁺)",
-            value="1.50"
+            value="1.50",
+            key="mg_input"
         )
 
         cultura = st.selectbox(
             "🌾 Cultura",
-            list(necessidades_culturas.keys())
+            list(necessidades_culturas.keys()),
+            key="cultura_input"
         )
 
     st.markdown("---")
 
-    if st.button("🔬 CALCULAR CLASSIFICACAO"):
+    # =========================================================================
+    # BOTAO CALCULAR
+    # =========================================================================
+
+    if st.button(
+        "🔬 CALCULAR CLASSIFICACAO",
+        key="btn_classificacao"
+    ):
 
         try:
 
+            # ==============================================================
+            # COPIA DOS DADOS
+            # ==============================================================
+
             dados = st.session_state.dados_basicos.copy()
 
-            dados["ph"] = float(ph.replace(",", "."))
-            dados["aluminum"] = float(aluminum.replace(",", "."))
-            dados["h_al"] = float(h_al.replace(",", "."))
-            dados["calcium"] = float(calcium.replace(",", "."))
-            dados["magnesium"] = float(magnesium.replace(",", "."))
+            # ==============================================================
+            # CONVERSAO DOS DADOS
+            # ==============================================================
+
+            dados["ph"] = float(
+                ph.replace(",", ".")
+            )
+
+            dados["aluminum"] = float(
+                aluminum.replace(",", ".")
+            )
+
+            dados["h_al"] = float(
+                h_al.replace(",", ".")
+            )
+
+            dados["calcium"] = float(
+                calcium.replace(",", ".")
+            )
+
+            dados["magnesium"] = float(
+                magnesium.replace(",", ".")
+            )
+
+            # ==============================================================
+            # CALCULOS
+            # ==============================================================
 
             sb = (
                 dados["calcium"] +
@@ -804,50 +911,136 @@ elif menu == "🌱 2. Classificacao":
                 dados["potassium"]
             )
 
-            ctc_efetiva = sb + dados["aluminum"]
-
-            ctc_potencial = sb + dados["h_al"]
-
-            v_percent = (
-                (sb / ctc_potencial) * 100
-                if ctc_potencial > 0 else 0
+            ctc_efetiva = (
+                sb +
+                dados["aluminum"]
             )
 
-            m_percent = (
-                (dados["aluminum"] / ctc_efetiva) * 100
-                if ctc_efetiva > 0 else 0
+            ctc_potencial = (
+                sb +
+                dados["h_al"]
             )
+
+            # SATURACAO POR BASES
+            if ctc_potencial > 0:
+
+                v_percent = (
+                    sb / ctc_potencial
+                ) * 100
+
+            else:
+
+                v_percent = 0
+
+            # SATURACAO POR ALUMINIO
+            if ctc_efetiva > 0:
+
+                m_percent = (
+                    dados["aluminum"] /
+                    ctc_efetiva
+                ) * 100
+
+            else:
+
+                m_percent = 0
+
+            # ==============================================================
+            # SESSION STATE
+            # ==============================================================
 
             st.session_state.dados_calculados = dados
+
             st.session_state.sb = sb
+
+            st.session_state.ctc_efetiva = ctc_efetiva
+
             st.session_state.ctc_potencial = ctc_potencial
+
             st.session_state.v_percent = v_percent
+
             st.session_state.m_percent = m_percent
+
             st.session_state.cultura = cultura
 
-            st.success("✅ Classificacao realizada!")
+            # ==============================================================
+            # CALAGEM
+            # ==============================================================
 
-        except ValueError:
-            st.error(
-                "❌ Erro ao converter os dados."
+            v2 = necessidades_culturas[cultura]["v_desejado"]
+
+            nc = (
+                (
+                    v2 - v_percent
+                ) * ctc_potencial
+            ) / 100
+
+            if nc < 0:
+                nc = 0
+
+            prnt = 80
+
+            nc_corrigida = (
+                nc * (100 / prnt)
             )
 
+            st.session_state.nc_corrigida = nc_corrigida
+
+            st.session_state.prnt = prnt
+
+            # ==============================================================
+            # GESSAGEM
+            # ==============================================================
+
+            if dados["clay"] >= 350:
+
+                gesso = (
+                    nc_corrigida * 0.5
+                )
+
+            else:
+
+                gesso = 0
+
+            st.session_state.gesso = gesso
+
+            st.success(
+                "✅ Classificação realizada com sucesso!"
+            )
+
+        except ValueError:
+
+            st.error(
+                "❌ Erro ao converter os dados numéricos."
+            )
+
+    # =========================================================================
     # RESULTADOS
+    # =========================================================================
+
     if "v_percent" in st.session_state:
 
         dados = st.session_state.dados_calculados
 
         sb = st.session_state.sb
+
         ctc_potencial = st.session_state.ctc_potencial
+
         v_percent = st.session_state.v_percent
+
         m_percent = st.session_state.m_percent
 
         st.markdown("---")
+
         st.markdown("## 📊 Resultados")
+
+        # =====================================================================
+        # CARDS
+        # =====================================================================
 
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
+
             st.markdown(f"""
             <div class="metric-card">
                 <h3>SB</h3>
@@ -857,6 +1050,7 @@ elif menu == "🌱 2. Classificacao":
             """, unsafe_allow_html=True)
 
         with col2:
+
             st.markdown(f"""
             <div class="metric-card">
                 <h3>CTC Potencial</h3>
@@ -866,15 +1060,17 @@ elif menu == "🌱 2. Classificacao":
             """, unsafe_allow_html=True)
 
         with col3:
+
             st.markdown(f"""
             <div class="metric-card">
                 <h3>V%</h3>
                 <h2>{v_percent:.1f}%</h2>
-                <small>Saturação por bases</small>
+                <small>Saturação por Bases</small>
             </div>
             """, unsafe_allow_html=True)
 
         with col4:
+
             st.markdown(f"""
             <div class="metric-card">
                 <h3>m%</h3>
@@ -883,73 +1079,133 @@ elif menu == "🌱 2. Classificacao":
             </div>
             """, unsafe_allow_html=True)
 
-        # BARRA
+        # =====================================================================
+        # BARRA DE FERTILIDADE
+        # =====================================================================
+
         st.markdown("### 📈 Índice de Fertilidade")
 
         st.markdown(f"""
         <div class="progress-container">
-            <div class="progress-bar"
-                 style="width:{min(v_percent,100)}%;">
-                 {v_percent:.1f}%
+
+            <div
+                class="progress-bar"
+                style="width:{min(v_percent,100)}%;"
+            >
+                {v_percent:.1f}%
             </div>
+
         </div>
         """, unsafe_allow_html=True)
 
-        # CLASSIFICAÇÃO
+        # =====================================================================
+        # CLASSIFICACAO
+        # =====================================================================
+
         if v_percent >= 70:
+
             classe = "Eutrófico (Muito Fértil)"
             cor = "🟢"
 
         elif v_percent >= 50:
+
             classe = "Eutrófico"
             cor = "🟢"
 
         elif v_percent >= 25:
+
             classe = "Distrófico"
             cor = "🟡"
 
         else:
+
             classe = "Álico"
             cor = "🔴"
 
         st.markdown(f"""
         <div class="result-card">
-            <h2>{cor} Classificacao SiBCS</h2>
-            <p class="result-number">{classe}</p>
+
+            <h2>{cor} Classificação SiBCS</h2>
+
+            <p class="result-number">
+                {classe}
+            </p>
+
         </div>
         """, unsafe_allow_html=True)
 
-        # ADEQUAÇÃO
+        # =====================================================================
+        # ADEQUACAO DA CULTURA
+        # =====================================================================
+
         st.markdown("## 🌾 Adequação da Cultura")
 
-        nec = necessidades_culturas[st.session_state.cultura]
+        nec = necessidades_culturas[
+            st.session_state.cultura
+        ]
 
         if v_percent >= nec["v_desejado"]:
-            st.success("✅ Saturação por bases adequada")
+
+            st.success(
+                "✅ Saturação por bases adequada"
+            )
+
         else:
-            st.error("❌ Necessidade de calagem")
+
+            st.error(
+                "❌ Necessidade de calagem"
+            )
 
         if dados["phosphorus"] >= nec["p_min"]:
-            st.success("✅ Fósforo adequado")
+
+            st.success(
+                "✅ Fósforo adequado"
+            )
+
         else:
-            st.error("❌ Fósforo abaixo do ideal")
+
+            st.error(
+                "❌ Fósforo abaixo do ideal"
+            )
 
         if dados["potassium"] >= nec["k_min"]:
-            st.success("✅ Potássio adequado")
-        else:
-            st.error("❌ Potássio abaixo do ideal")
 
-        if nec["ph_min"] <= dados["ph"] <= nec["ph_max"]:
-            st.success("✅ pH adequado")
-        else:
-            st.error("❌ pH fora da faixa ideal")
+            st.success(
+                "✅ Potássio adequado"
+            )
 
+        else:
+
+            st.error(
+                "❌ Potássio abaixo do ideal"
+            )
+
+        if (
+            nec["ph_min"] <= dados["ph"] <= nec["ph_max"]
+        ):
+
+            st.success(
+                "✅ pH adequado"
+            )
+
+        else:
+
+            st.error(
+                "❌ pH fora da faixa ideal"
+            )
+
+        # =====================================================================
         # SCORE
+        # =====================================================================
+
         score = 0
 
         if v_percent >= 70:
+
             score += 5
+
         elif v_percent >= 50:
+
             score += 3
 
         if dados["phosphorus"] >= 20:
@@ -964,22 +1220,37 @@ elif menu == "🌱 2. Classificacao":
         if 5.5 <= dados["ph"] <= 6.5:
             score += 5
 
+        # =====================================================================
+        # RESULTADO FINAL
+        # =====================================================================
+
         st.markdown("---")
 
         if score >= 15:
+
             resultado = "🟢 ALTA FERTILIDADE"
 
         elif score >= 8:
+
             resultado = "🟡 FERTILIDADE MÉDIA"
 
         else:
+
             resultado = "🔴 BAIXA FERTILIDADE"
 
         st.markdown(f"""
         <div class="result-card">
+
             <h2>RESULTADO FINAL</h2>
-            <p class="result-number">{resultado}</p>
-            <p>Score: {score}/20</p>
+
+            <p class="result-number">
+                {resultado}
+            </p>
+
+            <p>
+                Score: {score}/20
+            </p>
+
         </div>
         """, unsafe_allow_html=True)
 
