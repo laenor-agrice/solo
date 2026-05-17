@@ -176,12 +176,27 @@ st.markdown("""
 # ============================================================================
 
 with st.sidebar:
+    st.image(
+        "https://cdn-icons-png.flaticon.com/512/2934/2934128.png",
+        width=80
+    )
+
+    st.markdown("### 📊 Sobre o Sistema")
+
     st.markdown("""
+    Este classificador utiliza parâmetros do **SiBCS (Embrapa)** para:
+
     - 🧪 Avaliação da fertilidade do solo
     - 🌱 Classificação agrícola
     - ⚖️ Recomendação de calagem
     - 📈 Relatórios técnicos
+    - 🧱 Cálculo de CTC e saturação por bases
     """)
+
+    st.markdown("---")
+
+    st.caption("Versão 3.0")
+    st.caption("Desenvolvido em Streamlit")
 
 # ============================================================================
 # SESSION STATE
