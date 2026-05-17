@@ -1,24 +1,51 @@
 import streamlit as st
 import pandas as pd
-import joblib
-import os
 import traceback
+import sys
 
-# ==================================
-# CARREGAR MODELO IA
-# ==================================
+# ============================================================================
+# TRATAMENTO DE ERROS DE IMPORTAÇÃO
+# ============================================================================
+
+# Tentativa segura de importar joblib
+try:
+    import joblib
+    JOBLIB_AVAILABLE = True
+except ImportError:
+    JOBLIB_AVAILABLE = False
+    joblib = None
+
+# Tentativa segura de importar outras bibliotecas
+try:
+    import numpy as np
+    NUMPY_AVAILABLE = True
+except ImportError:
+    NUMPY_AVAILABLE = False
+    np = None
+
+# ============================================================================
+# FUNÇÃO PARA CARREGAR MODELO COM TRATAMENTO DE ERRO
+# ============================================================================
 
 @st.cache_resource
 def carregar_modelo():
     """Carrega o modelo e features com tratamento de erro"""
+    
+    # Verificar se a biblioteca necessária está disponível
+    if not JOBLIB_AVAILABLE:
+        st.warning("⚠️ Biblioteca 'joblib' não encontrada. Instale com: pip install joblib")
+        return None, None
+    
     try:
         # Verifica se os arquivos existem
+        import os
+        
         if not os.path.exists('modelo.pkl'):
-            st.error("❌ Arquivo 'modelo.pkl' não encontrado!")
+            st.warning("⚠️ Arquivo 'modelo.pkl' não encontrado! Coloque o modelo treinado na pasta do app.")
             return None, None
         
         if not os.path.exists('features.pkl'):
-            st.error("❌ Arquivo 'features.pkl' não encontrado!")
+            st.warning("⚠️ Arquivo 'features.pkl' não encontrado! Coloque o arquivo de features na pasta do app.")
             return None, None
         
         modelo = joblib.load('modelo.pkl')
@@ -359,6 +386,26 @@ button[data-baseweb="tab"][aria-selected="true"] {
     background: #60a5fa;
 }
 
+/* ==========================================================================
+   INFO BOX PARA BIBLIOTECAS FALTANTES
+========================================================================== */
+
+.missing-deps {
+    background: linear-gradient(135deg, #7f1a1a, #991b1b);
+    border: 2px solid #ef4444;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.missing-deps code {
+    background: #1f2937;
+    color: #fbbf24;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -429,6 +476,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
+# VERIFICAÇÃO DE DEPENDÊNCIAS
+# ============================================================================
+
+if not JOBLIB_AVAILABLE:
+    st.markdown("""
+    <div class="missing-deps">
+        <h2>⚠️ Dependência Ausente</h2>
+        <p>A biblioteca <code>joblib</code> não está instalada. Para usar a funcionalidade de IA, instale com:</p>
+        <code>pip install joblib</code>
+        <p style="margin-top: 15px;">O aplicativo continuará funcionando para classificação manual de solo, mas a IA estará desabilitada.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ============================================================================
 # SIDEBAR
 # ============================================================================
 
@@ -448,12 +509,18 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 🤖 Status da IA")
     
-    if modelo is not None and features is not None:
+    if not JOBLIB_AVAILABLE:
+        st.error("⚠️ joblib não instalado")
+        st.caption("Execute: pip install joblib")
+    elif modelo is not None and features is not None:
         st.success("✅ IA carregada com sucesso!")
         st.caption(f"Features: {len(features)} parâmetros")
     else:
-        st.error("⚠️ IA não disponível")
-        st.caption("Verifique os arquivos modelo.pkl e features.pkl")
+        st.warning("⚠️ IA não disponível")
+        if JOBLIB_AVAILABLE:
+            st.caption("Verifique os arquivos modelo.pkl e features.pkl")
+        else:
+            st.caption("Instale joblib para ativar a IA")
 
     st.markdown("---")
     st.caption("Versao 3.0")
@@ -511,6 +578,10 @@ necessidades_culturas = {
 
 def fazer_predicao_ia(dados):
     """Faz a predição usando o modelo de IA carregado"""
+    
+    # Verificar se joblib está disponível
+    if not JOBLIB_AVAILABLE:
+        return None, "Biblioteca joblib não instalada"
     
     if modelo is None or features is None:
         return None, "Modelo não disponível"
@@ -589,6 +660,8 @@ if menu == "📊 1. Dados do Solo":
             st.success("✅ Dados básicos salvos com sucesso! Agora vá para a aba 'Classificação'.")
         except ValueError as e:
             st.error(f"❌ Verifique os valores numéricos inseridos. Erro: {str(e)}")
+        except Exception as e:
+            st.error(f"❌ Erro inesperado: {str(e)}")
 
 # ============================================================================
 # ABA 2 - CLASSIFICACAO
@@ -643,31 +716,35 @@ elif menu == "🌱 2. Classificacao":
             st.markdown("---")
             st.markdown("## 🤖 Inteligência Artificial")
             
-            if modelo is not None and features is not None:
-                predicao, status = fazer_predicao_ia(dados)
-                if predicao is not None:
-                    st.success(f"🌾 Classe prevista pela IA: **{predicao}**")
-                    with st.expander("ℹ️ Sobre esta classificação"):
-                        st.markdown("""
-                        A IA analisou os seguintes parâmetros:
-                        - Nitrogênio (N)
-                        - Fósforo (P)
-                        - Potássio (K+)
-                        - pH do solo
-                        - Matéria Orgânica
-                        - Densidade do solo
-                        
-                        Com base nesses dados, o modelo classificou a fertilidade do solo.
-                        """)
+            if JOBLIB_AVAILABLE:
+                if modelo is not None and features is not None:
+                    predicao, status = fazer_predicao_ia(dados)
+                    if predicao is not None:
+                        st.success(f"🌾 Classe prevista pela IA: **{predicao}**")
+                        with st.expander("ℹ️ Sobre esta classificação"):
+                            st.markdown("""
+                            A IA analisou os seguintes parâmetros:
+                            - Nitrogênio (N)
+                            - Fósforo (P)
+                            - Potássio (K+)
+                            - pH do solo
+                            - Matéria Orgânica
+                            - Densidade do solo
+                            
+                            Com base nesses dados, o modelo classificou a fertilidade do solo.
+                            """)
+                    else:
+                        st.warning(f"⚠️ IA não pôde fazer a predição: {status}")
                 else:
-                    st.warning(f"⚠️ IA não pôde fazer a predição: {status}")
+                    st.warning("⚠️ Modelo de IA não disponível. Verifique os arquivos 'modelo.pkl' e 'features.pkl'.")
             else:
-                st.error("⚠️ Modelo de IA não disponível. Verifique os arquivos 'modelo.pkl' e 'features.pkl'.")
+                st.info("ℹ️ Funcionalidade de IA não disponível. Instale a biblioteca 'joblib' para ativar a classificação por IA.")
 
         except ValueError as e:
             st.error(f"❌ Verifique os valores digitados. Erro: {str(e)}")
         except Exception as e:
             st.error(f"❌ Erro inesperado: {str(e)}")
+            st.code(traceback.format_exc())
 
     if "v_percent" in st.session_state:
         dados = st.session_state.dados_calculados
@@ -810,60 +887,4 @@ elif menu == "📈 3. Relatorio":
 
     st.info(f"🪨 Aplicar {nc_corrigida:.2f} t/ha de calcário com PRNT {prnt}%")
     if gesso > 0:
-        st.warning(f"🌱 Recomenda-se gessagem de {gesso:.2f} t/ha")
-    else:
-        st.success("✅ Gessagem não necessária")
-
-    if dados["phosphorus"] < 15:
-        st.error("🔴 Necessária adubação fosfatada")
-    else:
-        st.success("✅ Fósforo em nível adequado")
-
-    if dados["potassium"] < 0.30:
-        st.error("🔴 Necessária adubação potássica")
-    else:
-        st.success("✅ Potássio em nível adequado")
-
-# ============================================================================
-# METODOS
-# ============================================================================
-
-elif menu == "ℹ️ 4. Metodos":
-    st.markdown("## ℹ️ Métodos Utilizados")
-
-    with st.expander("📊 Saturação por Bases (V%)"):
-        st.markdown("### Fórmula:")
-        st.latex(r"V\% = \frac{SB}{CTC} \times 100")
-        st.markdown("Onde: SB = Soma de Bases, CTC = Capacidade de Troca de Cátions")
-
-    with st.expander("🔬 Saturação por Alumínio (m%)"):
-        st.markdown("### Fórmula:")
-        st.latex(r"m\% = \frac{Al^{3+}}{CTC\ efetiva} \times 100")
-        st.markdown("Onde: Al³⁺ = Alumínio trocável, CTC efetiva = SB + Al³⁺")
-
-    with st.expander("🌾 Interpretação Agronômica"):
-        st.markdown("""
-        | V% | Interpretação |
-        |---|---|---|
-        | > 70 | Muito fértil |
-        | 50-70 | Fértil |
-        | 25-50 | Distrófico |
-        | < 25 | Álico |
-        """)
-
-    with st.expander("🪨 Cálculo da Calagem"):
-        st.markdown("### Fórmula utilizada:")
-        st.latex(r"NC = \frac{(V_2 - V_1) \times CTC}{100}")
-        st.markdown("Onde: NC = Necessidade de calcário, V₂ = Saturação desejada, V₁ = Saturação atual, CTC = Capacidade de troca catiônica")
-
-    with st.expander("🌱 Cálculo da Gessagem"):
-        st.markdown("### Critério utilizado:")
-        st.markdown("- Solos com argila > 350 g/kg")
-        st.markdown("- Gessagem = 50% da dose de calcário")
-
-# ============================================================================
-# RODAPÉ
-# ============================================================================
-
-st.markdown("---")
-st.caption("© 2026 - Classificador de Fertilidade do Solo | Créditos ao SiBCS - Embrapa")
+        st.warning(f
