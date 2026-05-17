@@ -786,125 +786,43 @@ elif menu == "🌱 2. Classificacao":
 
         st.success("✅ Classificação realizada com sucesso!")
 
-        st.markdown("---")
+                st.markdown("---")
         st.markdown("## 🤖 Inteligência Artificial")
-            
-            if JOBLIB_AVAILABLE:
-                if modelo is not None and features is not None:
-                    with st.spinner("🔄 IA processando os dados do solo..."):
-                        predicao, status = fazer_predicao_ia(dados)
+        
+        if JOBLIB_AVAILABLE:
+            if modelo is not None and features is not None:
+                with st.spinner("🔄 IA processando os dados do solo..."):
+                    predicao, status = fazer_predicao_ia(dados)
+                
+                if predicao is not None:
+                    st.success(f"🌾 **Classe prevista pela IA:** {predicao}")
                     
-                    if predicao is not None:
-                        st.success(f"🌾 **Classe prevista pela IA:** {predicao}")
+                    with st.expander("ℹ️ Sobre a classificação da IA"):
+                        st.markdown(f"""
+                        **Modelo:** RandomForestClassifier  
+                        **Features utilizadas:** {len(features)} parâmetros do solo  
                         
-                        with st.expander("ℹ️ Sobre a classificação da IA"):
-                            st.markdown(f"""
-                            **Modelo:** RandomForestClassifier  
-                            **Features utilizadas:** {len(features)} parâmetros do solo  
-                            
-                            A IA analisou os seguintes parâmetros principais:
-                            - Nitrogênio (N): {dados['nitrogen']} mg/dm³
-                            - Fósforo (P): {dados['phosphorus']} mg/dm³
-                            - Potássio (K+): {dados['potassium']} cmolc/dm³
-                            - pH: {dados['ph']}
-                            - Matéria Orgânica: {dados['organic_matter']} g/kg
-                            - Densidade: {dados['bulk_density']} g/cm³
-                            - Textura: Areia {dados['sand']} | Silte {dados['silt']} | Argila {dados['clay']} g/kg
-                            """)
-                    else:
-                        st.warning(f"⚠️ IA não pôde fazer a predição: {status}")
+                        A IA analisou os seguintes parâmetros principais:
+                        - Nitrogênio (N): {dados['nitrogen']} mg/dm³
+                        - Fósforo (P): {dados['phosphorus']} mg/dm³
+                        - Potássio (K+): {dados['potassium']} cmolc/dm³
+                        - pH: {dados['ph']}
+                        - Matéria Orgânica: {dados['organic_matter']} g/kg
+                        - Densidade: {dados['bulk_density']} g/cm³
+                        - Textura: Areia {dados['sand']} | Silte {dados['silt']} | Argila {dados['clay']} g/kg
+                        """)
                 else:
-                    st.warning("⚠️ Modelo de IA não disponível. Verifique os arquivos 'modelo.pkl' e 'features.pkl'.")
+                    st.warning(f"⚠️ IA não pôde fazer a predição: {status}")
             else:
-                st.info("ℹ️ Funcionalidade de IA não disponível. Instale a biblioteca 'joblib' para ativar a classificação por IA.")
-
-        except ValueError as e:
-            st.error(f"❌ Verifique os valores digitados. Erro: {str(e)}")
-        except Exception as e:
-            st.error(f"❌ Erro inesperado: {str(e)}")
-            st.code(traceback.format_exc())
-
-    if "v_percent" in st.session_state:
-        dados = st.session_state.dados_calculados
-        sb = st.session_state.sb
-        ctc_potencial = st.session_state.ctc_potencial
-        v_percent = st.session_state.v_percent
-        m_percent = st.session_state.m_percent
-
-        st.markdown("---")
-        st.markdown("## 📊 Resultados")
-
-        col1, col2, col3, col4 = st.columns(4)
-
-        with col1:
-            st.markdown(f"<div class='metric-card'><h3>SB</h3><h2>{sb:.2f}</h2><small>cmolc/dm³</small></div>", unsafe_allow_html=True)
-        with col2:
-            st.markdown(f"<div class='metric-card'><h3>CTC Potencial</h3><h2>{ctc_potencial:.2f}</h2><small>cmolc/dm³</small></div>", unsafe_allow_html=True)
-        with col3:
-            st.markdown(f"<div class='metric-card'><h3>V%</h3><h2>{v_percent:.1f}%</h2><small>Saturação por Bases</small></div>", unsafe_allow_html=True)
-        with col4:
-            st.markdown(f"<div class='metric-card'><h3>m%</h3><h2>{m_percent:.1f}%</h2><small>Saturação por Al</small></div>", unsafe_allow_html=True)
-
-        st.markdown("### 📈 Índice de Fertilidade")
-        st.markdown(f"<div class='progress-container'><div class='progress-bar' style='width:{min(v_percent, 100)}%;'>{v_percent:.1f}%</div></div>", unsafe_allow_html=True)
-
-        if v_percent >= 70:
-            classe, cor = "Eutrófico (Muito Fértil)", "🟢"
-        elif v_percent >= 50:
-            classe, cor = "Eutrófico", "🟢"
-        elif v_percent >= 25:
-            classe, cor = "Distrófico", "🟡"
+                st.warning("⚠️ Modelo de IA não disponível. Verifique os arquivos 'modelo.pkl' e 'features.pkl'.")
         else:
-            classe, cor = "Álico", "🔴"
+            st.info("ℹ️ Funcionalidade de IA não disponível. Instale a biblioteca 'joblib' para ativar a classificação por IA.")
 
-        st.markdown(f"<div class='result-card'><h2>{cor} Classificação SiBCS</h2><p class='result-number'>{classe}</p></div>", unsafe_allow_html=True)
-
-        st.markdown("## 🌾 Adequação da Cultura")
-        nec = necessidades_culturas[st.session_state.cultura]
-
-        if v_percent >= nec["v_desejado"]:
-            st.success("✅ Saturação por bases adequada")
-        else:
-            st.error("❌ Necessidade de calagem")
-
-        if dados["phosphorus"] >= nec["p_min"]:
-            st.success("✅ Fósforo adequado")
-        else:
-            st.error("❌ Fósforo abaixo do ideal")
-
-        if dados["potassium"] >= nec["k_min"]:
-            st.success("✅ Potássio adequado")
-        else:
-            st.error("❌ Potássio abaixo do ideal")
-
-        if nec["ph_min"] <= dados["ph"] <= nec["ph_max"]:
-            st.success("✅ pH adequado")
-        else:
-            st.error("❌ pH fora da faixa ideal")
-
-        score = 0
-        if v_percent >= 70:
-            score += 5
-        elif v_percent >= 50:
-            score += 3
-        if dados["phosphorus"] >= 20:
-            score += 3
-        if dados["potassium"] >= 0.35:
-            score += 3
-        if dados["aluminum"] < 0.5:
-            score += 4
-        if 5.5 <= dados["ph"] <= 6.5:
-            score += 5
-
-        st.markdown("---")
-        if score >= 15:
-            resultado = "🟢 ALTA FERTILIDADE"
-        elif score >= 8:
-            resultado = "🟡 FERTILIDADE MÉDIA"
-        else:
-            resultado = "🔴 BAIXA FERTILIDADE"
-
-        st.markdown(f"<div class='result-card'><h2>RESULTADO FINAL</h2><p class='result-number'>{resultado}</p><p>Score: {score}/20</p></div>", unsafe_allow_html=True)
+    except ValueError as e:
+        st.error(f"❌ Verifique os valores digitados. Erro: {str(e)}")
+    except Exception as e:
+        st.error(f"❌ Erro inesperado: {str(e)}")
+        st.code(traceback.format_exc())
 
 # ============================================================================
 # ABA 3 - RELATORIO
