@@ -1071,7 +1071,7 @@ elif menu == "📈 3. Relatorio":
 
         if dados["clay"] >= 350:
              gesso = nc_corrigida * 0.5
-         else:
+        else:
              gesso = 0
 
         # ======================================================
