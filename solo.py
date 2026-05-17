@@ -494,15 +494,6 @@ st.caption("© 2025 - Classificador de Fertilidade do Solo | Baseado no SiBCS - 
 
 
 
-# Mantém o túnel ativo
-try:
-    while True:
-        time.sleep(1)
-except KeyboardInterrupt:
-    print("\n🔒 Túnel encerrado.")
-
-
-
 
 
 
