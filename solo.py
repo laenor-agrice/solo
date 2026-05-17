@@ -1158,100 +1158,192 @@ elif menu == "📈 3. Relatorio":
 
     st.markdown("## 📈 Relatorio Tecnico")
 
-    if "v_percent" not in st.session_state:
-        st.warning("⚠️ Execute a classificação primeiro na aba 'Classificacao'.")
+    # ==========================================================
+    # VERIFICACOES
+    # ==========================================================
 
-    else:
-        dados = st.session_state.dados_calculados
+    if (
+        "v_percent" not in st.session_state
+        or "dados_calculados" not in st.session_state
+        or "cultura" not in st.session_state
+    ):
 
-        relatorio = pd.DataFrame({
-            "Parametro": [
-                "pH",
-                "Nitrogenio (N)",
-                "Fosforo (P)",
-                "Potassio (K+)",
-                "Calcio (Ca2+)",
-                "Magnesio (Mg2+)",
-                "Aluminio (Al3+)",
-                "H + Al",
-                "Soma de Bases (SB)",
-                "CTC Potencial",
-                "Saturacao por Bases (V%)",
-                "Saturacao por Al (m%)",
-                "Materia Organica",
-                "Densidade do Solo"
-            ],
-
-            "Valor": [
-                f"{dados['ph']:.1f}",
-                f"{dados['nitrogen']:.1f} mg/dm3",
-                f"{dados['phosphorus']:.1f} mg/dm3",
-                f"{dados['potassium']:.2f} cmolc/dm3",
-                f"{dados['calcium']:.2f} cmolc/dm3",
-                f"{dados['magnesium']:.2f} cmolc/dm3",
-                f"{dados['aluminum']:.2f} cmolc/dm3",
-                f"{dados['h_al']:.2f} cmolc/dm3",
-                f"{st.session_state.sb:.2f} cmolc/dm3",
-                f"{st.session_state.ctc_potencial:.2f} cmolc/dm3",
-                f"{st.session_state.v_percent:.1f}%",
-                f"{st.session_state.m_percent:.1f}%",
-                f"{dados['organic_matter']:.1f} g/kg",
-                f"{dados['bulk_density']:.2f} g/cm3"
-            ]
-        })
-
-        st.dataframe(relatorio, hide_index=True, use_container_width=True)
-
-        csv = relatorio.to_csv(index=False).encode('utf-8')
-
-        st.download_button(
-            label="📥 Baixar Relatorio (CSV)",
-            data=csv,
-            file_name="relatorio_solo.csv",
-            mime="text/csv",
-            key="download_csv"
+        st.warning(
+            "⚠️ Execute primeiro a classificação na ABA 2."
         )
 
-        st.markdown("## 🌾 Recomendações Agronômicas")
+        st.stop()
 
-        st.success(f"✅ Cultura selecionada: {st.session_state.cultura}")
+    # ==========================================================
+    # DADOS
+    # ==========================================================
 
-        # ======================================================
-        # CALAGEM
-        # ======================================================
+    dados = st.session_state.dados_calculados
 
-        v2 = necessidades_culturas[
-            st.session_state.cultura
-        ]["v_desejado"]
+    sb = st.session_state.sb
+    ctc_potencial = st.session_state.ctc_potencial
+    v_percent = st.session_state.v_percent
+    m_percent = st.session_state.m_percent
+    cultura = st.session_state.cultura
 
-        v_percent = st.session_state.v_percent
-        ctc_potencial = st.session_state.ctc_potencial
+    # ==========================================================
+    # DATAFRAME
+    # ==========================================================
 
-        nc = ((v2 - v_percent) * ctc_potencial) / 100
+    relatorio = pd.DataFrame({
 
-        if nc < 0:
-            nc = 0
+        "Parametro": [
+            "pH",
+            "Nitrogenio (N)",
+            "Fosforo (P)",
+            "Potassio (K+)",
+            "Calcio (Ca2+)",
+            "Magnesio (Mg2+)",
+            "Aluminio (Al3+)",
+            "H + Al",
+            "Soma de Bases (SB)",
+            "CTC Potencial",
+            "Saturacao por Bases (V%)",
+            "Saturacao por Al (m%)",
+            "Materia Organica",
+            "Densidade do Solo"
+        ],
 
-        prnt = 80
+        "Valor": [
+            f"{dados['ph']:.1f}",
+            f"{dados['nitrogen']:.1f} mg/dm3",
+            f"{dados['phosphorus']:.1f} mg/dm3",
+            f"{dados['potassium']:.2f} cmolc/dm3",
+            f"{dados['calcium']:.2f} cmolc/dm3",
+            f"{dados['magnesium']:.2f} cmolc/dm3",
+            f"{dados['aluminum']:.2f} cmolc/dm3",
+            f"{dados['h_al']:.2f} cmolc/dm3",
+            f"{sb:.2f} cmolc/dm3",
+            f"{ctc_potencial:.2f} cmolc/dm3",
+            f"{v_percent:.1f}%",
+            f"{m_percent:.1f}%",
+            f"{dados['organic_matter']:.1f} g/kg",
+            f"{dados['bulk_density']:.2f} g/cm3"
+        ]
+    })
 
-        nc_corrigida = nc * (100 / prnt)
+    st.dataframe(
+        relatorio,
+        hide_index=True,
+        use_container_width=True
+    )
 
-        # ======================================================
-        # GESSAGEM
-        # ======================================================
+    # ==========================================================
+    # DOWNLOAD CSV
+    # ==========================================================
 
-        if dados["clay"] >= 350:
-             gesso = nc_corrigida * 0.5
-        else:
-             gesso = 0
+    csv = relatorio.to_csv(index=False).encode("utf-8")
 
-        # ======================================================
-        # SESSION STATE
-        # ======================================================
+    st.download_button(
+        label="📥 Baixar Relatorio (CSV)",
+        data=csv,
+        file_name="relatorio_solo.csv",
+        mime="text/csv",
+        key="download_csv"
+    )
 
-        st.session_state.nc_corrigida = nc_corrigida
-        st.session_state.prnt = prnt
-        st.session_state.gesso = gesso
+    # ==========================================================
+    # RECOMENDACOES
+    # ==========================================================
+
+    st.markdown("---")
+    st.markdown("## 🌾 Recomendações Agronômicas")
+
+    st.success(
+        f"✅ Cultura selecionada: {cultura}"
+    )
+
+    # ==========================================================
+    # CALAGEM
+    # ==========================================================
+
+    v2 = necessidades_culturas[
+        cultura
+    ]["v_desejado"]
+
+    nc = (
+        (v2 - v_percent)
+        * ctc_potencial
+    ) / 100
+
+    if nc < 0:
+        nc = 0
+
+    prnt = 80
+
+    nc_corrigida = nc * (100 / prnt)
+
+    # ==========================================================
+    # GESSAGEM
+    # ==========================================================
+
+    if dados["clay"] >= 350:
+        gesso = nc_corrigida * 0.5
+    else:
+        gesso = 0
+
+    # ==========================================================
+    # SESSION STATE
+    # ==========================================================
+
+    st.session_state.nc_corrigida = nc_corrigida
+    st.session_state.prnt = prnt
+    st.session_state.gesso = gesso
+
+    # ==========================================================
+    # RESULTADOS
+    # ==========================================================
+
+    st.info(
+        f"🪨 Aplicar {nc_corrigida:.2f} t/ha "
+        f"de calcário com PRNT {prnt}%"
+    )
+
+    if gesso > 0:
+
+        st.warning(
+            f"🌱 Recomenda-se gessagem de "
+            f"{gesso:.2f} t/ha"
+        )
+
+    else:
+
+        st.success(
+            "✅ Gessagem não necessária"
+        )
+
+    # ==========================================================
+    # ADUBACAO
+    # ==========================================================
+
+    if dados["phosphorus"] < 15:
+
+        st.error(
+            "🔴 Necessária adubação fosfatada"
+        )
+
+    else:
+
+        st.success(
+            "✅ Fósforo em nível adequado"
+        )
+
+    if dados["potassium"] < 0.30:
+
+        st.error(
+            "🔴 Necessária adubação potássica"
+        )
+
+    else:
+
+        st.success(
+            "✅ Potássio em nível adequado"
+        )
 # ============================================================================
 # MÉTODOS
 # ============================================================================
