@@ -1137,38 +1137,37 @@ st.markdown(f"""
         # CLASSIFICACAO
         # =====================================================================
 
-        if v_percent >= 70:
+if v_percent >= 70:
 
-            classe = "Eutrófico (Muito Fértil)"
-            cor = "🟢"
+    classe = "Eutrófico (Muito Fértil)"
+    cor = "🟢"
 
-        elif v_percent >= 50:
+elif v_percent >= 50:
 
-            classe = "Eutrófico"
-            cor = "🟢"
+    classe = "Eutrófico"
+    cor = "🟢"
 
-        elif v_percent >= 25:
+elif v_percent >= 25:
 
-            classe = "Distrófico"
-            cor = "🟡"
+    classe = "Distrófico"
+    cor = "🟡"
 
-        else:
+else:
 
-            classe = "Álico"
-            cor = "🔴"
+    classe = "Álico"
+    cor = "🔴"
 
-        st.markdown(f"""
-        <div class="result-card">
+st.markdown(f"""
+<div class="result-card">
 
-            <h2>{cor} Classificação SiBCS</h2>
+    <h2>{cor} Classificação SiBCS</h2>
 
-            <p class="result-number">
-                {classe}
-            </p>
+    <p class="result-number">
+        {classe}
+    </p>
 
-        </div>
-        """, unsafe_allow_html=True)
-
+</div>
+""", unsafe_allow_html=True)
         # =====================================================================
         # ADEQUACAO DA CULTURA
         # =====================================================================
