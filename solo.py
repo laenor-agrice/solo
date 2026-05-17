@@ -594,38 +594,38 @@ st.markdown("""
 """)
 
 with st.expander("🌾 Tabela de Necessidades por Cultura"):
-st.markdown("""
-| Cultura | V% Ideal | N mínimo | P mínimo | K mínimo | pH ideal |
-|---------|----------|----------|----------|----------|----------|
-| **Soja** | 60% | 40 mg/dm³ | 15 mg/dm³ | 0,35 cmolc/dm³ | 5,5-6,5 |
-| **Milho (grão)** | 65% | 50 mg/dm³ | 20 mg/dm³ | 0,40 cmolc/dm³ | 5,5-6,5 |
-| **Milho (doce)** | 65% | 60 mg/dm³ | 25 mg/dm³ | 0,45 cmolc/dm³ | 5,8-6,8 |
-| **Feijão** | 65% | 35 mg/dm³ | 20 mg/dm³ | 0,35 cmolc/dm³ | 5,5-6,5 |
-| **Café** | 70% | 40 mg/dm³ | 25 mg/dm³ | 0,40 cmolc/dm³ | 5,5-6,5 |
-| **Algodão** | 65% | 45 mg/dm³ | 20 mg/dm³ | 0,40 cmolc/dm³ | 5,5-7,0 |
-| **Cana-de-açúcar** | 60% | 40 mg/dm³ | 15 mg/dm³ | 0,35 cmolc/dm³ | 5,5-6,5 |
-| **Milheto** | 45% | 30 mg/dm³ | 10 mg/dm³ | 0,25 cmolc/dm³ | 5,0-6,5 |
-| **Sorgo** | 60% | 40 mg/dm³ | 15 mg/dm³ | 0,35 cmolc/dm³ | 5,5-6,5 |
-| **Tomate** | 70% | 50 mg/dm³ | 30 mg/dm³ | 0,45 cmolc/dm³ | 5,8-6,8 |
-| **Alho** | 65% | 40 mg/dm³ | 20 mg/dm³ | 0,40 cmolc/dm³ | 5,8-6,8 |
-| **Cebola** | 65% | 40 mg/dm³ | 20 mg/dm³ | 0,40 cmolc/dm³ | 5,8-6,8 |
-""")
+    st.markdown("""
+    | Cultura | V% Ideal | N mínimo | P mínimo | K mínimo | pH ideal |
+    |---------|----------|----------|----------|----------|----------|
+    | **Soja** | 60% | 40 mg/dm³ | 15 mg/dm³ | 0,35 cmolc/dm³ | 5,5-6,5 |
+    | **Milho (grão)** | 65% | 50 mg/dm³ | 20 mg/dm³ | 0,40 cmolc/dm³ | 5,5-6,5 |
+    | **Milho (doce)** | 65% | 60 mg/dm³ | 25 mg/dm³ | 0,45 cmolc/dm³ | 5,8-6,8 |
+    | **Feijão** | 65% | 35 mg/dm³ | 20 mg/dm³ | 0,35 cmolc/dm³ | 5,5-6,5 |
+    | **Café** | 70% | 40 mg/dm³ | 25 mg/dm³ | 0,40 cmolc/dm³ | 5,5-6,5 |
+    | **Algodão** | 65% | 45 mg/dm³ | 20 mg/dm³ | 0,40 cmolc/dm³ | 5,5-7,0 |
+    | **Cana-de-açúcar** | 60% | 40 mg/dm³ | 15 mg/dm³ | 0,35 cmolc/dm³ | 5,5-6,5 |
+    | **Milheto** | 45% | 30 mg/dm³ | 10 mg/dm³ | 0,25 cmolc/dm³ | 5,0-6,5 |
+    | **Sorgo** | 60% | 40 mg/dm³ | 15 mg/dm³ | 0,35 cmolc/dm³ | 5,5-6,5 |
+    | **Tomate** | 70% | 50 mg/dm³ | 30 mg/dm³ | 0,45 cmolc/dm³ | 5,8-6,8 |
+    | **Alho** | 65% | 40 mg/dm³ | 20 mg/dm³ | 0,40 cmolc/dm³ | 5,8-6,8 |
+    | **Cebola** | 65% | 40 mg/dm³ | 20 mg/dm³ | 0,40 cmolc/dm³ | 5,8-6,8 |
+    """)
 
 with st.expander("📏 Unidades de Medida Utilizadas"):
-st.markdown("""
-| Parâmetro | Unidade | Equivalência |
-|-----------|---------|--------------|
-| **Nitrogênio (N)** | mg/dm³ | 1 mg/dm³ = 1 ppm |
-| **Fósforo (P)** | mg/dm³ | 1 mg/dm³ = 1 ppm |
-| **Potássio (K⁺)** | cmolc/dm³ | 1 cmolc/dm³ = 10 mmolc/dm³ |
-| **Cálcio (Ca²⁺)** | cmolc/dm³ | 1 cmolc/dm³ = 10 mmolc/dm³ |
-| **Magnésio (Mg²⁺)** | cmolc/dm³ | 1 cmolc/dm³ = 10 mmolc/dm³ |
-| **Alumínio (Al³⁺)** | cmolc/dm³ | - |
-| **CTC** | cmolc/dm³ | - |
-| **Matéria Orgânica** | g/kg | 1 g/kg = 0,1% |
-| **Densidade** | g/cm³ | - |
-| **Textura** | g/kg | Soma deve ser 1000 g/kg |
-""")
+    st.markdown("""
+    | Parâmetro | Unidade | Equivalência |
+    |-----------|---------|--------------|
+    | **Nitrogênio (N)** | mg/dm³ | 1 mg/dm³ = 1 ppm |
+    | **Fósforo (P)** | mg/dm³ | 1 mg/dm³ = 1 ppm |
+    | **Potássio (K⁺)** | cmolc/dm³ | 1 cmolc/dm³ = 10 mmolc/dm³ |
+    | **Cálcio (Ca²⁺)** | cmolc/dm³ | 1 cmolc/dm³ = 10 mmolc/dm³ |
+    | **Magnésio (Mg²⁺)** | cmolc/dm³ | 1 cmolc/dm³ = 10 mmolc/dm³ |
+    | **Alumínio (Al³⁺)** | cmolc/dm³ | - |
+    | **CTC** | cmolc/dm³ | - |
+    | **Matéria Orgânica** | g/kg | 1 g/kg = 0,1% |
+    | **Densidade** | g/cm³ | - |
+    | **Textura** | g/kg | Soma deve ser 1000 g/kg |
+    """)
 
 st.markdown("---")
 st.caption("© 2025 - Classificador de Fertilidade do Solo | Baseado no SiBCS - Embrapa")
