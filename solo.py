@@ -161,19 +161,43 @@ st.markdown("""
     font-family: 'Outfit', sans-serif;
 }
 
+/* ========== FUNDO ========== */
 .stApp {
     background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%) !important;
+    width: 100% !important;
+    min-height: 100vh !important;
 }
 
+/* ========== CONTAINER PRINCIPAL - LARGURA TOTAL ========== */
 .main .block-container {
     background: rgba(255, 255, 255, 0.92) !important;
     backdrop-filter: blur(10px) !important;
-    border-radius: 32px !important;
-    padding: 2rem !important;
-    margin-top: 1rem !important;
-    margin-bottom: 2rem !important;
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 0px !important;
+    padding: 2rem 3rem !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+section.main > div {
+    padding: 0 !important;
+    max-width: 100% !important;
+}
+
+.block-container {
+    width: 100% !important;
+    min-width: 100% !important;
+}
+
+/* ========== HEADER ========== */
+.custom-header {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 245, 0.95));
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(74, 140, 92, 0.2);
+    width: 100%;
 }
 
 h1, h2, h3 {
@@ -184,16 +208,17 @@ h1, h2, h3 {
     font-weight: 700 !important;
 }
 
+/* ========== SIDEBAR ========== */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #1a3022 0%, #0e1e14 100%) !important;
     border-right: none !important;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05) !important;
 }
 
 section[data-testid="stSidebar"] * {
     color: #e8f0e5 !important;
 }
 
+/* ========== INPUTS ========== */
 .stTextInput input, 
 .stNumberInput input, 
 textarea, 
@@ -205,7 +230,6 @@ div[data-baseweb="select"] > div {
     padding: 12px 16px !important;
     color: #1a2a1f !important;
     font-weight: 500 !important;
-    transition: all 0.3s ease !important;
 }
 
 .stTextInput input:not([value="0"]):not([value="0.0"]),
@@ -218,9 +242,9 @@ div[data-baseweb="select"] > div {
 .stNumberInput input:focus {
     border-color: #4a8c5c !important;
     box-shadow: 0 0 0 4px rgba(74, 140, 92, 0.15) !important;
-    outline: none !important;
 }
 
+/* ========== BOTÕES ========== */
 .stButton > button {
     background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
     color: white !important;
@@ -229,7 +253,6 @@ div[data-baseweb="select"] > div {
     padding: 0.7rem 2rem !important;
     font-weight: 600 !important;
     transition: all 0.3s ease !important;
-    box-shadow: 0 4px 12px rgba(45, 90, 59, 0.2) !important;
 }
 
 .stButton > button:hover {
@@ -237,26 +260,26 @@ div[data-baseweb="select"] > div {
     box-shadow: 0 8px 20px rgba(45, 90, 59, 0.3) !important;
 }
 
-/* ========== MÉTRICAS CORRIGIDAS ========== */
+/* ========== MÉTRICAS ========== */
 div[data-testid="stMetric"] {
     background: #ffffff !important;
-    border-radius: 24px !important;
-    padding: 1.2rem !important;
-    border: 2px solid #d4e8d4 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 20px !important;
+    padding: 1rem !important;
+    border: 1px solid #c8e0c8 !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
 }
 div[data-testid="stMetricLabel"] {
     color: #2d5a3b !important;
-    font-weight: 700 !important;
-    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
 }
 div[data-testid="stMetricValue"] {
     color: #1a5a3a !important;
-    font-weight: 900 !important;
-    font-size: 2rem !important;
+    font-weight: 800 !important;
+    font-size: 1.8rem !important;
 }
 
-/* ========== TABS CORRIGIDAS ========== */
+/* ========== TABS ========== */
 button[data-baseweb="tab"] {
     background: #e8ece8 !important;
     color: #1a3a2a !important;
@@ -268,34 +291,30 @@ button[data-baseweb="tab"] {
 }
 button[data-baseweb="tab"]:hover {
     background: #d4e4d4 !important;
-    border-color: #4a8c5c !important;
 }
 button[data-baseweb="tab"][aria-selected="true"] {
     background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
     color: white !important;
-    border-color: transparent !important;
 }
 
-/* ========== DATAFRAME CORRIGIDO (TABELA DE RECOMENDAÇÕES) ========== */
+/* ========== DATAFRAME ========== */
 .dataframe {
     background: #ffffff !important;
-    border-radius: 20px !important;
+    border-radius: 16px !important;
     overflow: hidden !important;
-    border: 2px solid #4a8c5c !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid #4a8c5c !important;
+    width: 100% !important;
 }
 .dataframe th {
     background: linear-gradient(95deg, #2d5a3b 0%, #3a6b48 100%) !important;
     color: white !important;
-    font-weight: 700 !important;
-    font-size: 1rem !important;
-    padding: 15px 12px !important;
+    font-weight: 600 !important;
+    padding: 12px !important;
     text-align: center !important;
 }
 .dataframe td {
     color: #1a2a1f !important;
-    font-weight: 500 !important;
-    padding: 12px !important;
+    padding: 10px !important;
     background: #ffffff !important;
     border-bottom: 1px solid #e0e8e0 !important;
     text-align: center !important;
@@ -304,27 +323,73 @@ button[data-baseweb="tab"][aria-selected="true"] {
     background: #f0f8f0 !important;
 }
 
-/* ========== CARDS DE RECOMENDAÇÃO ========== */
-.recomendacao-card {
-    background: linear-gradient(135deg, #ffffff 0%, #f8faf8 100%) !important;
+/* ========== CARDS DE CORREÇÃO DO SOLO - ESTILO LIMPO ========== */
+.solo-card {
+    background: #ffffff !important;
     border-radius: 20px !important;
-    padding: 1.5rem !important;
-    margin: 1rem 0 !important;
-    border: 2px solid #4a8c5c !important;
-    box-shadow: 0 4px 15px rgba(74, 140, 92, 0.15) !important;
+    padding: 1.2rem 1.5rem !important;
+    margin: 0.5rem 0 !important;
+    border: 1px solid #d4e8d4 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
-.recomendacao-card h4 {
+.solo-card h4 {
     color: #2d5a3b !important;
-    font-weight: 800 !important;
-    margin-bottom: 1rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.5rem !important;
+    font-size: 1.1rem !important;
+}
+.solo-card p {
+    color: #1a2a1f !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+}
+.solo-card .status-success {
+    color: #2e7d32 !important;
+    font-weight: 600 !important;
+}
+.solo-card .status-warning {
+    color: #ed6c02 !important;
+    font-weight: 600 !important;
 }
 
-/* ========== ALERTAS E INFOS ========== */
+/* ========== CARDS DE NPK ========== */
+.npk-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fafdff 100%) !important;
+    border-radius: 20px !important;
+    padding: 1.2rem !important;
+    text-align: center !important;
+    border: 1px solid #4a8c5c !important;
+    box-shadow: 0 4px 12px rgba(74, 140, 92, 0.1) !important;
+    transition: all 0.2s ease !important;
+    height: 100% !important;
+}
+.npk-card:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 20px rgba(74, 140, 92, 0.2) !important;
+}
+.npk-card h3 {
+    font-size: 2.5rem !important;
+    font-weight: 800 !important;
+    margin: 0 !important;
+    background: linear-gradient(120deg, #2d5a3b 0%, #4a8c5c 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+}
+.npk-card p {
+    color: #4a5b44 !important;
+    margin-top: 0.5rem !important;
+    font-weight: 500 !important;
+}
+.npk-card .small-text {
+    font-size: 0.75rem !important;
+    color: #7a8e72 !important;
+}
+
+/* ========== ALERTAS ========== */
 .stAlert {
     border-radius: 16px !important;
     border: none !important;
-    background: #fefdf7 !important;
-    border-left: 4px solid #4a8c5c !important;
 }
 .stInfo {
     background: #e8f5e9 !important;
@@ -335,16 +400,20 @@ button[data-baseweb="tab"][aria-selected="true"] {
 .stSuccess {
     background: #e8f5e9 !important;
     color: #2d5a3b !important;
+    border-radius: 16px !important;
 }
 .stWarning {
     background: #fff8e1 !important;
     color: #856404 !important;
+    border-radius: 16px !important;
 }
 .stError {
     background: #ffebee !important;
     color: #c62828 !important;
+    border-radius: 16px !important;
 }
 
+/* ========== EXPANDER ========== */
 .streamlit-expanderHeader {
     background: #ffffff !important;
     border-radius: 16px !important;
@@ -362,17 +431,8 @@ button[data-baseweb="tab"][aria-selected="true"] {
 hr {
     margin: 2rem 0 !important;
     border: none !important;
-    height: 2px !important;
+    height: 1px !important;
     background: linear-gradient(90deg, transparent, #4a8c5c, #86efac, #4a8c5c, transparent) !important;
-}
-
-.custom-header {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 245, 0.95));
-    backdrop-filter: blur(10px);
-    border-radius: 28px;
-    padding: 1.5rem 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(74, 140, 92, 0.2);
 }
 
 .version-badge {
@@ -391,14 +451,14 @@ label {
     font-size: 0.85rem !important;
 }
 
-/* Cores para texto dentro da tabela */
-.css-1y0tads tr td {
-    color: #1a2a1f !important;
+/* ========== UTILITÁRIOS ========== */
+.flex-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
-
-/* Ajuste para métricas dentro da aba 5 */
-.stMarkdown p {
-    color: #1a2a1f !important;
+.text-center {
+    text-align: center;
 }
 </style>
 """, unsafe_allow_html=True)
