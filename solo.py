@@ -265,14 +265,14 @@ label {
     font-size: 0.85rem !important;
 }
 
-/* ========== SELECTBOX CORRIGIDO - FUNDO VERDE TEXTO BRANCO ========== */
+/* ========== SELECTBOX CORRIGIDO - TEXTO VERDE CLARO ========== */
 
 /* Container principal */
 .stSelectbox {
     margin-bottom: 1rem;
 }
 
-/* Botão do selectbox (fundo sempre verde) */
+/* Botão do selectbox (fundo verde escuro) */
 div[data-baseweb="select"] > div {
     background-color: #2d5a3b !important;
     border: 2px solid #4a8c5c !important;
@@ -286,24 +286,75 @@ div[data-baseweb="select"] > div:hover {
     border-color: #6ab04c !important;
 }
 
-/* Texto selecionado (o que aparece no campo) */
+/* Texto selecionado - VERDE CLARO */
 div[data-baseweb="select"] div[role="button"] span {
-    color: #ffffff !important;
+    color: #b8e4b8 !important;
     font-weight: 600 !important;
     font-size: 1rem !important;
 }
 
-/* Placeholder (antes de selecionar) */
+/* Placeholder - VERDE CLARO */
 div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] p {
-    color: #ffffff !important;
+    color: #b8e4b8 !important;
     font-weight: 500 !important;
     opacity: 0.9 !important;
 }
 
-/* Ícone da seta para baixo */
+/* Ícone da seta - BRANCO */
 div[data-baseweb="select"] svg {
     fill: #ffffff !important;
     stroke: #ffffff !important;
+}
+
+/* ========== LISTA SUSPENSA (DROPDOWN) ========== */
+
+/* Container da lista */
+div[data-baseweb="select"] ul {
+    background-color: #ffffff !important;
+    border: 2px solid #4a8c5c !important;
+    border-radius: 12px !important;
+    margin-top: 4px !important;
+    padding: 4px 0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
+/* Cada item da lista - VERDE ESCURO (legível no fundo branco) */
+div[data-baseweb="select"] ul li {
+    color: #1a4a2a !important;
+    font-weight: 500 !important;
+    background-color: #ffffff !important;
+    padding: 10px 16px !important;
+    margin: 0 !important;
+    list-style: none !important;
+    font-size: 0.95rem !important;
+}
+
+/* Hover nos itens da lista */
+div[data-baseweb="select"] ul li:hover {
+    background-color: #e8f5e9 !important;
+    color: #1a4a2a !important;
+    cursor: pointer !important;
+}
+
+/* Item selecionado na lista (highlight) */
+div[data-baseweb="select"] ul li[aria-selected="true"] {
+    background-color: #4a8c5c !important;
+    color: #ffffff !important;
+}
+
+/* Scrollbar da lista */
+div[data-baseweb="select"] ul::-webkit-scrollbar {
+    width: 8px;
+}
+div[data-baseweb="select"] ul::-webkit-scrollbar-track {
+    background: #e8ece8;
+    border-radius: 10px;
+}
+div[data-baseweb="select"] ul::-webkit-scrollbar-thumb {
+    background: #4a8c5c;
+    border-radius: 10px;
 }
 
 /* ========== LISTA SUSPENSA (DROPDOWN) ========== */
