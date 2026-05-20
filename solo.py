@@ -153,13 +153,6 @@ modelo, features = carregar_modelo()
 # para tabs com texto sempre visível e métricas com alto contraste.
 # ============================================================================
 
-st.set_page_config(
-    page_title="Classificador de Fertilidade do Solo - SiBCS",
-    page_icon="🌿",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
@@ -244,30 +237,26 @@ div[data-baseweb="select"] > div {
     box-shadow: 0 8px 20px rgba(45, 90, 59, 0.3) !important;
 }
 
+/* ========== MÉTRICAS CORRIGIDAS ========== */
 div[data-testid="stMetric"] {
-    background: linear-gradient(135deg, #ffffff 0%, #f8faf8 100%) !important;
+    background: #ffffff !important;
     border-radius: 24px !important;
-    padding: 1.4rem 1rem !important;
-    border: 1.5px solid #c8e0c8 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-    transition: all 0.3s ease !important;
-}
-div[data-testid="stMetric"]:hover {
-    transform: translateY(-3px) !important;
-    border-color: #4a8c5c !important;
-    box-shadow: 0 8px 25px rgba(74, 140, 92, 0.15) !important;
+    padding: 1.2rem !important;
+    border: 2px solid #d4e8d4 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
 }
 div[data-testid="stMetricLabel"] {
-    color: #1a3a2a !important;
+    color: #2d5a3b !important;
     font-weight: 700 !important;
     font-size: 0.9rem !important;
 }
 div[data-testid="stMetricValue"] {
-    color: #0a4a2a !important;
+    color: #1a5a3a !important;
     font-weight: 900 !important;
     font-size: 2rem !important;
 }
 
+/* ========== TABS CORRIGIDAS ========== */
 button[data-baseweb="tab"] {
     background: #e8ece8 !important;
     color: #1a3a2a !important;
@@ -276,7 +265,6 @@ button[data-baseweb="tab"] {
     padding: 0.6rem 1.5rem !important;
     margin: 0 4px !important;
     border: 1px solid #c8dcc8 !important;
-    transition: all 0.2s ease !important;
 }
 button[data-baseweb="tab"]:hover {
     background: #d4e4d4 !important;
@@ -288,11 +276,73 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-color: transparent !important;
 }
 
+/* ========== DATAFRAME CORRIGIDO (TABELA DE RECOMENDAÇÕES) ========== */
+.dataframe {
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    border: 2px solid #4a8c5c !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+.dataframe th {
+    background: linear-gradient(95deg, #2d5a3b 0%, #3a6b48 100%) !important;
+    color: white !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    padding: 15px 12px !important;
+    text-align: center !important;
+}
+.dataframe td {
+    color: #1a2a1f !important;
+    font-weight: 500 !important;
+    padding: 12px !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #e0e8e0 !important;
+    text-align: center !important;
+}
+.dataframe tr:hover td {
+    background: #f0f8f0 !important;
+}
+
+/* ========== CARDS DE RECOMENDAÇÃO ========== */
+.recomendacao-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8faf8 100%) !important;
+    border-radius: 20px !important;
+    padding: 1.5rem !important;
+    margin: 1rem 0 !important;
+    border: 2px solid #4a8c5c !important;
+    box-shadow: 0 4px 15px rgba(74, 140, 92, 0.15) !important;
+}
+.recomendacao-card h4 {
+    color: #2d5a3b !important;
+    font-weight: 800 !important;
+    margin-bottom: 1rem !important;
+}
+
+/* ========== ALERTAS E INFOS ========== */
 .stAlert {
     border-radius: 16px !important;
     border: none !important;
     background: #fefdf7 !important;
     border-left: 4px solid #4a8c5c !important;
+}
+.stInfo {
+    background: #e8f5e9 !important;
+    color: #2d5a3b !important;
+    border-radius: 16px !important;
+    border-left: 4px solid #4a8c5c !important;
+}
+.stSuccess {
+    background: #e8f5e9 !important;
+    color: #2d5a3b !important;
+}
+.stWarning {
+    background: #fff8e1 !important;
+    color: #856404 !important;
+}
+.stError {
+    background: #ffebee !important;
+    color: #c62828 !important;
 }
 
 .streamlit-expanderHeader {
@@ -302,30 +352,11 @@ button[data-baseweb="tab"][aria-selected="true"] {
     font-weight: 600 !important;
     border: 1px solid #e2e8f0 !important;
 }
-
 .streamlit-expanderContent {
     background: #ffffff !important;
     border-radius: 0 0 16px 16px !important;
     border: 1px solid #e2e8f0 !important;
     border-top: none !important;
-}
-
-.dataframe {
-    background: #ffffff !important;
-    border-radius: 16px !important;
-    overflow: hidden !important;
-    border: 1px solid #e8ede8 !important;
-}
-.dataframe th {
-    background: linear-gradient(95deg, #2d5a3b 0%, #3a6b48 100%) !important;
-    color: white !important;
-    font-weight: 600 !important;
-    padding: 12px !important;
-}
-.dataframe td {
-    color: #2d3a2a !important;
-    padding: 10px !important;
-    background: #ffffff !important;
 }
 
 hr {
@@ -360,12 +391,14 @@ label {
     font-size: 0.85rem !important;
 }
 
-.recomendacao-card {
-    background: linear-gradient(135deg, #f8faf8 0%, #f0f4f0 100%);
-    border-radius: 20px;
-    padding: 1.2rem;
-    margin: 0.5rem 0;
-    border-left: 5px solid #4a8c5c;
+/* Cores para texto dentro da tabela */
+.css-1y0tads tr td {
+    color: #1a2a1f !important;
+}
+
+/* Ajuste para métricas dentro da aba 5 */
+.stMarkdown p {
+    color: #1a2a1f !important;
 }
 </style>
 """, unsafe_allow_html=True)
