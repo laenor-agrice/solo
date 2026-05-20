@@ -899,9 +899,9 @@ kg_vaso = kg_por_m2 * area_do_vaso_m2
 gramas_vaso = kg_vaso * 1000
 
 st.markdown("""
-Considerações:
+**Considerações:**
 
-- Área do vaso calculada a partir do diâmetro (π * r²)
+- Área do vaso calculada a partir do diâmetro (pi * r**2)
 - Ajuste baseado nos níveis de P e K da análise
 - Soja: 20 kg/ha (fixa N biologicamente)
 - Milho: 120 kg/ha
