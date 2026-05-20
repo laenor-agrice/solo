@@ -161,97 +161,103 @@ st.markdown("""
     font-family: 'Outfit', sans-serif;
 }
 
-/* ========== FORÇAR TEMA CLARO ========== */
 .stApp {
     background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%) !important;
-    width: 100% !important;
-    min-height: 100vh !important;
 }
 
-/* ========== CONTAINER PRINCIPAL ========== */
 .main .block-container {
     background: rgba(255, 255, 255, 0.92) !important;
     backdrop-filter: blur(10px) !important;
-    border-radius: 0px !important;
-    padding: 2rem 3rem !important;
-    margin: 0 !important;
-    max-width: 100% !important;
-    width: 100% !important;
+    border-radius: 32px !important;
+    padding: 2rem !important;
+    margin-top: 1rem !important;
+    margin-bottom: 2rem !important;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
 }
 
-/* ========== TODOS OS TEXTOS EM VERDE CLARO ========== */
-html, body, p, span, div, li, .stMarkdown, .stText, .stCaption,
-label, .stSelectbox span, .stSelectbox p, .stSelectbox div[role="button"] span {
-    color: #b8e4b8 !important;
-}
-
-/* ========== TÍTULOS EM VERDE MAIS ESCURO ========== */
 h1, h2, h3, h4, h5, h6 {
-    color: #4a8c5c !important;
+    color: #1a4a2a !important;
     font-weight: 700 !important;
-    background: none !important;
 }
 
-/* ========== SIDEBAR ========== */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #1a3022 0%, #0e1e14 100%) !important;
     border-right: none !important;
-}
-section[data-testid="stSidebar"] * {
-    color: #b8e4b8 !important;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05) !important;
 }
 
-/* ========== INPUTS - FUNDO BRANCO ========== */
+section[data-testid="stSidebar"] * {
+    color: #e8f0e5 !important;
+}
+
 .stTextInput input, 
 .stNumberInput input, 
 textarea, 
-input {
+input,
+div[data-baseweb="select"] > div {
     background-color: #ffffff !important;
-    border: 2px solid #4a8c5c !important;
+    border: 2px solid #e2e8f0 !important;
     border-radius: 14px !important;
     padding: 12px 16px !important;
-    color: #1a1a1a !important;
+    color: #1a2a1f !important;
     font-weight: 500 !important;
+    transition: all 0.3s ease !important;
 }
 
-/* ========== SELECTBOX - FUNDO VERDE ESCURO, TEXTO VERDE CLARO ========== */
+.stTextInput input:not([value="0"]):not([value="0.0"]),
+.stNumberInput input:not([value="0"]):not([value="0.0"]) {
+    background: linear-gradient(95deg, #f0fdf4 0%, #ecfdf5 100%) !important;
+    border-color: #86efac !important;
+}
+
+.stTextInput input:focus, 
+.stNumberInput input:focus {
+    border-color: #4a8c5c !important;
+    box-shadow: 0 0 0 4px rgba(74, 140, 92, 0.15) !important;
+    outline: none !important;
+}
+
+/* ========== SELECTBOX - SOMENTE CORES ALTERADAS ========== */
 div[data-baseweb="select"] > div {
     background-color: #2d5a3b !important;
     border: 2px solid #4a8c5c !important;
-    border-radius: 14px !important;
-    min-height: 48px !important;
 }
+
 div[data-baseweb="select"] div[role="button"] span {
     color: #b8e4b8 !important;
     font-weight: 600 !important;
 }
+
 div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] p {
     color: #b8e4b8 !important;
 }
+
 div[data-baseweb="select"] svg {
     fill: #ffffff !important;
     stroke: #ffffff !important;
 }
 
-/* Lista suspensa - fundo branco, texto verde escuro */
 div[data-baseweb="select"] ul {
     background-color: #ffffff !important;
     border: 2px solid #4a8c5c !important;
     border-radius: 12px !important;
 }
+
 div[data-baseweb="select"] ul li {
     color: #1a4a2a !important;
     background-color: #ffffff !important;
 }
+
 div[data-baseweb="select"] ul li:hover {
     background-color: #e8f5e9 !important;
 }
+
 div[data-baseweb="select"] ul li[aria-selected="true"] {
     background-color: #4a8c5c !important;
     color: #ffffff !important;
 }
 
-/* ========== BOTÕES ========== */
 .stButton > button {
     background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
     color: white !important;
@@ -259,140 +265,166 @@ div[data-baseweb="select"] ul li[aria-selected="true"] {
     border-radius: 40px !important;
     padding: 0.7rem 2rem !important;
     font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(45, 90, 59, 0.2) !important;
 }
 
-/* ========== MÉTRICAS - FUNDO BRANCO ========== */
+.stButton > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(45, 90, 59, 0.3) !important;
+}
+
 div[data-testid="stMetric"] {
-    background: #ffffff !important;
+    background: linear-gradient(135deg, #ffffff 0%, #fafcff 100%) !important;
     border-radius: 20px !important;
-    padding: 1rem !important;
-    border: 1px solid #4a8c5c !important;
-}
-div[data-testid="stMetricLabel"] {
-    color: #1a4a2a !important;
-    font-weight: 600 !important;
-}
-div[data-testid="stMetricValue"] {
-    color: #2d5a3b !important;
-    font-weight: 800 !important;
+    padding: 1.2rem !important;
+    border: 1px solid rgba(74, 140, 92, 0.15) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+    transition: all 0.3s ease !important;
 }
 
-/* ========== TABS ========== */
-button[data-baseweb="tab"] {
-    background: #e8ece8 !important;
-    color: #1a4a2a !important;
-    font-weight: 700 !important;
-    border-radius: 30px !important;
-    padding: 0.6rem 1.5rem !important;
-    border: 1px solid #c8dcc8 !important;
+div[data-testid="stMetric"]:hover {
+    transform: translateY(-3px) !important;
+    border-color: #4a8c5c !important;
+    box-shadow: 0 8px 25px rgba(74, 140, 92, 0.12) !important;
 }
+
+div[data-testid="stMetricLabel"] {
+    color: #1a3a2a !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+}
+
+div[data-testid="stMetricValue"] {
+    color: #0a4a2a !important;
+    font-weight: 900 !important;
+    font-size: 2rem !important;
+}
+
+.stAlert {
+    border-radius: 16px !important;
+    border: none !important;
+    background: #fefdf7 !important;
+    border-left: 4px solid #4a8c5c !important;
+}
+
+.streamlit-expanderHeader {
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    color: #2d5a3b !important;
+    font-weight: 600 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.streamlit-expanderContent {
+    background: #ffffff !important;
+    border-radius: 0 0 16px 16px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-top: none !important;
+}
+
+button[data-baseweb="tab"] {
+    background: transparent !important;
+    color: #5a6e5a !important;
+    font-weight: 500 !important;
+    border-radius: 30px !important;
+    padding: 0.5rem 1.5rem !important;
+    transition: all 0.2s ease !important;
+}
+
 button[data-baseweb="tab"][aria-selected="true"] {
     background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
     color: white !important;
+    box-shadow: 0 2px 8px rgba(45, 90, 59, 0.2) !important;
 }
 
-/* ========== TABELAS (DATAFRAME) - FUNDO BRANCO OBRIGATÓRIO ========== */
-.stDataFrame {
-    background: #ffffff !important;
-}
+/* ========== TABELAS - FUNDO BRANCO FORÇADO ========== */
 .dataframe {
     background: #ffffff !important;
     border-radius: 16px !important;
-    border: 2px solid #4a8c5c !important;
-    width: 100% !important;
+    overflow: hidden !important;
+    border: 1px solid #e8ede8 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
 }
+
 .dataframe th {
     background: linear-gradient(95deg, #2d5a3b 0%, #3a6b48 100%) !important;
     color: white !important;
     font-weight: 600 !important;
     padding: 12px !important;
-    text-align: center !important;
 }
+
 .dataframe td {
     color: #1a1a1a !important;
-    background: #ffffff !important;
     padding: 10px !important;
+    background: #ffffff !important;
     border-bottom: 1px solid #e0e8e0 !important;
-    text-align: center !important;
 }
+
 .dataframe tr:hover td {
     background: #f0f8f0 !important;
 }
 
-/* ========== TABELA DE RESUMO (RESUMO DAS RECOMENDAÇÕES) ========== */
-div[data-testid="stDataFrame"] {
+/* Força fundo branco em todas as tabelas */
+.stDataFrame, div[data-testid="stDataFrame"], table, thead, tbody, tr {
     background: #ffffff !important;
 }
-table {
-    background: #ffffff !important;
+
+.custom-header {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 245, 0.95));
+    backdrop-filter: blur(10px);
+    border-radius: 28px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(74, 140, 92, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
-thead tr th {
-    background: linear-gradient(95deg, #2d5a3b 0%, #3a6b48 100%) !important;
+
+div[role="radiogroup"] {
+    gap: 12px;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+div[role="radiogroup"] label {
+    background: #ffffff !important;
+    border-radius: 40px !important;
+    padding: 0.5rem 1.5rem !important;
+    border: 2px solid #e2e8f0 !important;
+    color: #5a6e5a !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+div[role="radiogroup"] label:hover {
+    border-color: #4a8c5c !important;
+    background: #fafdf8 !important;
+}
+
+div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
+    background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
     color: white !important;
-}
-tbody tr td {
-    background: #ffffff !important;
-    color: #1a1a1a !important;
-}
-tbody tr:hover td {
-    background: #f0f8f0 !important;
+    border-color: transparent !important;
 }
 
-/* ========== CARDS ========== */
-.solo-card, .recomendacao-card, .npk-card {
-    background: #ffffff !important;
-    border-radius: 20px !important;
-    padding: 1.2rem !important;
-    border: 2px solid #4a8c5c !important;
-}
-.solo-card h4, .recomendacao-card h4, .npk-card h3 {
-    color: #1a4a2a !important;
-}
-.solo-card p, .recomendacao-card p, .npk-card p {
-    color: #1a1a1a !important;
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
 }
 
-/* ========== ALERTAS ========== */
-.stAlert {
-    border-radius: 16px !important;
-    border: none !important;
-}
-.stInfo, .stSuccess {
-    background: #e8f5e9 !important;
-    color: #1a1a1a !important;
-}
-.stWarning {
-    background: #fff8e1 !important;
-    color: #1a1a1a !important;
-}
-.stError {
-    background: #ffebee !important;
-    color: #c62828 !important;
+::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-radius: 10px;
 }
 
-/* ========== EXPANDER ========== */
-.streamlit-expanderHeader {
-    background: #ffffff !important;
-    border-radius: 16px !important;
-    color: #1a4a2a !important;
-    border: 1px solid #4a8c5c !important;
-}
-.streamlit-expanderContent {
-    background: #ffffff !important;
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #4a8c5c, #86efac);
+    border-radius: 10px;
 }
 
-/* ========== LINHA DIVISÓRIA ========== */
-hr {
-    margin: 2rem 0 !important;
-    border: none !important;
-    height: 2px !important;
-    background: linear-gradient(90deg, transparent, #4a8c5c, #86efac, #4a8c5c, transparent) !important;
-}
-
-/* ========== BADGE ========== */
 .version-badge {
     background: linear-gradient(95deg, #e8f5e9, #d4edda);
-    color: #1a4a2a !important;
+    color: #2d5a3b;
     border-radius: 40px;
     padding: 0.25rem 1rem;
     font-size: 0.7rem;
@@ -400,17 +432,29 @@ hr {
     display: inline-block;
 }
 
-/* ========== HEADER ========== */
-.custom-header {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 245, 0.95));
-    border-radius: 24px;
-    padding: 1.5rem 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(74, 140, 92, 0.2);
-    width: 100%;
+label {
+    color: #4a5b44 !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
 }
-.custom-header p {
-    color: #5a6e5a !important;
+
+/* ========== CARDS ========== */
+.solo-card {
+    background: #ffffff !important;
+    border-radius: 20px !important;
+    padding: 1.2rem 1.5rem !important;
+    margin: 0.5rem 0 !important;
+    border: 1px solid #d4e8d4 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.npk-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fafdff 100%) !important;
+    border-radius: 20px !important;
+    padding: 1.2rem !important;
+    text-align: center !important;
+    border: 1px solid #4a8c5c !important;
+    box-shadow: 0 4px 12px rgba(74, 140, 92, 0.1) !important;
 }
 </style>
 """, unsafe_allow_html=True)
