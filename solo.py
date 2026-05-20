@@ -189,7 +189,7 @@ section.main > div {
     min-width: 100% !important;
 }
 
-/* ========== TEXTOS GERAIS - PRETO OU VERDE ESCURO ========== */
+/* ========== TEXTOS GERAIS ========== */
 html, body, p, span, div, li, .stMarkdown, .stText, .stCaption {
     color: #1a1a1a !important;
 }
@@ -209,7 +209,7 @@ html, body, p, span, div, li, .stMarkdown, .stText, .stCaption {
     color: #2d5a3b !important;
 }
 
-/* ========== TÍTULOS - VERDE ESCURO ========== */
+/* ========== TÍTULOS ========== */
 h1, h2, h3, h4, h5, h6 {
     color: #1a4a2a !important;
     font-weight: 700 !important;
@@ -268,6 +268,34 @@ label {
     font-size: 0.85rem !important;
 }
 
+/* ========== SELECTBOX - CULTURAS EM VERDE ========== */
+div[data-baseweb="select"] span {
+    color: #1a4a2a !important;
+    font-weight: 600 !important;
+}
+
+div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] span {
+    color: #1a4a2a !important;
+}
+
+/* Lista suspensa do selectbox */
+div[data-baseweb="select"] ul li {
+    color: #1a4a2a !important;
+    font-weight: 500 !important;
+    background: #ffffff !important;
+}
+
+div[data-baseweb="select"] ul li:hover {
+    background: #e8f5e9 !important;
+    color: #1a4a2a !important;
+}
+
+/* Valor selecionado no selectbox */
+div[data-baseweb="select"] div[role="button"] span {
+    color: #1a4a2a !important;
+    font-weight: 600 !important;
+}
+
 /* ========== BOTÕES ========== */
 .stButton > button {
     background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
@@ -321,7 +349,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     color: white !important;
 }
 
-/* ========== DATAFRAME (TABELA) ========== */
+/* ========== DATAFRAME (TABELA) - FUNDO BRANCO ========== */
 .dataframe {
     background: #ffffff !important;
     border-radius: 16px !important;
@@ -482,11 +510,6 @@ hr {
 /* ========== CAPTION ========== */
 .stCaption, caption {
     color: #4a5b44 !important;
-}
-
-/* ========== SELECTBOX ========== */
-div[data-baseweb="select"] ul li {
-    color: #1a1a1a !important;
 }
 
 /* ========== RADIO BUTTONS ========== */
