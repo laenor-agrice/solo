@@ -268,19 +268,34 @@ label {
     font-size: 0.85rem !important;
 }
 
-/* ========== SELECTBOX - CULTURAS EM BRANCO ========== */
-div[data-baseweb="select"] span {
+/* ========== SELECTBOX - CULTURAS EM BRANCO (FORÇADO) ========== */
+
+/* Texto do campo selecionado */
+div[data-baseweb="select"] div[role="button"] span {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    background-color: transparent !important;
+}
+
+/* Texto dentro do campo */
+div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] span {
     color: #ffffff !important;
     font-weight: 600 !important;
 }
 
-div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] span {
+/* Qualquer span dentro do selectbox */
+div[data-baseweb="select"] span {
     color: #ffffff !important;
 }
 
-/* Lista suspensa do selectbox */
+/* Texto do placeholder */
+div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] p {
+    color: #ffffff !important;
+}
+
+/* Lista suspensa - opções (mantém verde para legibilidade) */
 div[data-baseweb="select"] ul li {
-    color: #1a4a2a !important;  /* Mantém verde na lista suspensa para legibilidade */
+    color: #1a4a2a !important;
     font-weight: 500 !important;
     background: #ffffff !important;
 }
@@ -290,10 +305,9 @@ div[data-baseweb="select"] ul li:hover {
     color: #1a4a2a !important;
 }
 
-/* Valor selecionado no selectbox (o que aparece no campo) */
-div[data-baseweb="select"] div[role="button"] span {
-    color: #ffffff !important;  /* BRANCO */
-    font-weight: 600 !important;
+/* Ícone do selectbox (seta) */
+div[data-baseweb="select"] svg {
+    fill: #ffffff !important;
 }
 
 /* ========== BOTÕES ========== */
