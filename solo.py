@@ -861,44 +861,88 @@ elif menu == "📈 4. Relatório":
 # ============================================================================
 
 elif menu == "ℹ️ 5. Métodos":
+
     st.markdown("## ℹ️ Métodos Utilizados")
 
+    # ========================================================================
+    # SATURAÇÃO POR BASES
+    # ========================================================================
+
     with st.expander("📊 Saturação por Bases (V%)"):
+
         st.markdown("### Fórmula:")
+
         st.latex(r"V\% = \frac{SB}{CTC} \times 100")
-        st.markdown("Onde: SB = Soma de Bases, CTC = Capacidade de Troca de Cátions")
+
+        st.markdown("""
+Onde:
+
+- **SB** = Soma de Bases
+- **CTC** = Capacidade de Troca de Cátions
+""")
+
+    # ========================================================================
+    # SATURAÇÃO POR ALUMÍNIO
+    # ========================================================================
 
     with st.expander("🔬 Saturação por Alumínio (m%)"):
+
         st.markdown("### Fórmula:")
-        st.latex(r"m\% = \frac{Al^{3+}}{CTC\ efetiva} \times 100")
-        st.markdown("Onde: Al³⁺ = Alumínio trocável, CTC efetiva = SB + Al³⁺")
+
+        st.latex(r"m\% = \frac{Al^{3+}}{CTC_{efetiva}} \times 100")
+
+        st.markdown("""
+Onde:
+
+- **Al3+** = Alumínio trocável
+- **CTC efetiva** = SB + Al3+
+""")
+
+    # ========================================================================
+    # INTERPRETAÇÃO AGRONÔMICA
+    # ========================================================================
 
     with st.expander("🌾 Interpretação Agronômica"):
+
         st.markdown("""
-        | V% | Interpretação |
-        |---|---|---|
-        | > 70 | Muito fértil |
-        | 50-70 | Fértil |
-        | 25-50 | Distrófico |
-        | < 25 | Álico |
-        """)
+| V% | Interpretação |
+|---|---|
+| > 70 | Muito fértil |
+| 50 - 70 | Fértil |
+| 25 - 50 | Distrófico |
+| < 25 | Álico |
+""")
+
+    # ========================================================================
+    # CÁLCULO DO PH
+    # ========================================================================
 
     with st.expander("🧪 Cálculo do pH"):
+
         st.markdown("""
-        O pH é calculado considerando:
-        - Cátions básicos (Ca, Mg, K) → aumentam o pH
-        - Alumínio e H+Al → diminuem o pH
-        - Matéria Orgânica → efeito tampão
-        - **Valores zerados resultam em pH neutro (7.0)**
-        """)
+O pH é calculado considerando:
+
+- Cátions básicos (Ca, Mg, K), que aumentam o pH;
+- Alumínio e H+Al, que diminuem o pH;
+- Matéria orgânica, com efeito tampão;
+- Valores zerados resultam em pH neutro (7.0).
+""")
+
+    # ========================================================================
+    # ADUBAÇÃO PARA VASOS
+    # ========================================================================
 
     with st.expander("🌱 Cálculo da Adubação para Vaso"):
-        st.markdown("""
-        **Fórmula utilizada:**kg_por_m2 = recomendacao_kg_ha / 10000
+
+        st.markdown("### Fórmulas utilizadas:")
+
+        st.code("""
+kg_por_m2 = recomendacao_kg_ha / 10000
 kg_vaso = kg_por_m2 * area_do_vaso_m2
 gramas_vaso = kg_vaso * 1000
+""", language="python")
 
-st.markdown("""
+        st.markdown("""
 **Considerações:**
 
 - Área do vaso calculada a partir do diâmetro (pi * r**2)
@@ -908,12 +952,19 @@ st.markdown("""
 - Tomate: 150 kg/ha
 """)
 
-with st.expander("🪨 Cálculo da Calagem"):
-    st.markdown("### Fórmula utilizada:")
-    
-    st.latex(r"NC = \frac{(V2 - V1) \times CTC}{100}")
-    
-    st.markdown(""" Onde:
+    # ========================================================================
+    # CÁLCULO DA CALAGEM
+    # ========================================================================
+
+    with st.expander("🪨 Cálculo da Calagem"):
+
+        st.markdown("### Fórmula utilizada:")
+
+        st.latex(r"NC = \frac{(V2 - V1) \times CTC}{100}")
+
+        st.markdown("""
+Onde:
+
 - **NC** = Necessidade de calcário
 - **V2** = Saturação desejada
 - **V1** = Saturação atual
