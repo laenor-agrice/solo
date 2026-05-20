@@ -910,12 +910,14 @@ st.markdown("""
 
 with st.expander("🪨 Cálculo da Calagem"):
     st.markdown("### Fórmula utilizada:")
-    st.latex(r"NC = \frac{(V_2 - V_1) \times CTC}{100}")
     
-    st.markdown(""" Onde:
+    st.latex(r"NC = \frac{(V2 - V1) \times CTC}{100}")
+    
+    st.markdown("""Onde:
+
 - **NC** = Necessidade de calcário
-- **V₂** = Saturação desejada
-- **V₁** = Saturação atual
+- **V2** = Saturação desejada
+- **V1** = Saturação atual
 - **CTC** = Capacidade de troca catiônica
 """)
 
