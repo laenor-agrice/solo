@@ -215,31 +215,50 @@ div[data-baseweb="select"] > div {
     box-shadow: 0 8px 20px rgba(45, 90, 59, 0.3) !important;
 }
 
+/* ==========================================================================
+   MÉTRICAS CORRIGIDAS - ALTO CONTRASTE
+   ========================================================================== */
+
 div[data-testid="stMetric"] {
-    background: linear-gradient(135deg, #ffffff 0%, #fafcff 100%) !important;
-    border-radius: 20px !important;
-    padding: 1.2rem !important;
-    border: 1px solid rgba(74, 140, 92, 0.15) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+    background: linear-gradient(135deg, #ffffff 0%, #f8faf8 100%) !important;
+    border-radius: 24px !important;
+    padding: 1.4rem 1rem !important;
+    border: 1.5px solid #c8e0c8 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
     transition: all 0.3s ease !important;
 }
 
 div[data-testid="stMetric"]:hover {
     transform: translateY(-3px) !important;
     border-color: #4a8c5c !important;
-    box-shadow: 0 8px 25px rgba(74, 140, 92, 0.12) !important;
+    box-shadow: 0 8px 25px rgba(74, 140, 92, 0.15) !important;
 }
 
 div[data-testid="stMetricLabel"] {
-    color: #5a6e5a !important;
-    font-weight: 600 !important;
-    font-size: 0.85rem !important;
+    color: #1a3a2a !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    letter-spacing: 0.3px !important;
+    background: transparent !important;
+    -webkit-text-fill-color: #1a3a2a !important;
 }
 
 div[data-testid="stMetricValue"] {
-    color: #2d5a3b !important;
-    font-weight: 800 !important;
+    color: #0a4a2a !important;
+    font-weight: 900 !important;
+    font-size: 2rem !important;
+    background: transparent !important;
+    -webkit-text-fill-color: #0a4a2a !important;
 }
+
+div[data-testid="stMetricDelta"] {
+    color: #2d5a3b !important;
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   FIM DAS MÉTRICAS CORRIGIDAS
+   ========================================================================== */
 
 .stAlert {
     border-radius: 16px !important;
