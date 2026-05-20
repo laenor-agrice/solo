@@ -913,7 +913,7 @@ with st.expander("🪨 Cálculo da Calagem"):
     
     st.latex(r"NC = \frac{(V2 - V1) \times CTC}{100}")
     
-    st.markdown("""Onde:
+    st.markdown(""" Onde:
 
 - **NC** = Necessidade de calcário
 - **V2** = Saturação desejada
@@ -932,4 +932,3 @@ st.caption(
     "Créditos ao SiBCS - Embrapa | "
     "Inclui cálculo de adubação para vasos | "
     "Dados abertos"
-)
