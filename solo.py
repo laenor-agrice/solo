@@ -265,59 +265,96 @@ label {
     font-size: 0.85rem !important;
 }
 
-/* ========== SELECTBOX - CULTURAS COR BRANCA ========== */
+/* ========== SELECTBOX CORRIGIDO - FUNDO VERDE TEXTO BRANCO ========== */
 
-/* Fundo do selectbox */
+/* Container principal */
+.stSelectbox {
+    margin-bottom: 1rem;
+}
+
+/* Botão do selectbox (fundo sempre verde) */
 div[data-baseweb="select"] > div {
     background-color: #2d5a3b !important;
     border: 2px solid #4a8c5c !important;
     border-radius: 14px !important;
+    min-height: 48px !important;
+    transition: all 0.2s ease !important;
 }
 
-/* Texto dentro do selectbox (cultura selecionada) */
+div[data-baseweb="select"] > div:hover {
+    background-color: #1e4a2e !important;
+    border-color: #6ab04c !important;
+}
+
+/* Texto selecionado (o que aparece no campo) */
 div[data-baseweb="select"] div[role="button"] span {
     color: #ffffff !important;
     font-weight: 600 !important;
+    font-size: 1rem !important;
 }
 
-/* Texto do placeholder */
+/* Placeholder (antes de selecionar) */
 div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] p {
     color: #ffffff !important;
     font-weight: 500 !important;
+    opacity: 0.9 !important;
 }
 
-/* Span dentro do selectbox */
-div[data-baseweb="select"] span {
-    color: #ffffff !important;
-}
-
-/* Ícone da seta */
+/* Ícone da seta para baixo */
 div[data-baseweb="select"] svg {
     fill: #ffffff !important;
     stroke: #ffffff !important;
 }
 
-/* Opções da lista suspensa */
+/* ========== LISTA SUSPENSA (DROPDOWN) ========== */
+
+/* Container da lista */
 div[data-baseweb="select"] ul {
     background-color: #ffffff !important;
-    border: 1px solid #4a8c5c !important;
+    border: 2px solid #4a8c5c !important;
     border-radius: 12px !important;
+    margin-top: 4px !important;
+    padding: 4px 0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
 }
 
+/* Cada item da lista */
 div[data-baseweb="select"] ul li {
     color: #1a4a2a !important;
     font-weight: 500 !important;
     background-color: #ffffff !important;
+    padding: 10px 16px !important;
+    margin: 0 !important;
+    list-style: none !important;
+    font-size: 0.95rem !important;
 }
 
+/* Hover nos itens da lista */
 div[data-baseweb="select"] ul li:hover {
     background-color: #e8f5e9 !important;
     color: #1a4a2a !important;
+    cursor: pointer !important;
 }
 
-/* Label do selectbox */
-.stSelectbox label {
-    color: #1a1a1a !important;
+/* Item selecionado na lista (highlight) */
+div[data-baseweb="select"] ul li[aria-selected="true"] {
+    background-color: #4a8c5c !important;
+    color: #ffffff !important;
+}
+
+/* Scrollbar da lista */
+div[data-baseweb="select"] ul::-webkit-scrollbar {
+    width: 8px;
+}
+div[data-baseweb="select"] ul::-webkit-scrollbar-track {
+    background: #e8ece8;
+    border-radius: 10px;
+}
+div[data-baseweb="select"] ul::-webkit-scrollbar-thumb {
+    background: #4a8c5c;
+    border-radius: 10px;
 }
 
 /* ========== BOTÕES ========== */
@@ -712,23 +749,36 @@ if menu == "📊 1. Dados do Solo":
             st.error(f"❌ Erro: {str(e)}")
 
 # ============================================================================
-# ABA 2 - CLASSIFICAÇÃO
+# ABA 2 - CLASSIFICAÇÃO (COM SELECTBOX CORRIGIDO)
 # ============================================================================
 
 elif menu == "🌱 2. Classificação":
     if not st.session_state.dados_salvos:
         st.warning("⚠️ Preencha e salve os dados na ABA 1 primeiro!")
         st.stop()
+    
     st.markdown("## 🌱 Classificação da Fertilidade")
+    
     col1, col2 = st.columns(2)
+    
     with col1:
         aluminum = st.text_input("Alumínio (Al³⁺) - cmolc/dm³", value="0.0", key="al_input")
         h_al = st.text_input("H + Al - cmolc/dm³", value="0.0", key="hal_input")
+    
     with col2:
         calcium = st.text_input("Cálcio (Ca²⁺) - cmolc/dm³", value="0.0", key="ca_input")
         magnesium = st.text_input("Magnésio (Mg²⁺) - cmolc/dm³", value="0.0", key="mg_input")
-        cultura = st.selectbox("🌾 Cultura", list(necessidades_culturas.keys()), key="cultura_select")
+        
+        # SELECTBOX CORRIGIDO - Usando selectbox padrão do Streamlit
+        cultura = st.selectbox(
+            "🌾 Cultura",
+            options=list(necessidades_culturas.keys()),
+            key="cultura_select",
+            help="Selecione a cultura para recomendações específicas"
+        )
+    
     st.markdown("---")
+    
     if st.button("🔬 REALIZAR CLASSIFICAÇÃO", key="classificar"):
         try:
             dados = st.session_state.dados_basicos.copy()
@@ -738,6 +788,7 @@ elif menu == "🌱 2. Classificação":
             dados["magnesium"] = float(magnesium.replace(",", "."))
             dados["cultura"] = cultura
             dados["ph"] = calcular_ph(dados)
+            
             sb = dados["calcium"] + dados["magnesium"] + dados["potassium"]
             ctc_efetiva = sb + dados["aluminum"]
             ctc_potencial = sb + dados["h_al"]
@@ -754,13 +805,18 @@ elif menu == "🌱 2. Classificação":
             st.session_state.classificacao_realizada = True
             
             st.success("✅ Classificação realizada!")
+            
             col_r1, col_r2, col_r3 = st.columns(3)
-            col_r1.metric("pH do Solo", f"{dados['ph']:.1f}")
-            col_r2.metric("CTC Potencial", f"{ctc_potencial:.2f} cmolc/dm³")
-            col_r3.metric("Saturação por Bases (V%)", f"{v_percent:.1f}%")
+            with col_r1:
+                st.metric("pH do Solo", f"{dados['ph']:.1f}")
+            with col_r2:
+                st.metric("CTC Potencial", f"{ctc_potencial:.2f} cmolc/dm³")
+            with col_r3:
+                st.metric("Saturação por Bases (V%)", f"{v_percent:.1f}%")
             
             st.markdown("---")
             st.markdown("### 🤖 Classificação por IA")
+            
             if modelo is not None:
                 with st.spinner("🔄 IA processando..."):
                     predicao, status = fazer_predicao_ia(dados)
@@ -770,9 +826,9 @@ elif menu == "🌱 2. Classificação":
                         st.warning(f"⚠️ {status}")
             else:
                 st.info("ℹ️ Modelo de IA não disponível")
+                
         except Exception as e:
             st.error(f"❌ Erro: {str(e)}")
-
 # ============================================================================
 # ABA 3 - ADUBAÇÃO PARA VASO
 # ============================================================================
