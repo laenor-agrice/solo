@@ -161,7 +161,7 @@ st.markdown("""
     font-family: 'Outfit', sans-serif;
 }
 
-/* ========== FUNDO ========== */
+/* ========== FORÇAR TEMA CLARO ========== */
 .stApp {
     background: linear-gradient(135deg, #f5f7fa 0%, #eef2f7 100%) !important;
     width: 100% !important;
@@ -179,39 +179,15 @@ st.markdown("""
     width: 100% !important;
 }
 
-section.main > div {
-    padding: 0 !important;
-    max-width: 100% !important;
+/* ========== TODOS OS TEXTOS EM VERDE CLARO ========== */
+html, body, p, span, div, li, .stMarkdown, .stText, .stCaption,
+label, .stSelectbox span, .stSelectbox p, .stSelectbox div[role="button"] span {
+    color: #b8e4b8 !important;
 }
 
-.block-container {
-    width: 100% !important;
-    min-width: 100% !important;
-}
-
-/* ========== TEXTOS GERAIS ========== */
-html, body, p, span, div, li, .stMarkdown, .stText, .stCaption {
-    color: #1a1a1a !important;
-}
-
-/* ========== HEADER ========== */
-.custom-header {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 245, 0.95));
-    backdrop-filter: blur(10px);
-    border-radius: 24px;
-    padding: 1.5rem 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(74, 140, 92, 0.2);
-    width: 100%;
-}
-
-.custom-header p {
-    color: #2d5a3b !important;
-}
-
-/* ========== TÍTULOS ========== */
+/* ========== TÍTULOS EM VERDE MAIS ESCURO ========== */
 h1, h2, h3, h4, h5, h6 {
-    color: #1a4a2a !important;
+    color: #4a8c5c !important;
     font-weight: 700 !important;
     background: none !important;
 }
@@ -221,191 +197,58 @@ section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #1a3022 0%, #0e1e14 100%) !important;
     border-right: none !important;
 }
-
 section[data-testid="stSidebar"] * {
-    color: #e8f0e5 !important;
+    color: #b8e4b8 !important;
 }
 
-section[data-testid="stSidebar"] p, 
-section[data-testid="stSidebar"] span, 
-section[data-testid="stSidebar"] li,
-section[data-testid="stSidebar"] .stMarkdown {
-    color: #e8f0e5 !important;
-}
-
-/* ========== INPUTS ========== */
+/* ========== INPUTS - FUNDO BRANCO ========== */
 .stTextInput input, 
 .stNumberInput input, 
 textarea, 
 input {
     background-color: #ffffff !important;
-    border: 2px solid #c8dcc8 !important;
+    border: 2px solid #4a8c5c !important;
     border-radius: 14px !important;
     padding: 12px 16px !important;
     color: #1a1a1a !important;
     font-weight: 500 !important;
 }
 
-.stTextInput input:not([value="0"]):not([value="0.0"]),
-.stNumberInput input:not([value="0"]):not([value="0.0"]) {
-    background: linear-gradient(95deg, #f0fdf4 0%, #ecfdf5 100%) !important;
-    border-color: #4a8c5c !important;
-}
-
-.stTextInput input:focus, 
-.stNumberInput input:focus {
-    border-color: #2d5a3b !important;
-    box-shadow: 0 0 0 4px rgba(45, 90, 59, 0.15) !important;
-}
-
-/* ========== LABELS ========== */
-label {
-    color: #1a1a1a !important;
-    font-weight: 600 !important;
-    font-size: 0.85rem !important;
-}
-
-/* ========== SELECTBOX CORRIGIDO - TEXTO VERDE CLARO ========== */
-
-/* Container principal */
-.stSelectbox {
-    margin-bottom: 1rem;
-}
-
-/* Botão do selectbox (fundo verde escuro) */
+/* ========== SELECTBOX - FUNDO VERDE ESCURO, TEXTO VERDE CLARO ========== */
 div[data-baseweb="select"] > div {
     background-color: #2d5a3b !important;
     border: 2px solid #4a8c5c !important;
     border-radius: 14px !important;
     min-height: 48px !important;
-    transition: all 0.2s ease !important;
 }
-
-div[data-baseweb="select"] > div:hover {
-    background-color: #1e4a2e !important;
-    border-color: #6ab04c !important;
-}
-
-/* Texto selecionado - VERDE CLARO */
 div[data-baseweb="select"] div[role="button"] span {
     color: #b8e4b8 !important;
     font-weight: 600 !important;
-    font-size: 1rem !important;
 }
-
-/* Placeholder - VERDE CLARO */
 div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] p {
     color: #b8e4b8 !important;
-    font-weight: 500 !important;
-    opacity: 0.9 !important;
 }
-
-/* Ícone da seta - BRANCO */
 div[data-baseweb="select"] svg {
     fill: #ffffff !important;
     stroke: #ffffff !important;
 }
 
-/* ========== LISTA SUSPENSA (DROPDOWN) ========== */
-
-/* Container da lista */
+/* Lista suspensa - fundo branco, texto verde escuro */
 div[data-baseweb="select"] ul {
     background-color: #ffffff !important;
     border: 2px solid #4a8c5c !important;
     border-radius: 12px !important;
-    margin-top: 4px !important;
-    padding: 4px 0 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-    max-height: 300px !important;
-    overflow-y: auto !important;
 }
-
-/* Cada item da lista - VERDE ESCURO (legível no fundo branco) */
 div[data-baseweb="select"] ul li {
     color: #1a4a2a !important;
-    font-weight: 500 !important;
     background-color: #ffffff !important;
-    padding: 10px 16px !important;
-    margin: 0 !important;
-    list-style: none !important;
-    font-size: 0.95rem !important;
 }
-
-/* Hover nos itens da lista */
 div[data-baseweb="select"] ul li:hover {
     background-color: #e8f5e9 !important;
-    color: #1a4a2a !important;
-    cursor: pointer !important;
 }
-
-/* Item selecionado na lista (highlight) */
 div[data-baseweb="select"] ul li[aria-selected="true"] {
     background-color: #4a8c5c !important;
     color: #ffffff !important;
-}
-
-/* Scrollbar da lista */
-div[data-baseweb="select"] ul::-webkit-scrollbar {
-    width: 8px;
-}
-div[data-baseweb="select"] ul::-webkit-scrollbar-track {
-    background: #e8ece8;
-    border-radius: 10px;
-}
-div[data-baseweb="select"] ul::-webkit-scrollbar-thumb {
-    background: #4a8c5c;
-    border-radius: 10px;
-}
-
-/* ========== LISTA SUSPENSA (DROPDOWN) ========== */
-
-/* Container da lista */
-div[data-baseweb="select"] ul {
-    background-color: #ffffff !important;
-    border: 2px solid #4a8c5c !important;
-    border-radius: 12px !important;
-    margin-top: 4px !important;
-    padding: 4px 0 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-    max-height: 300px !important;
-    overflow-y: auto !important;
-}
-
-/* Cada item da lista */
-div[data-baseweb="select"] ul li {
-    color: #1a4a2a !important;
-    font-weight: 500 !important;
-    background-color: #ffffff !important;
-    padding: 10px 16px !important;
-    margin: 0 !important;
-    list-style: none !important;
-    font-size: 0.95rem !important;
-}
-
-/* Hover nos itens da lista */
-div[data-baseweb="select"] ul li:hover {
-    background-color: #e8f5e9 !important;
-    color: #1a4a2a !important;
-    cursor: pointer !important;
-}
-
-/* Item selecionado na lista (highlight) */
-div[data-baseweb="select"] ul li[aria-selected="true"] {
-    background-color: #4a8c5c !important;
-    color: #ffffff !important;
-}
-
-/* Scrollbar da lista */
-div[data-baseweb="select"] ul::-webkit-scrollbar {
-    width: 8px;
-}
-div[data-baseweb="select"] ul::-webkit-scrollbar-track {
-    background: #e8ece8;
-    border-radius: 10px;
-}
-div[data-baseweb="select"] ul::-webkit-scrollbar-thumb {
-    background: #4a8c5c;
-    border-radius: 10px;
 }
 
 /* ========== BOTÕES ========== */
@@ -416,57 +259,46 @@ div[data-baseweb="select"] ul::-webkit-scrollbar-thumb {
     border-radius: 40px !important;
     padding: 0.7rem 2rem !important;
     font-weight: 600 !important;
-    transition: all 0.3s ease !important;
 }
 
-.stButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 20px rgba(45, 90, 59, 0.3) !important;
-}
-
-/* ========== MÉTRICAS ========== */
+/* ========== MÉTRICAS - FUNDO BRANCO ========== */
 div[data-testid="stMetric"] {
     background: #ffffff !important;
     border-radius: 20px !important;
     padding: 1rem !important;
-    border: 1px solid #c8e0c8 !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid #4a8c5c !important;
 }
 div[data-testid="stMetricLabel"] {
-    color: #1a1a1a !important;
+    color: #1a4a2a !important;
     font-weight: 600 !important;
-    font-size: 0.85rem !important;
 }
 div[data-testid="stMetricValue"] {
-    color: #1a4a2a !important;
+    color: #2d5a3b !important;
     font-weight: 800 !important;
-    font-size: 1.8rem !important;
 }
 
 /* ========== TABS ========== */
 button[data-baseweb="tab"] {
     background: #e8ece8 !important;
-    color: #1a1a1a !important;
+    color: #1a4a2a !important;
     font-weight: 700 !important;
     border-radius: 30px !important;
     padding: 0.6rem 1.5rem !important;
-    margin: 0 4px !important;
     border: 1px solid #c8dcc8 !important;
-}
-button[data-baseweb="tab"]:hover {
-    background: #d4e4d4 !important;
 }
 button[data-baseweb="tab"][aria-selected="true"] {
     background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
     color: white !important;
 }
 
-/* ========== DATAFRAME (TABELA) ========== */
+/* ========== TABELAS (DATAFRAME) - FUNDO BRANCO OBRIGATÓRIO ========== */
+.stDataFrame {
+    background: #ffffff !important;
+}
 .dataframe {
     background: #ffffff !important;
     border-radius: 16px !important;
-    overflow: hidden !important;
-    border: 1px solid #4a8c5c !important;
+    border: 2px solid #4a8c5c !important;
     width: 100% !important;
 }
 .dataframe th {
@@ -478,8 +310,8 @@ button[data-baseweb="tab"][aria-selected="true"] {
 }
 .dataframe td {
     color: #1a1a1a !important;
-    padding: 10px !important;
     background: #ffffff !important;
+    padding: 10px !important;
     border-bottom: 1px solid #e0e8e0 !important;
     text-align: center !important;
 }
@@ -487,64 +319,37 @@ button[data-baseweb="tab"][aria-selected="true"] {
     background: #f0f8f0 !important;
 }
 
-/* ========== CARDS ========== */
-.solo-card {
+/* ========== TABELA DE RESUMO (RESUMO DAS RECOMENDAÇÕES) ========== */
+div[data-testid="stDataFrame"] {
     background: #ffffff !important;
-    border-radius: 20px !important;
-    padding: 1.2rem 1.5rem !important;
-    margin: 0.5rem 0 !important;
-    border: 1px solid #d4e8d4 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
-.solo-card h4 {
-    color: #1a4a2a !important;
-    font-weight: 700 !important;
-    margin-bottom: 0.5rem !important;
-    font-size: 1.1rem !important;
+table {
+    background: #ffffff !important;
 }
-.solo-card p {
+thead tr th {
+    background: linear-gradient(95deg, #2d5a3b 0%, #3a6b48 100%) !important;
+    color: white !important;
+}
+tbody tr td {
+    background: #ffffff !important;
     color: #1a1a1a !important;
-    font-weight: 500 !important;
-    margin: 0 !important;
 }
-.solo-card .status-success {
-    color: #2e7d32 !important;
-    font-weight: 600 !important;
-}
-.solo-card .status-warning {
-    color: #ed6c02 !important;
-    font-weight: 600 !important;
+tbody tr:hover td {
+    background: #f0f8f0 !important;
 }
 
-/* ========== CARDS NPK ========== */
-.npk-card {
-    background: linear-gradient(135deg, #ffffff 0%, #fafdff 100%) !important;
+/* ========== CARDS ========== */
+.solo-card, .recomendacao-card, .npk-card {
+    background: #ffffff !important;
     border-radius: 20px !important;
     padding: 1.2rem !important;
-    text-align: center !important;
-    border: 1px solid #4a8c5c !important;
-    box-shadow: 0 4px 12px rgba(74, 140, 92, 0.1) !important;
-    transition: all 0.2s ease !important;
-    height: 100% !important;
+    border: 2px solid #4a8c5c !important;
 }
-.npk-card:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 8px 20px rgba(74, 140, 92, 0.2) !important;
-}
-.npk-card h3 {
-    font-size: 2rem !important;
-    font-weight: 800 !important;
-    margin: 0.5rem 0 !important;
+.solo-card h4, .recomendacao-card h4, .npk-card h3 {
     color: #1a4a2a !important;
 }
-.npk-card p {
+.solo-card p, .recomendacao-card p, .npk-card p {
     color: #1a1a1a !important;
-    margin-top: 0.5rem !important;
-    font-weight: 500 !important;
-}
-.npk-card .small-text {
-    font-size: 0.75rem !important;
-    color: #4a5b44 !important;
 }
 
 /* ========== ALERTAS ========== */
@@ -552,26 +357,17 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-radius: 16px !important;
     border: none !important;
 }
-.stInfo {
+.stInfo, .stSuccess {
     background: #e8f5e9 !important;
     color: #1a1a1a !important;
-    border-radius: 16px !important;
-    border-left: 4px solid #4a8c5c !important;
-}
-.stSuccess {
-    background: #e8f5e9 !important;
-    color: #1a1a1a !important;
-    border-radius: 16px !important;
 }
 .stWarning {
     background: #fff8e1 !important;
     color: #1a1a1a !important;
-    border-radius: 16px !important;
 }
 .stError {
     background: #ffebee !important;
     color: #c62828 !important;
-    border-radius: 16px !important;
 }
 
 /* ========== EXPANDER ========== */
@@ -579,26 +375,17 @@ button[data-baseweb="tab"][aria-selected="true"] {
     background: #ffffff !important;
     border-radius: 16px !important;
     color: #1a4a2a !important;
-    font-weight: 600 !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1px solid #4a8c5c !important;
 }
 .streamlit-expanderContent {
     background: #ffffff !important;
-    border-radius: 0 0 16px 16px !important;
-    border: 1px solid #e2e8f0 !important;
-    border-top: none !important;
-}
-.streamlit-expanderContent p, 
-.streamlit-expanderContent li,
-.streamlit-expanderContent span {
-    color: #1a1a1a !important;
 }
 
 /* ========== LINHA DIVISÓRIA ========== */
 hr {
     margin: 2rem 0 !important;
     border: none !important;
-    height: 1px !important;
+    height: 2px !important;
     background: linear-gradient(90deg, transparent, #4a8c5c, #86efac, #4a8c5c, transparent) !important;
 }
 
@@ -613,34 +400,17 @@ hr {
     display: inline-block;
 }
 
-/* ========== CAPTION ========== */
-.stCaption, caption {
-    color: #4a5b44 !important;
+/* ========== HEADER ========== */
+.custom-header {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 245, 0.95));
+    border-radius: 24px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(74, 140, 92, 0.2);
+    width: 100%;
 }
-
-/* ========== RADIO BUTTONS ========== */
-div[role="radiogroup"] label {
-    color: #1a1a1a !important;
-}
-
-/* ========== CÓDIGO ========== */
-code, pre {
-    color: #1a4a2a !important;
-    background: #f0f4f0 !important;
-}
-
-/* ========== LINKS ========== */
-a {
-    color: #2d5a3b !important;
-    text-decoration: none !important;
-}
-a:hover {
-    text-decoration: underline !important;
-}
-
-/* ========== MARCAÇÃO DE TEXTO ========== */
-strong, b {
-    color: #1a4a2a !important;
+.custom-header p {
+    color: #5a6e5a !important;
 }
 </style>
 """, unsafe_allow_html=True)
