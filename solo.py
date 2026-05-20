@@ -30,16 +30,80 @@ def calcular_ph(dados):
         return 7.0
 
 # ============================================================================
+# BLOCO: FUNÇÃO DE CÁLCULO DA NECESSIDADE DE CALAGEM
+# PALAVRA-CHAVE: CALAGEM
+# Descrição: Calcula a necessidade de calcário em t/ha baseado no método
+# da saturação por bases (V%) e no teor de alumínio trocável.
+# ============================================================================
+
+def calcular_calagem(v_atual, v_desejado, ctc, prnt=80):
+    """Calcula necessidade de calcário em t/ha"""
+    if v_atual >= v_desejado:
+        return 0
+    nc = ((v_desejado - v_atual) * ctc) / 100
+    nc_corrigida = nc * (100 / prnt)
+    return round(nc_corrigida, 2)
+
+# ============================================================================
+# BLOCO: FUNÇÃO DE CÁLCULO DA GESSAGEM
+# PALAVRA-CHAVE: GESSAGEM
+# Descrição: Recomenda gessagem para solos com argila > 350 g/kg ou
+# com necessidade de correção de alumínio em profundidade.
+# ============================================================================
+
+def calcular_gessagem(calagem_t_ha, clay_gkg):
+    """Calcula necessidade de gesso em t/ha"""
+    if calagem_t_ha > 0 and clay_gkg >= 350:
+        return round(calagem_t_ha * 0.5, 2)
+    elif clay_gkg > 200:
+        return round(calagem_t_ha * 0.3, 2)
+    return 0
+
+# ============================================================================
+# BLOCO: FUNÇÃO DE RECOMENDAÇÃO DE N, P, K
+# PALAVRA-CHAVE: NPK
+# Descrição: Recomenda adubação nitrogenada, fosfatada e potássica
+# baseada na cultura e nos teores de P e K do solo.
+# ============================================================================
+
+def recomendar_npk(cultura, p_atual, k_atual, p_min, k_min, p_recomendacao, k_recomendacao, n_base):
+    """Recomenda adubação NPK baseada na análise do solo"""
+    
+    # Nitrogênio
+    if "Soja" in cultura:
+        n_recomendacao = 20  # Soja fixa N, necessidade mínima
+    else:
+        n_recomendacao = n_base
+    
+    # Fósforo
+    if p_atual < p_min:
+        if p_atual < p_min * 0.5:
+            p_recomendacao = p_recomendacao * 1.5
+        p_obs = f"🔴 Baixo - Aplicar {p_recomendacao:.0f} kg/ha P₂O₅"
+    else:
+        p_obs = f"✅ Adequado - Aplicar {p_recomendacao * 0.5:.0f} kg/ha P₂O₅ (manutenção)"
+    
+    # Potássio
+    if k_atual < k_min:
+        if k_atual < k_min * 0.5:
+            k_recomendacao = k_recomendacao * 1.5
+        k_obs = f"🔴 Baixo - Aplicar {k_recomendacao:.0f} kg/ha K₂O"
+    else:
+        k_obs = f"✅ Adequado - Aplicar {k_recomendacao * 0.5:.0f} kg/ha K₂O (manutenção)"
+    
+    return n_recomendacao, p_recomendacao, k_recomendacao, p_obs, k_obs
+
+# ============================================================================
 # BLOCO: FUNÇÃO DE ADUBAÇÃO PARA VASO
 # PALAVRA-CHAVE: CONVERSAO_VASO
 # Descrição: Converte recomendação de kg/ha para gramas por vaso,
 # considerando a área do vaso em metros quadrados.
 # ============================================================================
 
-def calcular_adubacao_vaso(area_vaso_m2, recomendacao_kg_ha, fator_cultura=1.0):
+def calcular_adubacao_vaso(area_vaso_m2, recomendacao_kg_ha):
     kg_por_m2 = recomendacao_kg_ha / 10000
     kg_vaso = kg_por_m2 * area_vaso_m2
-    gramas_vaso = kg_vaso * 1000 * fator_cultura
+    gramas_vaso = kg_vaso * 1000
     return round(gramas_vaso, 2)
 
 # ============================================================================
@@ -180,7 +244,6 @@ div[data-baseweb="select"] > div {
     box-shadow: 0 8px 20px rgba(45, 90, 59, 0.3) !important;
 }
 
-/* ========== MÉTRICAS CORRIGIDAS - ALTO CONTRASTE ========== */
 div[data-testid="stMetric"] {
     background: linear-gradient(135deg, #ffffff 0%, #f8faf8 100%) !important;
     border-radius: 24px !important;
@@ -204,9 +267,7 @@ div[data-testid="stMetricValue"] {
     font-weight: 900 !important;
     font-size: 2rem !important;
 }
-/* ========== FIM MÉTRICAS ========== */
 
-/* ========== TABS CORRIGIDAS - TEXTO SEMPRE VISÍVEL ========== */
 button[data-baseweb="tab"] {
     background: #e8ece8 !important;
     color: #1a3a2a !important;
@@ -216,8 +277,6 @@ button[data-baseweb="tab"] {
     margin: 0 4px !important;
     border: 1px solid #c8dcc8 !important;
     transition: all 0.2s ease !important;
-    opacity: 1 !important;
-    font-size: 0.9rem !important;
 }
 button[data-baseweb="tab"]:hover {
     background: #d4e4d4 !important;
@@ -227,9 +286,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
     color: white !important;
     border-color: transparent !important;
-    box-shadow: 0 2px 8px rgba(45, 90, 59, 0.2) !important;
 }
-/* ========== FIM TABS ========== */
 
 .stAlert {
     border-radius: 16px !important;
@@ -258,16 +315,13 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-radius: 16px !important;
     overflow: hidden !important;
     border: 1px solid #e8ede8 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
 }
-
 .dataframe th {
     background: linear-gradient(95deg, #2d5a3b 0%, #3a6b48 100%) !important;
     color: white !important;
     font-weight: 600 !important;
     padding: 12px !important;
 }
-
 .dataframe td {
     color: #2d3a2a !important;
     padding: 10px !important;
@@ -279,7 +333,6 @@ hr {
     border: none !important;
     height: 2px !important;
     background: linear-gradient(90deg, transparent, #4a8c5c, #86efac, #4a8c5c, transparent) !important;
-    border-radius: 5px !important;
 }
 
 .custom-header {
@@ -289,27 +342,6 @@ hr {
     padding: 1.5rem 2rem;
     margin-bottom: 2rem;
     border: 1px solid rgba(74, 140, 92, 0.2);
-}
-
-div[role="radiogroup"] {
-    gap: 12px;
-    justify-content: center;
-    margin: 1.5rem 0;
-}
-
-div[role="radiogroup"] label {
-    background: #ffffff !important;
-    border-radius: 40px !important;
-    padding: 0.5rem 1.5rem !important;
-    border: 2px solid #e2e8f0 !important;
-    color: #5a6e5a !important;
-    font-weight: 500 !important;
-    transition: all 0.2s ease !important;
-}
-div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
-    background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
-    color: white !important;
-    border-color: transparent !important;
 }
 
 .version-badge {
@@ -327,14 +359,19 @@ label {
     font-weight: 600 !important;
     font-size: 0.85rem !important;
 }
+
+.recomendacao-card {
+    background: linear-gradient(135deg, #f8faf8 0%, #f0f4f0 100%);
+    border-radius: 20px;
+    padding: 1.2rem;
+    margin: 0.5rem 0;
+    border-left: 5px solid #4a8c5c;
+}
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================================================
 # BLOCO: CABECALHO E SIDEBAR
-# PALAVRA-CHAVE: INTERFACE_USUARIO
-# Descrição: Exibe o cabeçalho principal, a barra lateral com informações
-# do sistema, status da IA e versão do aplicativo.
 # ============================================================================
 
 st.markdown("""
@@ -355,7 +392,8 @@ with st.sidebar:
     st.markdown("""
     - ✅ Avaliação da fertilidade do solo
     - ✅ Classificação agrícola profissional
-    - ✅ Recomendação de calagem precisa
+    - ✅ Recomendação de calagem e gessagem
+    - ✅ Recomendação de N, P, K
     - ✅ Relatórios técnicos detalhados
     - ✅ Cálculo de adubação para vasos
     """)
@@ -369,14 +407,11 @@ with st.sidebar:
     else:
         st.warning("⚠️ IA não disponível")
     st.markdown("---")
-    st.caption("✨ Versão 8.0 — IA Corrigida")
+    st.caption("✨ Versão 9.0 — Recomendações Completas")
     st.caption("Desenvolvido com Streamlit")
 
 # ============================================================================
 # BLOCO: SESSION STATE
-# PALAVRA-CHAVE: ESTADO_APLICACAO
-# Descrição: Inicializa e mantém os dados do solo, classificação e
-# flags de estado entre as diferentes abas do aplicativo.
 # ============================================================================
 
 if "dados_basicos" not in st.session_state:
@@ -389,55 +424,39 @@ if "classificacao_realizada" not in st.session_state:
     st.session_state.classificacao_realizada = False
 
 # ============================================================================
-# BLOCO: MENU DE NAVEGAÇÃO (TABS CORRIGIDAS)
-# PALAVRA-CHAVE: ABAS_VISIVEIS
-# Descrição: Cria as abas de navegação com texto SEMPRE visível em fundo
-# claro, mudando para gradiente verde apenas quando selecionada.
+# BLOCO: MENU DE NAVEGAÇÃO (5 ABAS)
 # ============================================================================
 
 menu = st.radio(
     "Navegação",
-    ["📊 1. Dados do Solo", "🌱 2. Classificação", "🧪 3. Adubação (Vaso)", "📈 4. Relatório", "ℹ️ 5. Métodos"],
+    ["📊 1. Dados do Solo", "🌱 2. Classificação", "🧪 3. Adubação (Vaso)", "📈 4. Relatório", "🎯 5. Recomendações"],
     horizontal=True,
     label_visibility="collapsed"
 )
 
 # ============================================================================
-# BLOCO: DICIONÁRIOS DE CULTURAS (CORRIGIDOS)
-# PALAVRA-CHAVE: CULTURAS_AGRICOLAS
-# Descrição: Define as necessidades agronômicas por cultura e as
-# recomendações de adubação nitrogenada. Removido Eucalipto, adicionado
-# Milho Grão, Milho Semente, Sorgo e Milheto.
+# BLOCO: DICIONÁRIOS DE CULTURAS
 # ============================================================================
 
 necessidades_culturas = {
-    "Soja": {"v_desejado": 60, "ph_min": 5.5, "ph_max": 6.5, "p_min": 15, "k_min": 0.35},
-    "Milho Grão": {"v_desejado": 65, "ph_min": 5.5, "ph_max": 6.5, "p_min": 20, "k_min": 0.40},
-    "Milho Semente": {"v_desejado": 65, "ph_min": 5.5, "ph_max": 6.5, "p_min": 20, "k_min": 0.40},
-    "Sorgo": {"v_desejado": 55, "ph_min": 5.2, "ph_max": 6.2, "p_min": 12, "k_min": 0.30},
-    "Milheto": {"v_desejado": 50, "ph_min": 5.0, "ph_max": 6.0, "p_min": 10, "k_min": 0.25},
-    "Feijão": {"v_desejado": 65, "ph_min": 5.5, "ph_max": 6.5, "p_min": 20, "k_min": 0.35},
-    "Café": {"v_desejado": 70, "ph_min": 5.5, "ph_max": 6.5, "p_min": 25, "k_min": 0.40},
-    "Pastagem": {"v_desejado": 50, "ph_min": 5.0, "ph_max": 6.0, "p_min": 10, "k_min": 0.25},
-    "Algodão": {"v_desejado": 70, "ph_min": 5.5, "ph_max": 6.5, "p_min": 25, "k_min": 0.45},
-    "Cana-de-açúcar": {"v_desejado": 60, "ph_min": 5.5, "ph_max": 6.5, "p_min": 15, "k_min": 0.30},
-    "Trigo": {"v_desejado": 65, "ph_min": 5.5, "ph_max": 6.5, "p_min": 18, "k_min": 0.35},
-    "Tomate": {"v_desejado": 80, "ph_min": 6.0, "ph_max": 6.8, "p_min": 30, "k_min": 0.50},
-    "Citrus": {"v_desejado": 70, "ph_min": 5.5, "ph_max": 6.5, "p_min": 20, "k_min": 0.35},
-    "Arroz": {"v_desejado": 50, "ph_min": 5.0, "ph_max": 6.0, "p_min": 10, "k_min": 0.25}
-}
-
-recomendacao_n_ha = {
-    "Soja": 20, "Milho Grão": 120, "Milho Semente": 120, "Sorgo": 90, "Milheto": 70,
-    "Feijão": 40, "Café": 180, "Pastagem": 80, "Algodão": 140, "Cana-de-açúcar": 100,
-    "Trigo": 110, "Tomate": 150, "Citrus": 130, "Arroz": 85
+    "Soja": {"v_desejado": 60, "ph_min": 5.5, "ph_max": 6.5, "p_min": 15, "k_min": 0.35, "p_rec": 80, "k_rec": 60, "n_base": 20},
+    "Milho Grão": {"v_desejado": 65, "ph_min": 5.5, "ph_max": 6.5, "p_min": 20, "k_min": 0.40, "p_rec": 100, "k_rec": 80, "n_base": 120},
+    "Milho Semente": {"v_desejado": 65, "ph_min": 5.5, "ph_max": 6.5, "p_min": 20, "k_min": 0.40, "p_rec": 100, "k_rec": 80, "n_base": 120},
+    "Sorgo": {"v_desejado": 55, "ph_min": 5.2, "ph_max": 6.2, "p_min": 12, "k_min": 0.30, "p_rec": 60, "k_rec": 50, "n_base": 90},
+    "Milheto": {"v_desejado": 50, "ph_min": 5.0, "ph_max": 6.0, "p_min": 10, "k_min": 0.25, "p_rec": 50, "k_rec": 40, "n_base": 70},
+    "Feijão": {"v_desejado": 65, "ph_min": 5.5, "ph_max": 6.5, "p_min": 20, "k_min": 0.35, "p_rec": 80, "k_rec": 60, "n_base": 40},
+    "Café": {"v_desejado": 70, "ph_min": 5.5, "ph_max": 6.5, "p_min": 25, "k_min": 0.40, "p_rec": 120, "k_rec": 100, "n_base": 180},
+    "Pastagem": {"v_desejado": 50, "ph_min": 5.0, "ph_max": 6.0, "p_min": 10, "k_min": 0.25, "p_rec": 60, "k_rec": 50, "n_base": 80},
+    "Algodão": {"v_desejado": 70, "ph_min": 5.5, "ph_max": 6.5, "p_min": 25, "k_min": 0.45, "p_rec": 120, "k_rec": 100, "n_base": 140},
+    "Cana-de-açúcar": {"v_desejado": 60, "ph_min": 5.5, "ph_max": 6.5, "p_min": 15, "k_min": 0.30, "p_rec": 100, "k_rec": 120, "n_base": 100},
+    "Trigo": {"v_desejado": 65, "ph_min": 5.5, "ph_max": 6.5, "p_min": 18, "k_min": 0.35, "p_rec": 80, "k_rec": 60, "n_base": 110},
+    "Tomate": {"v_desejado": 80, "ph_min": 6.0, "ph_max": 6.8, "p_min": 30, "k_min": 0.50, "p_rec": 150, "k_rec": 120, "n_base": 150},
+    "Citrus": {"v_desejado": 70, "ph_min": 5.5, "ph_max": 6.5, "p_min": 20, "k_min": 0.35, "p_rec": 100, "k_rec": 80, "n_base": 130},
+    "Arroz": {"v_desejado": 50, "ph_min": 5.0, "ph_max": 6.0, "p_min": 10, "k_min": 0.25, "p_rec": 60, "k_rec": 50, "n_base": 85}
 }
 
 # ============================================================================
-# BLOCO: FUNÇÃO DE PREDIÇÃO IA (CORRIGIDA)
-# PALAVRA-CHAVE: IA_BAIXA_FERTILIDADE
-# Descrição: Classifica a fertilidade usando modelo treinado. Corrigido
-# para reconhecer solos ácidos e com baixa CTC como BAIXA FERTILIDADE.
+# BLOCO: FUNÇÃO DE PREDIÇÃO IA
 # ============================================================================
 
 def fazer_predicao_ia(dados):
@@ -457,7 +476,6 @@ def fazer_predicao_ia(dados):
         entrada_ia = pd.DataFrame([valores], columns=features)
         predicao = modelo.predict(entrada_ia)
         
-        # CORREÇÃO: Lógica baseada em regras agronômicas
         ph = dados.get("ph", 7.0)
         v_percent = dados.get("v_percent", 0)
         if ph < 5.5 or v_percent < 50:
@@ -471,7 +489,7 @@ def fazer_predicao_ia(dados):
         return None, f"Erro: {str(e)}"
 
 # ============================================================================
-# ABA 1 - DADOS DO SOLO (NÃO ALTERADO)
+# ABA 1 - DADOS DO SOLO
 # ============================================================================
 
 if menu == "📊 1. Dados do Solo":
@@ -507,7 +525,7 @@ if menu == "📊 1. Dados do Solo":
             st.error(f"❌ Erro: {str(e)}")
 
 # ============================================================================
-# ABA 2 - CLASSIFICAÇÃO (COM IA CORRIGIDA)
+# ABA 2 - CLASSIFICAÇÃO
 # ============================================================================
 
 elif menu == "🌱 2. Classificação":
@@ -538,7 +556,7 @@ elif menu == "🌱 2. Classificação":
             ctc_potencial = sb + dados["h_al"]
             v_percent = (sb / ctc_potencial) * 100 if ctc_potencial > 0 else 0
             m_percent = (dados["aluminum"] / ctc_efetiva) * 100 if ctc_efetiva > 0 else 0
-            dados["v_percent"] = v_percent  # Para a IA usar
+            dados["v_percent"] = v_percent
             
             st.session_state.dados_calculados = dados
             st.session_state.sb = sb
@@ -569,7 +587,7 @@ elif menu == "🌱 2. Classificação":
             st.error(f"❌ Erro: {str(e)}")
 
 # ============================================================================
-# ABA 3 - ADUBAÇÃO PARA VASO (COM MENSAGEM DE BOAS-VINDAS)
+# ABA 3 - ADUBAÇÃO PARA VASO
 # ============================================================================
 
 elif menu == "🧪 3. Adubação (Vaso)":
@@ -596,26 +614,42 @@ elif menu == "🧪 3. Adubação (Vaso)":
     st.caption(f"📐 Área do vaso: **{area_m2:.4f} m²**")
     
     cultura = st.session_state.cultura_selecionada
+    dados_cultura = necessidades_culturas[cultura]
     st.success(f"Cultura: **{cultura}**")
+    
     dados = st.session_state.dados_calculados
-    fator_ajuste = 1.0
-    if dados.get("phosphorus", 0) < 15:
-        fator_ajuste += 0.2
-        st.info("⚠️ Fósforo baixo (+20%)")
-    if dados.get("potassium", 0) < 0.25:
-        fator_ajuste += 0.15
-        st.info("⚠️ Potássio baixo (+15%)")
+    p_atual = dados.get("phosphorus", 0)
+    k_atual = dados.get("potassium", 0)
     
-    base_n = recomendacao_n_ha.get(cultura, 80)
-    gramas = calcular_adubacao_vaso(area_m2, base_n * fator_ajuste)
+    # Calcular recomendações para vaso
+    n_vaso = calcular_adubacao_vaso(area_m2, dados_cultura["n_base"])
+    p_vaso = calcular_adubacao_vaso(area_m2, dados_cultura["p_rec"])
+    k_vaso = calcular_adubacao_vaso(area_m2, dados_cultura["k_rec"])
     
-    col_res1, col_res2 = st.columns(2)
-    col_res1.metric("Recomendação/ha", f"{base_n * fator_ajuste:.0f} kg N")
-    col_res2.metric("Para este vaso", f"{gramas:.2f} g N")
-    st.markdown(f"🧴 **Aplicação:** {gramas:.2f}g de N ou {(gramas/0.45):.2f}g de ureia")
+    # Ajustes baseados na análise
+    if p_atual < dados_cultura["p_min"]:
+        p_vaso = p_vaso * 1.5
+    if k_atual < dados_cultura["k_min"]:
+        k_vaso = k_vaso * 1.5
+    
+    st.markdown("---")
+    st.markdown("### 📊 Resultado para o Vaso")
+    
+    col_r1, col_r2, col_r3 = st.columns(3)
+    col_r1.metric("Nitrogênio (N)", f"{n_vaso:.2f} g")
+    col_r2.metric("Fósforo (P₂O₅)", f"{p_vaso:.2f} g")
+    col_r3.metric("Potássio (K₂O)", f"{k_vaso:.2f} g")
+    
+    st.markdown(f"""
+    **🧴 Modo de aplicação sugerido:**
+    - Misturar **{n_vaso:.2f}g de N** + **{p_vaso:.2f}g de P₂O₅** + **{k_vaso:.2f}g de K₂O** no solo do vaso
+    - Para ureia (45% N): use **{(n_vaso/0.45):.2f}g**
+    - Para superfosfato simples (18% P₂O₅): use **{(p_vaso/0.18):.2f}g**
+    - Para cloreto de potássio (60% K₂O): use **{(k_vaso/0.60):.2f}g**
+    """)
 
 # ============================================================================
-# ABA 4 - RELATÓRIO (COM RECOMENDAÇÃO POR HECTARE)
+# ABA 4 - RELATÓRIO
 # ============================================================================
 
 elif menu == "📈 4. Relatório":
@@ -628,79 +662,202 @@ elif menu == "📈 4. Relatório":
     sb = st.session_state.sb
     ctc = st.session_state.ctc_potencial
     v_percent = st.session_state.v_percent
-    cultura = st.session_state.cultura_selecionada
-    
-    # Cálculo de adubação por hectare
-    base_n = recomendacao_n_ha.get(cultura, 80)
-    fator_ajuste = 1.0
-    if dados.get("phosphorus", 0) < 15:
-        fator_ajuste += 0.2
-    if dados.get("potassium", 0) < 0.25:
-        fator_ajuste += 0.15
-    n_kg_ha = base_n * fator_ajuste
     
     relatorio = pd.DataFrame({
         "Parâmetro": ["pH", "N (mg/dm³)", "P (mg/dm³)", "K (cmolc/dm³)", "Ca (cmolc/dm³)",
                       "Mg (cmolc/dm³)", "Al (cmolc/dm³)", "H+Al (cmolc/dm³)", "SB (cmolc/dm³)",
-                      "CTC (cmolc/dm³)", "V%", "Mat. Orgânica (g/kg)", "Argila (g/kg)"],
+                      "CTC (cmolc/dm³)", "V%", "Mat. Orgânica (g/kg)", "Areia (g/kg)", "Silte (g/kg)", "Argila (g/kg)"],
         "Valor": [f"{dados['ph']:.1f}", f"{dados['nitrogen']:.1f}", f"{dados['phosphorus']:.1f}",
                   f"{dados['potassium']:.2f}", f"{dados['calcium']:.2f}", f"{dados['magnesium']:.2f}",
                   f"{dados['aluminum']:.2f}", f"{dados['h_al']:.2f}", f"{sb:.2f}",
-                  f"{ctc:.2f}", f"{v_percent:.1f}%", f"{dados['organic_matter']:.1f}", f"{dados['clay']:.0f}"]
+                  f"{ctc:.2f}", f"{v_percent:.1f}%", f"{dados['organic_matter']:.1f}",
+                  f"{dados['sand']:.0f}", f"{dados['silt']:.0f}", f"{dados['clay']:.0f}"]
     })
     st.dataframe(relatorio, hide_index=True, use_container_width=True)
     
-    # Download
     csv = relatorio.to_csv(index=False).encode("utf-8")
     st.download_button("📥 Baixar CSV", data=csv, file_name="relatorio_solo.csv", mime="text/csv")
+
+# ============================================================================
+# ABA 5 - RECOMENDAÇÕES (COMPLETA COM CALAGEM, GESSAGEM, N, P, K)
+# ============================================================================
+
+elif menu == "🎯 5. Recomendações":
+    st.markdown("## 🎯 Recomendações Técnicas Completas")
+    
+    if not st.session_state.classificacao_realizada:
+        st.warning("⚠️ Execute a classificação na ABA 2 primeiro para gerar as recomendações!")
+        if st.button("📊 Usar demonstração"):
+            st.session_state.classificacao_realizada = True
+            st.session_state.dados_calculados = {
+                "ph": 5.2, "phosphorus": 5.0, "potassium": 0.15, "clay": 400,
+                "calcium": 1.5, "magnesium": 0.8, "aluminum": 0.8, "h_al": 4.0,
+                "v_percent": 35, "organic_matter": 20
+            }
+            st.session_state.ctc_potencial = 8.0
+            st.session_state.sb = 2.5
+            st.session_state.v_percent = 35
+            st.session_state.cultura_selecionada = "Soja"
+            st.session_state.classificacao_realizada = True
+            st.rerun()
+        st.stop()
+    
+    cultura = st.session_state.cultura_selecionada
+    dados_cultura = necessidades_culturas[cultura]
+    dados = st.session_state.dados_calculados
+    
+    # Dados do solo
+    ph_atual = dados.get("ph", 7.0)
+    p_atual = dados.get("phosphorus", 0)
+    k_atual = dados.get("potassium", 0)
+    ca_atual = dados.get("calcium", 0)
+    mg_atual = dados.get("magnesium", 0)
+    al_atual = dados.get("aluminum", 0)
+    h_al_atual = dados.get("h_al", 0)
+    v_atual = st.session_state.v_percent
+    ctc = st.session_state.ctc_potencial
+    clay = dados.get("clay", 0)
+    mo = dados.get("organic_matter", 0)
+    
+    # Calcular calagem
+    v_desejado = dados_cultura["v_desejado"]
+    calagem_t = calcular_calagem(v_atual, v_desejado, ctc, prnt=80)
+    
+    # Calcular gessagem
+    gessagem_t = calcular_gessagem(calagem_t, clay)
+    
+    # Calcular recomendações NPK
+    n_rec = dados_cultura["n_base"]
+    p_rec_base = dados_cultura["p_rec"]
+    k_rec_base = dados_cultura["k_rec"]
+    
+    # Ajustes por análise de solo
+    if p_atual < dados_cultura["p_min"]:
+        if p_atual < dados_cultura["p_min"] * 0.5:
+            p_rec = p_rec_base * 1.5
+            p_status = "🔴 Muito Baixo"
+        else:
+            p_rec = p_rec_base * 1.2
+            p_status = "🟠 Baixo"
+        p_obs = f"Aplicar {p_rec:.0f} kg/ha de P₂O₅"
+    else:
+        p_rec = p_rec_base * 0.5
+        p_status = "🟢 Adequado"
+        p_obs = f"Aplicar {p_rec:.0f} kg/ha de P₂O₅ (manutenção)"
+    
+    if k_atual < dados_cultura["k_min"]:
+        if k_atual < dados_cultura["k_min"] * 0.5:
+            k_rec = k_rec_base * 1.5
+            k_status = "🔴 Muito Baixo"
+        else:
+            k_rec = k_rec_base * 1.2
+            k_status = "🟠 Baixo"
+        k_obs = f"Aplicar {k_rec:.0f} kg/ha de K₂O"
+    else:
+        k_rec = k_rec_base * 0.5
+        k_status = "🟢 Adequado"
+        k_obs = f"Aplicar {k_rec:.0f} kg/ha de K₂O (manutenção)"
+    
+    # Ajuste N para Soja
+    if "Soja" in cultura:
+        n_obs = f"Aplicar {n_rec:.0f} kg/ha de N (inoculação + cobertura)"
+    else:
+        n_obs = f"Aplicar {n_rec:.0f} kg/ha de N (parcelado em 2-3 vezes)"
+    
+    # Exibir resultados
+    st.markdown(f"### 🌾 Cultura Selecionada: **{cultura}**")
+    
+    # Cards de resumo
+    col_res1, col_res2, col_res3 = st.columns(3)
+    with col_res1:
+        st.metric("pH do Solo", f"{ph_atual:.1f}", delta="Ideal: 5.5-6.5")
+    with col_res2:
+        st.metric("CTC Potencial", f"{ctc:.2f} cmolc/dm³")
+    with col_res3:
+        st.metric("V% Atual", f"{v_atual:.1f}%", delta=f"Alvo: {v_desejado}%")
     
     st.markdown("---")
-    st.markdown("## 🌾 Recomendações Agronômicas")
-    st.success(f"✅ Cultura: {cultura}")
     
-    # Calagem
-    v2 = necessidades_culturas[cultura]["v_desejado"]
-    nc = max(((v2 - v_percent) * ctc) / 100, 0)
-    nc_corrigida = nc * (100 / 80)
-    st.info(f"🪨 Calagem: {nc_corrigida:.2f} t/ha")
+    # Seção de Calagem e Gessagem
+    st.markdown("## 🪨 Correção do Solo")
     
-    # Adubação por hectare (NOVO)
-    st.info(f"🌱 Adubação Nitrogenada: **{n_kg_ha:.0f} kg/ha de N**")
+    col_cal1, col_cal2 = st.columns(2)
+    with col_cal1:
+        st.markdown('<div class="recomendacao-card">', unsafe_allow_html=True)
+        st.markdown("#### 🧱 Calagem")
+        if calagem_t > 0:
+            st.warning(f"**Necessidade de Calcário:** {calagem_t} t/ha")
+            st.caption(f"Calcular com PRNT 80% | V% desejado: {v_desejado}%")
+            st.info("💡 Aplicar 30-60 dias antes do plantio, incorporado na camada de 0-20cm")
+        else:
+            st.success("✅ Solo com V% adequado. Calagem não necessária!")
+        st.markdown('</div>', unsafe_allow_html=True)
     
-    # Recomendações específicas
-    if dados["phosphorus"] < 15:
-        st.error("🔴 Necessária adubação fosfatada")
-    else:
-        st.success("✅ Fósforo adequado")
-    if dados["potassium"] < 0.30:
-        st.error("🔴 Necessária adubação potássica")
-    else:
-        st.success("✅ Potássio adequado")
-
-# ============================================================================
-# ABA 5 - MÉTODOS
-# ============================================================================
-
-elif menu == "ℹ️ 5. Métodos":
-    st.markdown("## ℹ️ Métodos Utilizados")
-    with st.expander("📊 Saturação por Bases (V%)"):
-        st.latex(r"V\% = \frac{SB}{CTC} \times 100")
-    with st.expander("🔬 Saturação por Alumínio (m%)"):
-        st.latex(r"m\% = \frac{Al^{3+}}{CTC_{efetiva}} \times 100")
-    with st.expander("🌾 Interpretação Agronômica"):
-        st.markdown("| V% | Interpretação |\n|---|---|\n| > 70 | Muito fértil |\n| 50-70 | Fértil |\n| 25-50 | Distrófico |\n| < 25 | Álico |")
-    with st.expander("🧪 Cálculo do pH"):
-        st.markdown("Considera cátions básicos (Ca, Mg, K), Al, H+Al e matéria orgânica. Valores zerados = pH 7.0.")
-    with st.expander("🌱 Adubação"):
-        st.code("kg_por_m2 = recomendacao_kg_ha / 10000\nkg_vaso = kg_por_m2 * area_m2\ngramas = kg_vaso * 1000")
-    with st.expander("🪨 Calagem"):
-        st.latex(r"NC = \frac{(V2 - V1) \times CTC}{100}")
+    with col_cal2:
+        st.markdown('<div class="recomendacao-card">', unsafe_allow_html=True)
+        st.markdown("#### 💎 Gessagem")
+        if gessagem_t > 0:
+            st.info(f"**Recomendação de Gesso:** {gessagem_t} t/ha")
+            st.caption("Necessário para solos com alto teor de argila e alumínio")
+        else:
+            st.success("✅ Gessagem não necessária para esta cultura/solo")
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Seção de Adubação NPK
+    st.markdown("## 🌱 Adubação NPK")
+    
+    col_n1, col_n2, col_n3 = st.columns(3)
+    with col_n1:
+        st.markdown('<div class="recomendacao-card">', unsafe_allow_html=True)
+        st.markdown("#### ⚛️ Nitrogênio (N)")
+        st.markdown(f"**{n_rec} kg/ha**")
+        st.caption(n_obs)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    with col_n2:
+        st.markdown('<div class="recomendacao-card">', unsafe_allow_html=True)
+        st.markdown("#### 🪨 Fósforo (P₂O₅)")
+        st.markdown(f"**Status:** {p_status}")
+        st.markdown(f"**Recomendação:** {p_rec} kg/ha")
+        st.caption(p_obs)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    with col_n3:
+        st.markdown('<div class="recomendacao-card">', unsafe_allow_html=True)
+        st.markdown("#### 🍌 Potássio (K₂O)")
+        st.markdown(f"**Status:** {k_status}")
+        st.markdown(f"**Recomendação:** {k_rec} kg/ha")
+        st.caption(k_obs)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Resumo completo
+    st.markdown("## 📋 Resumo das Recomendações")
+    
+    resumo = pd.DataFrame({
+        "Recomendação": ["Calagem", "Gessagem", "Nitrogênio (N)", "Fósforo (P₂O₅)", "Potássio (K₂O)"],
+        "Dose (kg/ha)": [f"{calagem_t:.2f} t/ha" if calagem_t > 0 else "Não necessária",
+                         f"{gessagem_t:.2f} t/ha" if gessagem_t > 0 else "Não necessária",
+                         f"{n_rec} kg/ha", f"{p_rec} kg/ha", f"{k_rec} kg/ha"],
+        "Observação": [f"Elevar V% de {v_atual:.0f}% para {v_desejado}%",
+                      "Aplica-se em solos argilosos" if gessagem_t > 0 else "Não se aplica",
+                      n_obs, p_obs, k_obs]
+    })
+    
+    st.dataframe(resumo, hide_index=True, use_container_width=True)
+    
+    # Botão para baixar recomendações
+    csv_resumo = resumo.to_csv(index=False).encode("utf-8")
+    st.download_button("📥 Baixar Recomendações (CSV)", data=csv_resumo, file_name="recomendacoes.csv", mime="text/csv")
+    
+    st.caption("💡 *Recomendações baseadas no Manual de Adubação e Calagem para o Estado de São Paulo (IAC) e SiBCS-Embrapa*")
 
 # ============================================================================
 # BLOCO: RODAPÉ
-# PALAVRA-CHAVE: CREDITOS
-# Descrição: Exibe informações de direitos autorais e versão do sistema.
 # ============================================================================
 
 st.markdown("---")
-st.caption("© 2026 - Classificador de Fertilidade do Solo | SiBCS - Embrapa | Versão 8.0 | Dados abertos")
+st.caption("© 2026 - Classificador de Fertilidade do Solo | SiBCS - Embrapa | Versão 9.0 - Recomendações Completas")
