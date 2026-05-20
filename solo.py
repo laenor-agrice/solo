@@ -927,8 +927,9 @@ with st.expander("🪨 Cálculo da Calagem"):
 
 st.markdown("---")
 
-st.caption(
+st.caption("""
     "© 2026 - Classificador de Fertilidade do Solo | "
     "Créditos ao SiBCS - Embrapa | "
     "Inclui cálculo de adubação para vasos | "
-    "Dados abertos"
+    "Dados abertos" 
+    """)
