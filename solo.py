@@ -118,225 +118,258 @@ st.set_page_config(
 )
 
 # ============================================================================
-# CSS PERSONALIZADO - DESIGN TOTALMENTE REFORMULADO
+# CSS PERSONALIZADO - DESIGN INSPIRADO NO MAPBIOMAS E TEXURA DE SOLO
 # ============================================================================
 
 st.markdown("""
 <style>
-/* Fonte moderna */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+/* Fonte moderna e limpa */
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
 
 * {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
-/* Fundo principal com gradiente suave */
+/* Container principal com textura de solo sutil */
 .stApp {
-    background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%) !important;
+    background-color: #f7f5f0;
+    background-image: url('https://www.transparenttextures.com/patterns/dark-dirt.png');
+    background-blend-mode: overlay;
 }
 
-/* Container principal */
+/* Fundo dos elementos principais com transparência para textura aparecer */
 .main .block-container {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(2px);
+    border-radius: 32px;
+    padding: 2rem 2rem 2rem 2rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.05);
 }
 
-/* Títulos com gradiente */
+/* Títulos inspirados no MapBiomas (tons terrosos e verdes) */
 h1, h2, h3 {
-    background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    color: transparent !important;
+    color: #2c3e2f !important;
     font-weight: 700 !important;
+    letter-spacing: -0.3px !important;
 }
 
-/* Sidebar elegante */
+h1 {
+    border-left: 6px solid #6a994e;
+    padding-left: 1rem;
+}
+
+/* Sidebar com visual elegante */
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0a0f1a 0%, #0d1117 100%) !important;
-    border-right: 1px solid rgba(132, 250, 176, 0.15) !important;
+    background-color: #1a2c1c !important;
+    background-image: linear-gradient(145deg, #1a2c1c 0%, #0f1e11 100%) !important;
+    border-right: none !important;
 }
 
-/* Cards de input */
-div[data-testid="stTextInput"] > div > div > input,
-div[data-testid="stNumberInput"] > div > div > input {
-    background-color: #1a1f2e !important;
-    border: 1px solid #2a2f3e !important;
-    border-radius: 12px !important;
-    color: #e6edf3 !important;
-    padding: 10px 14px !important;
-    transition: all 0.3s ease !important;
+section[data-testid="stSidebar"] *:not(button) {
+    color: #e0e4d8 !important;
 }
 
-div[data-testid="stTextInput"] > div > div > input:focus,
-div[data-testid="stNumberInput"] > div > div > input:focus {
-    border-color: #84fab0 !important;
-    box-shadow: 0 0 0 2px rgba(132, 250, 176, 0.2) !important;
+section[data-testid="stSidebar"] h1, 
+section[data-testid="stSidebar"] h2, 
+section[data-testid="stSidebar"] h3 {
+    color: #bcdf8a !important;
 }
 
-/* Selectbox */
+/* Inputs com bordas e foco elegantes */
+.stTextInput input, 
+.stNumberInput input, 
+textarea, 
+input,
 div[data-baseweb="select"] > div {
-    background-color: #1a1f2e !important;
-    border: 1px solid #2a2f3e !important;
-    border-radius: 12px !important;
+    background-color: #ffffff !important;
+    border: 1px solid #d4d8c9 !important;
+    border-radius: 16px !important;
+    padding: 10px 16px !important;
+    color: #1f2c1c !important;
+    font-weight: 500 !important;
+    transition: all 0.25s ease !important;
 }
 
-/* Botões com efeito moderno */
+.stTextInput input:focus, 
+.stNumberInput input:focus,
+div[data-baseweb="select"] > div:focus-within {
+    border-color: #6a994e !important;
+    box-shadow: 0 0 0 3px rgba(106, 153, 78, 0.2) !important;
+    outline: none !important;
+}
+
+/* Botões com gradiente moderno */
 .stButton > button {
-    background: linear-gradient(90deg, #84fab0 0%, #8fd3f4 100%) !important;
-    color: #0d1117 !important;
-    font-weight: 600 !important;
+    background: linear-gradient(95deg, #4a7c3f 0%, #6a994e 100%) !important;
+    color: white !important;
     border: none !important;
-    border-radius: 30px !important;
-    padding: 0.6rem 1.5rem !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: 0 4px 15px rgba(132, 250, 176, 0.2) !important;
+    border-radius: 40px !important;
+    padding: 0.6rem 1.8rem !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important;
 }
 
 .stButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(132, 250, 176, 0.3) !important;
+    transform: translateY(-2px);
+    background: linear-gradient(95deg, #3b6730 0%, #5a8c46 100%) !important;
+    box-shadow: 0 6px 14px rgba(60, 90, 40, 0.25) !important;
 }
 
-/* Cards de resultado */
+/* Cards de métricas com leve elevação */
 div[data-testid="stMetric"] {
-    background: linear-gradient(135deg, #1a1f2e 0%, #161b22 100%) !important;
-    border: 1px solid rgba(132, 250, 176, 0.2) !important;
-    border-radius: 20px !important;
-    padding: 1rem !important;
-    transition: all 0.3s ease !important;
+    background: white;
+    border-radius: 24px;
+    padding: 1rem;
+    border: 1px solid #e6e8dc;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: 0.2s;
 }
 
 div[data-testid="stMetric"]:hover {
-    transform: translateY(-3px) !important;
-    border-color: #84fab0 !important;
-    box-shadow: 0 10px 30px rgba(132, 250, 176, 0.15) !important;
+    border-color: #bcdf8a;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
 }
 
 div[data-testid="stMetricLabel"] {
-    color: #8b949e !important;
-    font-weight: 500 !important;
+    color: #4a5b44 !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
 }
 
 div[data-testid="stMetricValue"] {
-    color: #84fab0 !important;
-    font-weight: 700 !important;
+    color: #2c3e2f !important;
+    font-weight: 800 !important;
 }
 
-/* Alertas e infos */
+/* Alertas com toque suave */
 .stAlert {
-    border-radius: 16px !important;
-    border: none !important;
-    background: rgba(26, 31, 46, 0.95) !important;
-    backdrop-filter: blur(10px) !important;
+    border-radius: 20px !important;
+    border-left: 5px solid #6a994e !important;
+    background-color: #fefcf5 !important;
 }
 
-/* Expanders */
+/* Expander com visual clean */
 .streamlit-expanderHeader {
-    background: linear-gradient(90deg, #1a1f2e 0%, #161b22 100%) !important;
-    border-radius: 14px !important;
-    border: 1px solid rgba(132, 250, 176, 0.15) !important;
-    color: #84fab0 !important;
+    background-color: #f0f2ea !important;
+    border-radius: 18px !important;
+    color: #2c3e2f !important;
     font-weight: 600 !important;
+    border: 1px solid #dde0d2 !important;
 }
 
 .streamlit-expanderContent {
-    background: #0d1117 !important;
-    border-radius: 0 0 14px 14px !important;
-    border: 1px solid rgba(132, 250, 176, 0.1) !important;
+    background-color: #fefdf9 !important;
+    border-radius: 0 0 18px 18px !important;
+    border: 1px solid #e6e8dc !important;
     border-top: none !important;
 }
 
-/* Separador */
-hr {
-    margin: 2rem 0 !important;
-    border: none !important;
-    height: 2px !important;
-    background: linear-gradient(90deg, transparent, #84fab0, #8fd3f4, transparent) !important;
-}
-
-/* Tabs customizadas */
+/* Tabs horizontais inspiradas em dashboards */
 button[data-baseweb="tab"] {
-    background: transparent !important;
-    color: #8b949e !important;
-    font-weight: 500 !important;
+    background-color: transparent !important;
+    color: #5e6e55 !important;
+    font-weight: 500;
     border-radius: 40px !important;
-    padding: 0.5rem 1rem !important;
-    transition: all 0.3s ease !important;
+    padding: 8px 20px !important;
+    transition: 0.2s;
 }
 
 button[data-baseweb="tab"][aria-selected="true"] {
-    background: linear-gradient(90deg, #84fab0 0%, #8fd3f4 100%) !important;
-    color: #0d1117 !important;
+    background-color: #4a7c3f !important;
+    color: white !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* Dataframe */
 .dataframe {
-    background: #1a1f2e !important;
-    border-radius: 16px !important;
+    background: white !important;
+    border-radius: 20px !important;
     overflow: hidden !important;
+    border: 1px solid #e2e6d8 !important;
 }
 
 .dataframe th {
-    background: #0d1117 !important;
-    color: #84fab0 !important;
+    background-color: #2c3e2f !important;
+    color: white !important;
     font-weight: 600 !important;
 }
 
 .dataframe td {
-    color: #e6edf3 !important;
+    color: #1b2c1a !important;
+}
+
+/* Linha divisória temática */
+hr {
+    margin: 2rem 0 !important;
+    border: none !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, #6a994e, #bcdf8a, #6a994e) !important;
+    border-radius: 5px;
 }
 
 /* Cabeçalho principal */
 .custom-header {
-    background: linear-gradient(135deg, rgba(26, 31, 46, 0.8), rgba(13, 17, 23, 0.9));
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(132, 250, 176, 0.2);
-    border-radius: 30px;
-    padding: 2rem;
-    text-align: center;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-radius: 32px;
+    padding: 1.2rem 2rem;
     margin-bottom: 2rem;
+    border: 1px solid #e2e6d8;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.03);
 }
 
 /* Radio buttons horizontais */
 div[role="radiogroup"] {
-    gap: 0.5rem !important;
-    justify-content: center !important;
+    gap: 8px;
+    justify-content: center;
+    margin: 1.5rem 0;
 }
 
 div[role="radiogroup"] label {
-    background: #1a1f2e !important;
+    background: #f4f6ef !important;
     border-radius: 40px !important;
-    padding: 0.5rem 1.2rem !important;
-    border: 1px solid #2a2f3e !important;
-    color: #8b949e !important;
+    padding: 0.4rem 1.2rem !important;
+    border: 1px solid #dde0d2 !important;
+    color: #4b5e42 !important;
+    transition: 0.2s;
 }
 
 div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
-    background: linear-gradient(90deg, #84fab0 0%, #8fd3f4 100%) !important;
-    color: #0d1117 !important;
-    border-color: transparent !important;
+    background: #6a994e !important;
+    color: white !important;
+    border-color: #6a994e !important;
 }
 
-/* Scrollbar */
+/* Scrollbar natural */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
 }
-
 ::-webkit-scrollbar-track {
-    background: #0d1117;
+    background: #eae8df;
     border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #84fab0, #8fd3f4);
+    background: #a1b88b;
     border-radius: 10px;
 }
-
-/* Mensagens de sucesso/erro */
-.stSuccess, .stError, .stWarning, .stInfo {
-    border-radius: 14px !important;
+::-webkit-scrollbar-thumb:hover {
+    background: #6a994e;
 }
+
+/* Badge de versão */
+.version-badge {
+    background: #eef3e6;
+    color: #2d4229;
+    border-radius: 40px;
+    padding: 0.2rem 1rem;
+    font-size: 0.7rem;
+    display: inline-block;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -346,8 +379,15 @@ div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
 
 st.markdown("""
 <div class="custom-header">
-    <h1 style="font-size: 2.2rem; margin-bottom: 0.5rem;">🌾 Classificador Inteligente de Fertilidade do Solo</h1>
-    <p style="color: #8b949e; font-size: 1rem;">Sistema Brasileiro de Classificação de Solos (SiBCS) - Embrapa</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <div>
+            <h1 style="margin-bottom: 0.2rem;">🌾 Classificador Inteligente de Fertilidade do Solo</h1>
+            <p style="color: #4a5b44; margin-bottom: 0;">Sistema Brasileiro de Classificação de Solos (SiBCS) · Embrapa</p>
+        </div>
+        <div class="version-badge">
+            📍 Coleção MapBiomas 10 · Referência
+        </div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -362,7 +402,7 @@ with st.sidebar:
 
     st.markdown("### 📊 Sobre o Sistema")
     st.markdown("""
-    Este classificador utiliza parâmetros do **SiBCS (Embrapa)** para:
+    Este classificador utiliza parâmetros do **SiBCS (Embrapa)** e conceitos de dinâmica da terra inspirados no **MapBiomas** para:
     - ✅ Avaliação da fertilidade do solo
     - ✅ Classificação agrícola
     - ✅ Recomendação de calagem
@@ -392,7 +432,7 @@ with st.sidebar:
             st.caption("Instale joblib para ativar a IA")
 
     st.markdown("---")
-    st.caption("Versão 4.0 — Design Premium")
+    st.caption("Versão 5.0 — Design Inspirado MapBiomas")
     st.caption("Desenvolvido em Streamlit")
 
 # ============================================================================
@@ -503,7 +543,7 @@ def fazer_predicao_ia(dados):
         return None, f"Erro na predição: {str(e)}"
 
 # ============================================================================
-# ABA 1 - DADOS DO SOLO
+# ABA 1 - DADOS DO SOLO (com ícones temáticos)
 # ============================================================================
 
 if menu == "📊 1. Dados do Solo":
@@ -513,20 +553,20 @@ if menu == "📊 1. Dados do Solo":
 
     with col1:
         st.markdown("### 🧪 Macronutrientes")
-        nitrogen = st.text_input("🌱 Nitrogênio (N) - mg/dm³", value="30.0", key="n_input")
-        phosphorus = st.text_input("🔴 Fósforo (P) - mg/dm³", value="20.0", key="p_input")
-        potassium = st.text_input("🟡 Potássio (K+) - cmolc/dm³", value="0.25", key="k_input")
+        nitrogen = st.text_input("⚛️ Nitrogênio (N) - mg/dm³", value="30.0", key="n_input")
+        phosphorus = st.text_input("🪨 Fósforo (P) - mg/dm³", value="20.0", key="p_input")
+        potassium = st.text_input("🍌 Potássio (K+) - cmolc/dm³", value="0.25", key="k_input")
         st.markdown("### 🌿 Matéria Orgânica")
-        organic_matter = st.text_input("🌱 Matéria Orgânica (g/kg)", value="25.0", key="om_input")
+        organic_matter = st.text_input("🍂 Matéria Orgânica (g/kg)", value="25.0", key="om_input")
 
     with col2:
-        st.markdown("### ⚖️ Densidade")
+        st.markdown("### ⚖️ Densidade do Solo")
         bulk_density = st.text_input("📦 Densidade do Solo (g/cm³)", value="1.20", key="bd_input")
         particle_density = st.text_input("💎 Densidade de Partícula (g/cm³)", value="2.65", key="pd_input")
-        st.markdown("### 🏺 Textura")
+        st.markdown("### 🏺 Composição Textural")
         sand = st.text_input("🏖️ Areia (g/kg)", value="350", key="sand_input")
         silt = st.text_input("🏞️ Silte (g/kg)", value="300", key="silt_input")
-        clay = st.text_input("🏺 Argila (g/kg)", value="350", key="clay_input")
+        clay = st.text_input("🧱 Argila (g/kg)", value="350", key="clay_input")
 
         try:
             soma_textura = float(sand.replace(",", ".")) + float(silt.replace(",", ".")) + float(clay.replace(",", "."))
@@ -761,4 +801,4 @@ elif menu == "ℹ️ 4. Métodos":
 # ============================================================================
 
 st.markdown("---")
-st.caption("© 2026 - Classificador de Fertilidade do Solo | Créditos ao SiBCS - Embrapa | Ferramenta acadêmica | Direitos reservados")
+st.caption("© 2026 - Classificador de Fertilidade do Solo | Créditos ao SiBCS - Embrapa e inspiração MapBiomas | Ferramenta acadêmica | Dados abertos")
