@@ -168,7 +168,7 @@ st.markdown("""
     min-height: 100vh !important;
 }
 
-/* ========== CONTAINER PRINCIPAL - LARGURA TOTAL ========== */
+/* ========== CONTAINER PRINCIPAL ========== */
 .main .block-container {
     background: rgba(255, 255, 255, 0.92) !important;
     backdrop-filter: blur(10px) !important;
@@ -189,6 +189,11 @@ section.main > div {
     min-width: 100% !important;
 }
 
+/* ========== TEXTOS GERAIS - PRETO OU VERDE ESCURO ========== */
+html, body, p, span, div, li, .stMarkdown, .stText, .stCaption {
+    color: #1a1a1a !important;
+}
+
 /* ========== HEADER ========== */
 .custom-header {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 245, 0.95));
@@ -200,12 +205,17 @@ section.main > div {
     width: 100%;
 }
 
-h1, h2, h3 {
-    background: linear-gradient(120deg, #2d5a3b 0%, #4a8c5c 100%) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    color: transparent !important;
+.custom-header p {
+    color: #2d5a3b !important;
+}
+
+/* ========== TÍTULOS - VERDE ESCURO ========== */
+h1, h2, h3, h4, h5, h6 {
+    color: #1a4a2a !important;
     font-weight: 700 !important;
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
 }
 
 /* ========== SIDEBAR ========== */
@@ -218,6 +228,13 @@ section[data-testid="stSidebar"] * {
     color: #e8f0e5 !important;
 }
 
+section[data-testid="stSidebar"] p, 
+section[data-testid="stSidebar"] span, 
+section[data-testid="stSidebar"] li,
+section[data-testid="stSidebar"] .stMarkdown {
+    color: #e8f0e5 !important;
+}
+
 /* ========== INPUTS ========== */
 .stTextInput input, 
 .stNumberInput input, 
@@ -225,23 +242,30 @@ textarea,
 input,
 div[data-baseweb="select"] > div {
     background-color: #ffffff !important;
-    border: 2px solid #e2e8f0 !important;
+    border: 2px solid #c8dcc8 !important;
     border-radius: 14px !important;
     padding: 12px 16px !important;
-    color: #1a2a1f !important;
+    color: #1a1a1a !important;
     font-weight: 500 !important;
 }
 
 .stTextInput input:not([value="0"]):not([value="0.0"]),
 .stNumberInput input:not([value="0"]):not([value="0.0"]) {
     background: linear-gradient(95deg, #f0fdf4 0%, #ecfdf5 100%) !important;
-    border-color: #86efac !important;
+    border-color: #4a8c5c !important;
 }
 
 .stTextInput input:focus, 
 .stNumberInput input:focus {
-    border-color: #4a8c5c !important;
-    box-shadow: 0 0 0 4px rgba(74, 140, 92, 0.15) !important;
+    border-color: #2d5a3b !important;
+    box-shadow: 0 0 0 4px rgba(45, 90, 59, 0.15) !important;
+}
+
+/* ========== LABELS ========== */
+label {
+    color: #1a1a1a !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
 }
 
 /* ========== BOTÕES ========== */
@@ -269,12 +293,12 @@ div[data-testid="stMetric"] {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
 }
 div[data-testid="stMetricLabel"] {
-    color: #2d5a3b !important;
+    color: #1a1a1a !important;
     font-weight: 600 !important;
     font-size: 0.85rem !important;
 }
 div[data-testid="stMetricValue"] {
-    color: #1a5a3a !important;
+    color: #1a4a2a !important;
     font-weight: 800 !important;
     font-size: 1.8rem !important;
 }
@@ -282,7 +306,7 @@ div[data-testid="stMetricValue"] {
 /* ========== TABS ========== */
 button[data-baseweb="tab"] {
     background: #e8ece8 !important;
-    color: #1a3a2a !important;
+    color: #1a1a1a !important;
     font-weight: 700 !important;
     border-radius: 30px !important;
     padding: 0.6rem 1.5rem !important;
@@ -297,7 +321,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     color: white !important;
 }
 
-/* ========== DATAFRAME ========== */
+/* ========== DATAFRAME (TABELA) ========== */
 .dataframe {
     background: #ffffff !important;
     border-radius: 16px !important;
@@ -313,7 +337,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     text-align: center !important;
 }
 .dataframe td {
-    color: #1a2a1f !important;
+    color: #1a1a1a !important;
     padding: 10px !important;
     background: #ffffff !important;
     border-bottom: 1px solid #e0e8e0 !important;
@@ -323,7 +347,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     background: #f0f8f0 !important;
 }
 
-/* ========== CARDS DE CORREÇÃO DO SOLO - ESTILO LIMPO ========== */
+/* ========== CARDS DE CORREÇÃO DO SOLO ========== */
 .solo-card {
     background: #ffffff !important;
     border-radius: 20px !important;
@@ -333,13 +357,13 @@ button[data-baseweb="tab"][aria-selected="true"] {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
 }
 .solo-card h4 {
-    color: #2d5a3b !important;
+    color: #1a4a2a !important;
     font-weight: 700 !important;
     margin-bottom: 0.5rem !important;
     font-size: 1.1rem !important;
 }
 .solo-card p {
-    color: #1a2a1f !important;
+    color: #1a1a1a !important;
     font-weight: 500 !important;
     margin: 0 !important;
 }
@@ -368,22 +392,20 @@ button[data-baseweb="tab"][aria-selected="true"] {
     box-shadow: 0 8px 20px rgba(74, 140, 92, 0.2) !important;
 }
 .npk-card h3 {
-    font-size: 2.5rem !important;
+    font-size: 2rem !important;
     font-weight: 800 !important;
-    margin: 0 !important;
-    background: linear-gradient(120deg, #2d5a3b 0%, #4a8c5c 100%) !important;
-    -webkit-background-clip: text !important;
-    background-clip: text !important;
-    color: transparent !important;
+    margin: 0.5rem 0 !important;
+    color: #1a4a2a !important;
+    background: none !important;
 }
 .npk-card p {
-    color: #4a5b44 !important;
+    color: #1a1a1a !important;
     margin-top: 0.5rem !important;
     font-weight: 500 !important;
 }
 .npk-card .small-text {
     font-size: 0.75rem !important;
-    color: #7a8e72 !important;
+    color: #4a5b44 !important;
 }
 
 /* ========== ALERTAS ========== */
@@ -393,18 +415,18 @@ button[data-baseweb="tab"][aria-selected="true"] {
 }
 .stInfo {
     background: #e8f5e9 !important;
-    color: #2d5a3b !important;
+    color: #1a1a1a !important;
     border-radius: 16px !important;
     border-left: 4px solid #4a8c5c !important;
 }
 .stSuccess {
     background: #e8f5e9 !important;
-    color: #2d5a3b !important;
+    color: #1a1a1a !important;
     border-radius: 16px !important;
 }
 .stWarning {
     background: #fff8e1 !important;
-    color: #856404 !important;
+    color: #1a1a1a !important;
     border-radius: 16px !important;
 }
 .stError {
@@ -413,11 +435,16 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-radius: 16px !important;
 }
 
+/* ========== INFO MESSAGE ========== */
+.stInfo p, .stSuccess p, .stWarning p {
+    color: #1a1a1a !important;
+}
+
 /* ========== EXPANDER ========== */
 .streamlit-expanderHeader {
     background: #ffffff !important;
     border-radius: 16px !important;
-    color: #2d5a3b !important;
+    color: #1a4a2a !important;
     font-weight: 600 !important;
     border: 1px solid #e2e8f0 !important;
 }
@@ -427,7 +454,13 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border: 1px solid #e2e8f0 !important;
     border-top: none !important;
 }
+.streamlit-expanderContent p, 
+.streamlit-expanderContent li,
+.streamlit-expanderContent span {
+    color: #1a1a1a !important;
+}
 
+/* ========== LINHA DIVISÓRIA ========== */
 hr {
     margin: 2rem 0 !important;
     border: none !important;
@@ -435,9 +468,10 @@ hr {
     background: linear-gradient(90deg, transparent, #4a8c5c, #86efac, #4a8c5c, transparent) !important;
 }
 
+/* ========== BADGE ========== */
 .version-badge {
     background: linear-gradient(95deg, #e8f5e9, #d4edda);
-    color: #2d5a3b;
+    color: #1a4a2a !important;
     border-radius: 40px;
     padding: 0.25rem 1rem;
     font-size: 0.7rem;
@@ -445,20 +479,49 @@ hr {
     display: inline-block;
 }
 
-label {
+/* ========== CAPTION ========== */
+.stCaption, caption {
     color: #4a5b44 !important;
-    font-weight: 600 !important;
-    font-size: 0.85rem !important;
 }
 
-/* ========== UTILITÁRIOS ========== */
-.flex-row {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+/* ========== SELECTBOX ========== */
+div[data-baseweb="select"] ul li {
+    color: #1a1a1a !important;
 }
-.text-center {
-    text-align: center;
+
+/* ========== RADIO BUTTONS ========== */
+div[role="radiogroup"] label {
+    color: #1a1a1a !important;
+}
+
+/* ========== NUMBER INPUT ========== */
+.stNumberInput label {
+    color: #1a1a1a !important;
+}
+
+/* ========== TEXTO DENTRO DE COLUNAS ========== */
+.css-1y0tads p, .element-container p {
+    color: #1a1a1a !important;
+}
+
+/* ========== CÓDIGO ========== */
+code, pre {
+    color: #1a4a2a !important;
+    background: #f0f4f0 !important;
+}
+
+/* ========== LINKS ========== */
+a {
+    color: #2d5a3b !important;
+    text-decoration: none !important;
+}
+a:hover {
+    text-decoration: underline !important;
+}
+
+/* ========== MARCAÇÃO DE TEXTO ========== */
+strong, b {
+    color: #1a4a2a !important;
 }
 </style>
 """, unsafe_allow_html=True)
