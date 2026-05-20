@@ -268,19 +268,19 @@ label {
     font-size: 0.85rem !important;
 }
 
-/* ========== SELECTBOX - CULTURAS EM VERDE ========== */
+/* ========== SELECTBOX - CULTURAS EM BRANCO ========== */
 div[data-baseweb="select"] span {
-    color: #1a4a2a !important;
+    color: #ffffff !important;
     font-weight: 600 !important;
 }
 
 div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] span {
-    color: #1a4a2a !important;
+    color: #ffffff !important;
 }
 
 /* Lista suspensa do selectbox */
 div[data-baseweb="select"] ul li {
-    color: #1a4a2a !important;
+    color: #1a4a2a !important;  /* Mantém verde na lista suspensa para legibilidade */
     font-weight: 500 !important;
     background: #ffffff !important;
 }
@@ -290,9 +290,9 @@ div[data-baseweb="select"] ul li:hover {
     color: #1a4a2a !important;
 }
 
-/* Valor selecionado no selectbox */
+/* Valor selecionado no selectbox (o que aparece no campo) */
 div[data-baseweb="select"] div[role="button"] span {
-    color: #1a4a2a !important;
+    color: #ffffff !important;  /* BRANCO */
     font-weight: 600 !important;
 }
 
