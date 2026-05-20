@@ -914,7 +914,6 @@ with st.expander("🪨 Cálculo da Calagem"):
     st.latex(r"NC = \frac{(V2 - V1) \times CTC}{100}")
     
     st.markdown(""" Onde:
-
 - **NC** = Necessidade de calcário
 - **V2** = Saturação desejada
 - **V1** = Saturação atual
