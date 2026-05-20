@@ -168,7 +168,7 @@ st.markdown("""
     min-height: 100vh !important;
 }
 
-/* ========== CONTAINER PRINCIPAL ========== */
+/* ========== CONTAINER PRINCIPAL - TAMANHO CHEIO ========== */
 .main .block-container {
     background: rgba(10, 10, 10, 0.95) !important;
     border-radius: 32px !important;
@@ -189,7 +189,7 @@ label, .stSelectbox span, .stSelectbox p {
 
 /* ========== TÍTULOS ========== */
 h1, h2, h3, h4, h5, h6 {
-    color: #6ab04c !important;
+    color: #86efac !important;
     font-weight: 700 !important;
     background: none !important;
 }
@@ -207,14 +207,14 @@ section[data-testid="stSidebar"] * {
 .stTextInput input, 
 .stNumberInput input, 
 textarea, 
-input,
-div[data-baseweb="select"] > div {
+input {
     background-color: #1a1a1a !important;
     border: 2px solid #4a8c5c !important;
     border-radius: 14px !important;
     padding: 12px 16px !important;
     color: #c8e6c8 !important;
     font-weight: 500 !important;
+    width: 100% !important;
 }
 
 .stTextInput input:not([value="0"]):not([value="0.0"]),
@@ -223,45 +223,54 @@ div[data-baseweb="select"] > div {
     border-color: #6ab04c !important;
 }
 
-.stTextInput input:focus, 
-.stNumberInput input:focus {
-    border-color: #86efac !important;
-    box-shadow: 0 0 0 4px rgba(107, 176, 76, 0.2) !important;
+/* ========== SELECTBOX - CORRIGIDO (CULTURA APARECE) ========== */
+div[data-baseweb="select"] {
+    width: 100% !important;
 }
 
-/* ========== SELECTBOX ========== */
 div[data-baseweb="select"] > div {
     background-color: #1a1a1a !important;
     border: 2px solid #4a8c5c !important;
+    border-radius: 14px !important;
+    min-height: 48px !important;
 }
 
+/* Texto da cultura selecionada - VERDE CLARO VISÍVEL */
 div[data-baseweb="select"] div[role="button"] span {
-    color: #c8e6c8 !important;
+    color: #86efac !important;
     font-weight: 600 !important;
+    font-size: 1rem !important;
 }
 
+/* Placeholder */
 div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] p {
-    color: #c8e6c8 !important;
+    color: #86efac !important;
+    font-weight: 500 !important;
 }
 
+/* Seta */
 div[data-baseweb="select"] svg {
-    fill: #6ab04c !important;
-    stroke: #6ab04c !important;
+    fill: #86efac !important;
+    stroke: #86efac !important;
 }
 
+/* Lista suspensa */
 div[data-baseweb="select"] ul {
     background-color: #1a1a1a !important;
     border: 2px solid #4a8c5c !important;
     border-radius: 12px !important;
 }
 
+/* Itens da lista */
 div[data-baseweb="select"] ul li {
     color: #c8e6c8 !important;
     background-color: #1a1a1a !important;
+    padding: 10px 16px !important;
 }
 
 div[data-baseweb="select"] ul li:hover {
     background-color: #2a3a2a !important;
+    color: #86efac !important;
 }
 
 div[data-baseweb="select"] ul li[aria-selected="true"] {
@@ -277,12 +286,7 @@ div[data-baseweb="select"] ul li[aria-selected="true"] {
     border-radius: 40px !important;
     padding: 0.7rem 2rem !important;
     font-weight: 600 !important;
-    transition: all 0.3s ease !important;
-}
-
-.stButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 20px rgba(74, 140, 92, 0.4) !important;
+    width: 100% !important;
 }
 
 /* ========== MÉTRICAS ========== */
@@ -292,71 +296,44 @@ div[data-testid="stMetric"] {
     padding: 1.2rem !important;
     border: 1px solid #4a8c5c !important;
 }
-
 div[data-testid="stMetricLabel"] {
     color: #c8e6c8 !important;
-    font-weight: 600 !important;
 }
-
 div[data-testid="stMetricValue"] {
     color: #86efac !important;
-    font-weight: 800 !important;
-    font-size: 1.8rem !important;
 }
 
 /* ========== TABELAS - FUNDO ESCURO ========== */
 .dataframe {
     background: #1a1a1a !important;
     border-radius: 16px !important;
-    overflow: hidden !important;
     border: 1px solid #4a8c5c !important;
+    width: 100% !important;
 }
-
 .dataframe th {
     background: linear-gradient(95deg, #2d5a3b 0%, #3a6b48 100%) !important;
     color: white !important;
-    font-weight: 600 !important;
     padding: 12px !important;
 }
-
 .dataframe td {
     color: #c8e6c8 !important;
+    background: #1a1a1a !important;
     padding: 10px !important;
-    background: #1a1a1a !important;
-    border-bottom: 1px solid #2a3a2a !important;
-}
-
-.dataframe tr:hover td {
-    background: #2a3a2a !important;
-}
-
-.stDataFrame, div[data-testid="stDataFrame"], table, thead, tbody, tr {
-    background: #1a1a1a !important;
 }
 
 /* ========== TABS ========== */
 button[data-baseweb="tab"] {
     background: transparent !important;
     color: #c8e6c8 !important;
-    font-weight: 500 !important;
     border-radius: 30px !important;
     padding: 0.5rem 1.5rem !important;
 }
-
-button[data-baseweb="tab"]:hover {
-    background: #2a3a2a !important;
-}
-
 button[data-baseweb="tab"][aria-selected="true"] {
     background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
     color: white !important;
 }
 
 /* ========== ALERTAS ========== */
-.stAlert {
-    border-radius: 16px !important;
-    border: none !important;
-}
 .stInfo {
     background: #1a3a1a !important;
     color: #c8e6c8 !important;
@@ -366,28 +343,6 @@ button[data-baseweb="tab"][aria-selected="true"] {
     background: #1a3a1a !important;
     color: #c8e6c8 !important;
 }
-.stWarning {
-    background: #3a2a1a !important;
-    color: #f5c542 !important;
-}
-.stError {
-    background: #3a1a1a !important;
-    color: #f5a5a5 !important;
-}
-
-/* ========== EXPANDER ========== */
-.streamlit-expanderHeader {
-    background: #1a1a1a !important;
-    border-radius: 16px !important;
-    color: #6ab04c !important;
-    font-weight: 600 !important;
-    border: 1px solid #4a8c5c !important;
-}
-
-.streamlit-expanderContent {
-    background: #0a0a0a !important;
-    border-radius: 0 0 16px 16px !important;
-}
 
 /* ========== HEADER ========== */
 .custom-header {
@@ -396,9 +351,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     padding: 1.5rem 2rem;
     margin-bottom: 2rem;
     border: 1px solid rgba(74, 140, 92, 0.3);
-}
-.custom-header p {
-    color: #86efac !important;
+    width: 100%;
 }
 
 /* ========== RADIO BUTTONS ========== */
@@ -407,7 +360,6 @@ div[role="radiogroup"] {
     justify-content: center;
     margin: 1.5rem 0;
 }
-
 div[role="radiogroup"] label {
     background: #1a1a1a !important;
     border-radius: 40px !important;
@@ -415,12 +367,6 @@ div[role="radiogroup"] label {
     border: 2px solid #4a8c5c !important;
     color: #c8e6c8 !important;
 }
-
-div[role="radiogroup"] label:hover {
-    border-color: #86efac !important;
-    background: #2a3a2a !important;
-}
-
 div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
     background: linear-gradient(95deg, #2d5a3b 0%, #4a8c5c 100%) !important;
     color: white !important;
@@ -429,18 +375,13 @@ div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
 /* ========== SCROLLBAR ========== */
 ::-webkit-scrollbar {
     width: 8px;
-    height: 8px;
 }
 ::-webkit-scrollbar-track {
     background: #1a1a1a;
-    border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb {
     background: #4a8c5c;
     border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #86efac;
 }
 
 /* ========== BADGE ========== */
@@ -450,13 +391,12 @@ div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
     border-radius: 40px;
     padding: 0.25rem 1rem;
     font-size: 0.7rem;
-    font-weight: 600;
-    display: inline-block;
     border: 1px solid #4a8c5c;
+    display: inline-block;
 }
 
 /* ========== CARDS ========== */
-.solo-card, .npk-card, .recomendacao-card {
+.solo-card, .npk-card {
     background: #1a1a1a !important;
     border-radius: 20px !important;
     padding: 1.2rem !important;
@@ -469,7 +409,7 @@ div[role="radiogroup"] label[data-baseweb="radio"]:has(input:checked) {
     color: #c8e6c8 !important;
 }
 
-/* ========== LINHA DIVISÓRIA ========== */
+/* ========== LINHA ========== */
 hr {
     margin: 2rem 0 !important;
     border: none !important;
@@ -477,9 +417,13 @@ hr {
     background: linear-gradient(90deg, transparent, #4a8c5c, #86efac, #4a8c5c, transparent) !important;
 }
 
-/* ========== CAPTION ========== */
-.stCaption, caption {
-    color: #86efac !important;
+/* ========== GARANTIR QUE TUDO OCUPE A LARGURA TOTAL ========== */
+.row-widget, .stHorizontalBlock, .stVerticalBlock {
+    width: 100% !important;
+}
+
+.element-container {
+    width: 100% !important;
 }
 </style>
 """, unsafe_allow_html=True)
