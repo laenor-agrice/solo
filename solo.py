@@ -214,8 +214,6 @@ h1, h2, h3, h4, h5, h6 {
     color: #1a4a2a !important;
     font-weight: 700 !important;
     background: none !important;
-    -webkit-background-clip: unset !important;
-    background-clip: unset !important;
 }
 
 /* ========== SIDEBAR ========== */
@@ -239,8 +237,7 @@ section[data-testid="stSidebar"] .stMarkdown {
 .stTextInput input, 
 .stNumberInput input, 
 textarea, 
-input,
-div[data-baseweb="select"] > div {
+input {
     background-color: #ffffff !important;
     border: 2px solid #c8dcc8 !important;
     border-radius: 14px !important;
@@ -268,46 +265,59 @@ label {
     font-size: 0.85rem !important;
 }
 
-/* ========== SELECTBOX - CULTURAS EM BRANCO (FORÇADO) ========== */
+/* ========== SELECTBOX - CULTURAS COR BRANCA ========== */
 
-/* Texto do campo selecionado */
+/* Fundo do selectbox */
+div[data-baseweb="select"] > div {
+    background-color: #2d5a3b !important;
+    border: 2px solid #4a8c5c !important;
+    border-radius: 14px !important;
+}
+
+/* Texto dentro do selectbox (cultura selecionada) */
 div[data-baseweb="select"] div[role="button"] span {
     color: #ffffff !important;
     font-weight: 600 !important;
-    background-color: transparent !important;
-}
-
-/* Texto dentro do campo */
-div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] span {
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-/* Qualquer span dentro do selectbox */
-div[data-baseweb="select"] span {
-    color: #ffffff !important;
 }
 
 /* Texto do placeholder */
 div[data-baseweb="select"] div[data-testid="stMarkdownContainer"] p {
     color: #ffffff !important;
+    font-weight: 500 !important;
 }
 
-/* Lista suspensa - opções (mantém verde para legibilidade) */
+/* Span dentro do selectbox */
+div[data-baseweb="select"] span {
+    color: #ffffff !important;
+}
+
+/* Ícone da seta */
+div[data-baseweb="select"] svg {
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+/* Opções da lista suspensa */
+div[data-baseweb="select"] ul {
+    background-color: #ffffff !important;
+    border: 1px solid #4a8c5c !important;
+    border-radius: 12px !important;
+}
+
 div[data-baseweb="select"] ul li {
     color: #1a4a2a !important;
     font-weight: 500 !important;
-    background: #ffffff !important;
+    background-color: #ffffff !important;
 }
 
 div[data-baseweb="select"] ul li:hover {
-    background: #e8f5e9 !important;
+    background-color: #e8f5e9 !important;
     color: #1a4a2a !important;
 }
 
-/* Ícone do selectbox (seta) */
-div[data-baseweb="select"] svg {
-    fill: #ffffff !important;
+/* Label do selectbox */
+.stSelectbox label {
+    color: #1a1a1a !important;
 }
 
 /* ========== BOTÕES ========== */
@@ -363,7 +373,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     color: white !important;
 }
 
-/* ========== DATAFRAME (TABELA) - FUNDO BRANCO ========== */
+/* ========== DATAFRAME (TABELA) ========== */
 .dataframe {
     background: #ffffff !important;
     border-radius: 16px !important;
@@ -389,7 +399,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     background: #f0f8f0 !important;
 }
 
-/* ========== CARDS DE CORREÇÃO DO SOLO ========== */
+/* ========== CARDS ========== */
 .solo-card {
     background: #ffffff !important;
     border-radius: 20px !important;
@@ -418,7 +428,7 @@ button[data-baseweb="tab"][aria-selected="true"] {
     font-weight: 600 !important;
 }
 
-/* ========== CARDS DE NPK ========== */
+/* ========== CARDS NPK ========== */
 .npk-card {
     background: linear-gradient(135deg, #ffffff 0%, #fafdff 100%) !important;
     border-radius: 20px !important;
@@ -438,7 +448,6 @@ button[data-baseweb="tab"][aria-selected="true"] {
     font-weight: 800 !important;
     margin: 0.5rem 0 !important;
     color: #1a4a2a !important;
-    background: none !important;
 }
 .npk-card p {
     color: #1a1a1a !important;
@@ -475,11 +484,6 @@ button[data-baseweb="tab"][aria-selected="true"] {
     background: #ffebee !important;
     color: #c62828 !important;
     border-radius: 16px !important;
-}
-
-/* ========== INFO MESSAGE ========== */
-.stInfo p, .stSuccess p, .stWarning p {
-    color: #1a1a1a !important;
 }
 
 /* ========== EXPANDER ========== */
@@ -528,16 +532,6 @@ hr {
 
 /* ========== RADIO BUTTONS ========== */
 div[role="radiogroup"] label {
-    color: #1a1a1a !important;
-}
-
-/* ========== NUMBER INPUT ========== */
-.stNumberInput label {
-    color: #1a1a1a !important;
-}
-
-/* ========== TEXTO DENTRO DE COLUNAS ========== */
-.css-1y0tads p, .element-container p {
     color: #1a1a1a !important;
 }
 
