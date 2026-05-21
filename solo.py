@@ -310,13 +310,15 @@ with st.container(border=True):
     st.write("### Sistema baseado no SiBCS - Embrapa • Análise • IA Gemini • Fertilidade • Relatórios")
 
 # OU com uma imagem de solo/plantação (se quiser manter):
-col_img1, col_img2, col_img3 = st.columns([0.5, 3, 0.5])
-with col_img2:
+# CAPA FINA/TIPO BANNER - LARGURA TOTAL
+with st.container(border=True):
     st.image(
-        "https://rehagro.com.br/blog/wp-content/uploads/2025/02/capa-adubacao-base.jpg",  # Foto de plantação
+        "https://rehagro.com.br/blog/wp-content/uploads/2025/02/capa-adubacao-base.jpg",
         caption="🌱 Análise Inteligente do Solo",
         use_container_width=True
     )
+    st.markdown("### Sistema baseado no SiBCS - Embrapa • Análise • IA Gemini • Fertilidade • Relatórios")
+    st.caption("🌾 Tecnologia para o agro - Decisões baseadas em dados")
     
 st.write("")  # Espaçamento
 
