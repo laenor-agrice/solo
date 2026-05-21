@@ -911,5 +911,6 @@ st.markdown("---")
 
 col_rodape1, col_rodape2, col_rodape3 = st.columns([1, 2, 1])
 with col_rodape2:
-    st.caption("© 2026 - Sistema Inteligente de Fertilidade do Solo | Baseado em metodologias Embrapa")
-    st.caption("📧 Contato: [solo@pesquisa.agr.br](mailto:solo@pesquisa.agr.br)")
+    st.caption("© 2026 - Sistema Inteligente de Fertilidade do Solo | Fins Acadêmicos")
+    st.caption("🤖 IA Gemini do Google • 🌱 Metodologias Embrapa • 📊 SiBCS")
+    st.caption("📧 Contato: [laenor@outlook.com](mailto:laenor@outlook.com)")
