@@ -309,11 +309,11 @@ with st.container(border=True):
     st.title("🌾 Classificador Inteligente de Fertilidade do Solo")
     st.write("### Sistema baseado no SiBCS - Embrapa • Análise • IA Gemini • Fertilidade • Relatórios")
 
-# Imagem centralizada (se quiser adicionar)
+# OU com uma imagem de solo/plantação (se quiser manter):
 col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
 with col_img2:
     st.image(
-        "https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
+        "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=800",  # Foto de plantação
         caption="🌱 Análise Inteligente do Solo",
         use_container_width=True
     )
