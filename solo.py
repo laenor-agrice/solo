@@ -28,7 +28,7 @@ st.set_page_config(
 # 3. Clique em "Create API Key"
 # 4. Copie a chave gerada e cole abaixo
 
-GEMINI_API_KEY = "SUA_API_KEY_AQUI"  # <-- COLE SUA CHAVE AQUI (entre as aspas)
+GEMINI_API_KEY = "AIzaSyD2bF4xL5mN8oP9qR0sT1uV2wX3yZ4aB5cC6dD7eE"  # <-- COLE SUA CHAVE AQUI (entre as aspas)
 
 # Exemplo de como deve ficar com uma chave real:
 # GEMINI_API_KEY = "AIzaSyD2bF4xL5mN8oP9qR0sT1uV2wX3yZ4aB5cC6dD7eE"
