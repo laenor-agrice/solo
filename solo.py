@@ -305,9 +305,10 @@ st.markdown("""
 # CABEÇALHO HERO
 # ============================================================================
 
-with st.container(border=True):
-    st.title("🌾 Classificador Inteligente de Fertilidade do Solo")
-    st.write("### Sistema baseado no SiBCS - Embrapa • Análise • IA Gemini • Fertilidade • Relatórios")
+# SUBSTITUA O BLOCO DO CABEÇALHO POR ESTE:
+
+st.markdown("<h1 style='text-align: center;'>🌾 Classificador Inteligente de Fertilidade do Solo</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; font-size: 1.1rem; color: #cccccc;'>Sistema baseado no SiBCS - Embrapa • Análise • IA Gemini • Fertilidade • Relatórios</p>", unsafe_allow_html=True)
 
 # OU com uma imagem de solo/plantação (se quiser manter):
 # CAPA - ALTURA MÉDIA (METADE DO BANNER PADRÃO)
