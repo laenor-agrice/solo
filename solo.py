@@ -5,6 +5,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import json
 
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA
@@ -18,66 +19,151 @@ st.set_page_config(
 )
 
 # ============================================================================
-# CONFIGURAÇÃO GEMINI API - COM SUA CHAVE
+# CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
 GEMINI_API_KEY = "AIzaSyBibLbN2e3gmzLlNb81wSr7GHrDqkiU6fw"
 
 # ============================================================================
-# FUNÇÃO IA GEMINI - VERSÃO FUNCIONAL
+# FUNÇÃO IA GEMINI - VERSÃO CORRIGIDA
 # ============================================================================
 
 def gerar_resposta_ia(pergunta, dados_solo=None):
-    """Função com sua chave válida"""
+    """Função corrigida com modelo correto e melhor tratamento de erros"""
+    
+    # Verificar se a chave é válida
+    if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
+        return "⚠️ **API Key não configurada!** Configure sua chave no código."
     
     try:
+        # Preparar contexto dos dados do solo
         contexto = ""
         if dados_solo and len(dados_solo) > 0:
             contexto = f"""
-            Dados do solo:
-            pH: {dados_solo.get('ph', 'N/A')}
-            V%: {dados_solo.get('v_porcentagem', 0):.1f}%
-            N: {dados_solo.get('nitrogen', 'N/A')} mg/dm³
-            P: {dados_solo.get('phosphorus', 'N/A')} mg/dm³
-            K: {dados_solo.get('potassium', 'N/A')} cmolc/dm³
+            Dados do solo analisado:
+            - pH: {dados_solo.get('ph', 'N/A')}
+            - Saturação por bases (V%): {dados_solo.get('v_porcentagem', 0):.1f}%
+            - Saturação por alumínio (m%): {dados_solo.get('m_porcentagem', 0):.1f}%
+            - Nitrogênio (N): {dados_solo.get('nitrogen', 'N/A')} mg/dm³
+            - Fósforo (P): {dados_solo.get('phosphorus', 'N/A')} mg/dm³
+            - Potássio (K): {dados_solo.get('potassium', 'N/A')} cmolc/dm³
+            - Cálcio (Ca): {dados_solo.get('calcium', 'N/A')} cmolc/dm³
+            - Magnésio (Mg): {dados_solo.get('magnesium', 'N/A')} cmolc/dm³
+            - Alumínio (Al): {dados_solo.get('aluminum', 'N/A')} cmolc/dm³
+            - H+Al: {dados_solo.get('h_al', 'N/A')} cmolc/dm³
+            - Soma de Bases (SB): {dados_solo.get('sb', 0):.2f} cmolc/dm³
+            - CTC Potencial: {dados_solo.get('tct', 0):.2f} cmolc/dm³
             """
         
-        prompt = f"""
-        Você é um engenheiro agrônomo especialista em fertilidade do solo.
+        # Construir o prompt completo
+        prompt = f"""Você é um engenheiro agrônomo especialista em fertilidade do solo, SiBCS e manejo agrícola.
+
+{contexto}
+
+PERGUNTA DO USUÁRIO: {pergunta}
+
+INSTRUÇÕES:
+- Responda em português do Brasil
+- Seja técnico, claro e objetivo
+- Dê recomendações práticas quando possível
+- Se não souber algo, diga honestamente
+- Use linguagem acessível para produtores rurais
+- Máximo de 500 palavras
+
+RESPOSTA:"""
         
-        {contexto}
+        # URL da API com o modelo correto
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
         
-        Pergunta: {pergunta}
-        
-        Responda em português do Brasil, de forma técnica e clara.
-        """
-        
-        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-        
+        # Headers da requisição
         headers = {
-            "Content-Type": "application/json",
-            "x-goog-api-key": GEMINI_API_KEY
+            "Content-Type": "application/json"
         }
         
+        # Corpo da requisição
         data = {
             "contents": [
                 {
-                    "parts": [{"text": prompt}]
+                    "parts": [
+                        {
+                            "text": prompt
+                        }
+                    ]
                 }
-            ]
+            ],
+            "generationConfig": {
+                "temperature": 0.7,
+                "topK": 40,
+                "topP": 0.95,
+                "maxOutputTokens": 1024,
+            }
         }
         
+        # Fazer a requisição
         response = requests.post(url, headers=headers, json=data, timeout=30)
         
+        # Verificar resposta
         if response.status_code == 200:
             resultado = response.json()
-            resposta = resultado["candidates"][0]["content"]["parts"][0]["text"]
-            return resposta
+            
+            # Extrair a resposta de forma segura
+            if "candidates" in resultado and len(resultado["candidates"]) > 0:
+                candidate = resultado["candidates"][0]
+                if "content" in candidate and "parts" in candidate["content"]:
+                    if len(candidate["content"]["parts"]) > 0:
+                        resposta = candidate["content"]["parts"][0].get("text", "")
+                        return resposta
+            
+            return "❌ Não foi possível extrair a resposta da IA."
+        
+        elif response.status_code == 401:
+            return "❌ **Erro de autenticação (401):** API Key inválida. Verifique sua chave."
+        
+        elif response.status_code == 403:
+            return "❌ **Acesso negado (403):** Ative a API Gemini no Google Cloud Console."
+        
+        elif response.status_code == 429:
+            return "❌ **Limite excedido (429):** Muitas requisições. Aguarde alguns minutos."
+        
         else:
-            return f"❌ Erro {response.status_code}: {response.text[:200]}"
+            erro_detalhado = ""
+            try:
+                erro_json = response.json()
+                erro_detalhado = erro_json.get('error', {}).get('message', 'Erro desconhecido')
+            except:
+                erro_detalhado = response.text[:200]
+            
+            return f"❌ **Erro {response.status_code}:** {erro_detalhado}"
+    
+    except requests.exceptions.Timeout:
+        return "⏰ **Tempo limite excedido!** A API demorou muito para responder. Tente novamente."
+    
+    except requests.exceptions.ConnectionError:
+        return "🌐 **Erro de conexão!** Verifique sua internet e tente novamente."
     
     except Exception as erro:
-        return f"❌ Erro: {str(erro)}"
+        return f"❌ **Erro inesperado:** {str(erro)}"
+
+# ============================================================================
+# TESTE RÁPIDO DA API (opcional - roda uma vez)
+# ============================================================================
+
+def testar_api_gemini():
+    """Função de teste para verificar se a API está funcionando"""
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            modelos = response.json()
+            st.sidebar.success("✅ API Gemini conectada!")
+            return True
+        else:
+            st.sidebar.error(f"❌ API falhou: {response.status_code}")
+            return False
+    except:
+        st.sidebar.warning("⚠️ Não foi possível testar a API")
+        return False
 
 # ============================================================================
 # CSS PERSONALIZADO MODERNO
@@ -85,7 +171,6 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
 
 st.markdown("""
 <style>
-
     * {
         font-family: 'Segoe UI', sans-serif !important;
     }
@@ -156,55 +241,13 @@ st.markdown("""
         margin-bottom: 1rem;
     }
 
-    .metric-card {
-        background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-        border-radius: 20px;
-        padding: 1.5rem;
-        text-align: center;
-        border: 1px solid rgba(46,204,113,0.3);
-        backdrop-filter: blur(8px);
-    }
-
-    .metric-card h2 {
-        color: #2ecc71 !important;
-        font-size: 2rem;
-    }
-
-    .metric-card h3 {
-        color: white !important;
-    }
-
     .result-card {
         background: linear-gradient(145deg, rgba(34,197,94,0.12), rgba(255,255,255,0.04));
         border: 1px solid rgba(46,204,113,0.4);
         border-radius: 22px;
         padding: 2rem;
-        text-align: center;
+        text-align: left;
         margin-top: 1rem;
-    }
-
-    .result-number {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #2ecc71 !important;
-    }
-
-    .progress-container {
-        width: 100%;
-        background-color: rgba(255,255,255,0.08);
-        border-radius: 50px;
-        overflow: hidden;
-        margin-top: 10px;
-        margin-bottom: 10px;
-    }
-
-    .progress-bar {
-        background: linear-gradient(90deg, #16a34a, #4ade80);
-        color: white;
-        text-align: center;
-        padding: 10px;
-        font-weight: bold;
-        border-radius: 50px;
     }
 
     .hero {
@@ -224,7 +267,6 @@ st.markdown("""
     .hero p {
         color: white !important;
     }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -249,14 +291,12 @@ st.markdown("""
 # ============================================================================
 
 with st.sidebar:
-
     st.image(
         "https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
         width=110
     )
-
+    
     st.markdown("## 🌱 Sistema Inteligente")
-
     st.markdown("""
 ✅ Avaliação da fertilidade  
 ✅ Cálculo de V% e m%  
@@ -264,6 +304,11 @@ with st.sidebar:
 ✅ Relatório técnico  
 ✅ IA Gemini integrada  
     """)
+    
+    # Teste da API (opcional)
+    if st.button("🔧 Testar API Gemini"):
+        with st.spinner("Testando conexão..."):
+            testar_api_gemini()
 
 # ============================================================================
 # SESSION STATE
@@ -297,158 +342,25 @@ menu = st.radio(
 # ============================================================================
 
 necessidades_culturas = {
-    "Alface": {
-        "v_desejado": 80,
-        "n_min": 45,
-        "p_min": 30,
-        "k_min": 0.45,
-        "ph_min": 6.0,
-        "ph_max": 7.0
-    },
-    "Algodão": {
-        "v_desejado": 70,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-    "Arroz": {
-        "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.35,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-    "Batata": {
-        "v_desejado": 80,
-        "n_min": 45,
-        "p_min": 30,
-        "k_min": 0.45,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-    "Café": {
-        "v_desejado": 70,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 5.8,
-        "ph_max": 6.3
-    },
-    "Cana-de-açúcar": {
-        "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.35,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-    "Cebola": {
-        "v_desejado": 75,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 6.0,
-        "ph_max": 7.0
-    },
-    "Cenoura": {
-        "v_desejado": 75,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-    "Couve-flor": {
-        "v_desejado": 75,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 6.0,
-        "ph_max": 7.0
-    },
-    "Feijão": {
-        "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.35,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-    "Mandioca": {
-        "v_desejado": 60,
-        "n_min": 30,
-        "p_min": 15,
-        "k_min": 0.3,
-        "ph_min": 5.0,
-        "ph_max": 6.5
-    },
-    "Milheto": {
-        "v_desejado": 60,
-        "n_min": 30,
-        "p_min": 18,
-        "k_min": 0.3,
-        "ph_min": 5.2,
-        "ph_max": 6.2
-    },
-    "Milho Grão": {
-        "v_desejado": 70,
-        "n_min": 45,
-        "p_min": 30,
-        "k_min": 0.45,
-        "ph_min": 5.6,
-        "ph_max": 6.8
-    },
-    "Milho Semente": {
-        "v_desejado": 75,
-        "n_min": 50,
-        "p_min": 35,
-        "k_min": 0.5,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-    "Pimentão": {
-        "v_desejado": 80,
-        "n_min": 45,
-        "p_min": 30,
-        "k_min": 0.45,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-    "Soja": {
-        "v_desejado": 75,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 5.8,
-        "ph_max": 6.5
-    },
-    "Sorgo": {
-        "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.35,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-    "Tomate": {
-        "v_desejado": 85,
-        "n_min": 50,
-        "p_min": 35,
-        "k_min": 0.5,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-    "Trigo": {
-        "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    }
+    "Alface": {"v_desejado": 80, "n_min": 45, "p_min": 30, "k_min": 0.45, "ph_min": 6.0, "ph_max": 7.0},
+    "Algodão": {"v_desejado": 70, "n_min": 40, "p_min": 25, "k_min": 0.4, "ph_min": 5.8, "ph_max": 6.8},
+    "Arroz": {"v_desejado": 65, "n_min": 35, "p_min": 20, "k_min": 0.35, "ph_min": 5.5, "ph_max": 6.5},
+    "Batata": {"v_desejado": 80, "n_min": 45, "p_min": 30, "k_min": 0.45, "ph_min": 5.5, "ph_max": 6.5},
+    "Café": {"v_desejado": 70, "n_min": 40, "p_min": 25, "k_min": 0.4, "ph_min": 5.8, "ph_max": 6.3},
+    "Cana-de-açúcar": {"v_desejado": 65, "n_min": 35, "p_min": 20, "k_min": 0.35, "ph_min": 5.5, "ph_max": 6.5},
+    "Cebola": {"v_desejado": 75, "n_min": 40, "p_min": 25, "k_min": 0.4, "ph_min": 6.0, "ph_max": 7.0},
+    "Cenoura": {"v_desejado": 75, "n_min": 40, "p_min": 25, "k_min": 0.4, "ph_min": 5.8, "ph_max": 6.8},
+    "Couve-flor": {"v_desejado": 75, "n_min": 40, "p_min": 25, "k_min": 0.4, "ph_min": 6.0, "ph_max": 7.0},
+    "Feijão": {"v_desejado": 65, "n_min": 35, "p_min": 20, "k_min": 0.35, "ph_min": 5.5, "ph_max": 6.5},
+    "Mandioca": {"v_desejado": 60, "n_min": 30, "p_min": 15, "k_min": 0.3, "ph_min": 5.0, "ph_max": 6.5},
+    "Milheto": {"v_desejado": 60, "n_min": 30, "p_min": 18, "k_min": 0.3, "ph_min": 5.2, "ph_max": 6.2},
+    "Milho Grão": {"v_desejado": 70, "n_min": 45, "p_min": 30, "k_min": 0.45, "ph_min": 5.6, "ph_max": 6.8},
+    "Milho Semente": {"v_desejado": 75, "n_min": 50, "p_min": 35, "k_min": 0.5, "ph_min": 5.8, "ph_max": 6.8},
+    "Pimentão": {"v_desejado": 80, "n_min": 45, "p_min": 30, "k_min": 0.45, "ph_min": 5.8, "ph_max": 6.8},
+    "Soja": {"v_desejado": 75, "n_min": 40, "p_min": 25, "k_min": 0.4, "ph_min": 5.8, "ph_max": 6.5},
+    "Sorgo": {"v_desejado": 65, "n_min": 35, "p_min": 20, "k_min": 0.35, "ph_min": 5.5, "ph_max": 6.5},
+    "Tomate": {"v_desejado": 85, "n_min": 50, "p_min": 35, "k_min": 0.5, "ph_min": 5.8, "ph_max": 6.8},
+    "Trigo": {"v_desejado": 65, "n_min": 35, "p_min": 25, "k_min": 0.4, "ph_min": 5.5, "ph_max": 6.5}
 }
 
 # ============================================================================
@@ -456,27 +368,22 @@ necessidades_culturas = {
 # ============================================================================
 
 def calcular_sb(ca, mg, k):
-    """Soma de Bases (SB) = Ca + Mg + K"""
     return ca + mg + k
 
 def calcular_tct_potencial(sb, h_al):
-    """TCT potencial = SB + H+Al"""
     return sb + h_al
 
 def calcular_v_porcentagem(sb, tct_potencial):
-    """Saturação por bases V% = (SB/TCT) * 100"""
     if tct_potencial == 0:
         return 0
     return (sb / tct_potencial) * 100
 
 def calcular_m_porcentagem(al, sb):
-    """Saturação por alumínio m% = (Al / (Al + SB)) * 100"""
     if (al + sb) == 0:
         return 0
     return (al / (al + sb)) * 100
 
 def classificar_fertilidade(v_porcentagem):
-    """Classificação da fertilidade baseada no V%"""
     if v_porcentagem < 50:
         return "Baixa fertilidade (V% < 50)"
     elif v_porcentagem < 70:
@@ -491,7 +398,6 @@ def classificar_fertilidade(v_porcentagem):
 # ============================================================================
 
 if menu == "📊 1. Dados do Solo":
-
     st.markdown("## 📋 Dados Básicos do Solo")
 
     col1, col2 = st.columns(2)
@@ -516,7 +422,6 @@ if menu == "📊 1. Dados do Solo":
         clay = st.text_input("🧱 Argila (g/kg)", value="350")
 
     if st.button("✅ SALVAR DADOS"):
-
         try:
             dados = {
                 "nitrogen": float(nitrogen),
@@ -532,7 +437,6 @@ if menu == "📊 1. Dados do Solo":
                 "clay": float(clay)
             }
             
-            # Cálculos complementares
             sb = calcular_sb(dados["calcium"], dados["magnesium"], dados["potassium"])
             tct = calcular_tct_potencial(sb, dados["h_al"])
             v = calcular_v_porcentagem(sb, tct)
@@ -547,7 +451,6 @@ if menu == "📊 1. Dados do Solo":
             
             st.success("✅ Dados salvos com sucesso!")
             
-            # Mostrar resumo dos cálculos
             st.markdown("### 📊 Resumo dos Cálculos")
             col_a, col_b, col_c, col_d = st.columns(4)
             with col_a:
@@ -567,7 +470,6 @@ if menu == "📊 1. Dados do Solo":
 # ============================================================================
 
 elif menu == "🌱 2. Classificação":
-
     st.markdown("## 🌱 Classificação e Recomendações")
     
     if not st.session_state.dados_basicos:
@@ -575,7 +477,6 @@ elif menu == "🌱 2. Classificação":
     else:
         dados = st.session_state.dados_basicos
         
-        # Mostrar dados atuais
         st.markdown("### 📊 Dados Atuais do Solo")
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -591,46 +492,31 @@ elif menu == "🌱 2. Classificação":
             st.metric("Mg", f"{dados.get('magnesium', 'N/A')} cmolc/dm³")
             st.metric("Al", f"{dados.get('aluminum', 'N/A')} cmolc/dm³")
         
-        # Classificação da fertilidade
         v = dados.get('v_porcentagem', 0)
         classificacao = classificar_fertilidade(v)
         st.info(f"📌 **Classificação:** {classificacao}")
         
         st.markdown("---")
         
-        # Seleção da cultura
         st.markdown("### 🌾 Selecione a Cultura")
-        cultura = st.selectbox(
-            "Cultura planejada",
-            list(necessidades_culturas.keys())
-        )
+        cultura = st.selectbox("Cultura planejada", list(necessidades_culturas.keys()))
         
         if cultura:
             req = necessidades_culturas[cultura]
             
             st.markdown(f"### 📋 Recomendações para {cultura}")
             
-            # Verificar pH
             ph_atual = dados.get('ph', 0)
             ph_ok = req['ph_min'] <= ph_atual <= req['ph_max']
-            
-            # Verificar V%
             v_atual = dados.get('v_porcentagem', 0)
             v_ok = v_atual >= req['v_desejado']
-            
-            # Verificar N
             n_atual = dados.get('nitrogen', 0)
             n_ok = n_atual >= req['n_min']
-            
-            # Verificar P
             p_atual = dados.get('phosphorus', 0)
             p_ok = p_atual >= req['p_min']
-            
-            # Verificar K
             k_atual = dados.get('potassium', 0)
             k_ok = k_atual >= req['k_min']
             
-            # Exibir status
             col_a, col_b = st.columns(2)
             
             with col_a:
@@ -643,7 +529,6 @@ elif menu == "🌱 2. Classificação":
                 st.markdown(f"- **P:** ≥ {req['p_min']} mg/dm³ → {'✅ OK' if p_ok else '❌ Baixo'}")
                 st.markdown(f"- **K:** ≥ {req['k_min']} cmolc/dm³ → {'✅ OK' if k_ok else '❌ Baixo'}")
             
-            # Recomendações
             st.markdown("#### 💡 Recomendações de Manejo")
             recomendacoes = []
             
@@ -676,49 +561,48 @@ elif menu == "🌱 2. Classificação":
 # ============================================================================
 
 elif menu == "🤖 3. Assistente IA":
-
     st.markdown("## 🤖 Assistente IA Gemini")
 
     if not st.session_state.dados_basicos:
-        st.warning("⚠️ Para melhores respostas, preencha os dados do solo na aba 'Dados do Solo' primeiro!")
+        st.info("ℹ️ Para melhores respostas, preencha os dados do solo na aba 'Dados do Solo' primeiro!")
 
     pergunta = st.text_area(
         "💬 Faça sua pergunta sobre fertilidade do solo, manejo ou culturas:",
         height=150,
-        placeholder="Exemplo: Qual a recomendação de calagem para um solo com pH 5.0?"
+        placeholder="Exemplo: Qual a recomendação de calagem para um solo com pH 5.0? Como interpretar o V%? Qual a cultura mais adequada para meu solo?"
     )
 
-    if st.button("🚀 GERAR RESPOSTA"):
-
-        if not pergunta:
-            st.warning("⚠️ Por favor, digite uma pergunta!")
-        else:
-            with st.spinner("🤖 Consultando IA Gemini..."):
-                resposta = gerar_resposta_ia(
-                    pergunta,
-                    st.session_state.dados_basicos if st.session_state.dados_basicos else None
-                )
-
-                st.markdown(f"""
-                <div class="result-card">
-                    <h2>🤖 Resposta da IA</h2>
-                    <p style="text-align: left;">{resposta}</p>
-                </div>
-                """, unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        if st.button("🚀 GERAR RESPOSTA", use_container_width=True):
+            if not pergunta:
+                st.warning("⚠️ Por favor, digite uma pergunta!")
+            else:
+                with st.spinner("🤖 Consultando IA Gemini..."):
+                    resposta = gerar_resposta_ia(
+                        pergunta,
+                        st.session_state.dados_basicos if st.session_state.dados_basicos else None
+                    )
+                    
+                    st.markdown(f"""
+                    <div class="result-card">
+                        <h2 style="text-align: center;">🤖 Resposta da IA</h2>
+                        <div style="margin-top: 20px;">
+                            {resposta}
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
 # ============================================================================
 # ABA 4 - RELATÓRIO
 # ============================================================================
 
 elif menu == "📈 4. Relatório":
-
     st.markdown("## 📈 Relatório Técnico")
 
     if st.session_state.dados_basicos:
-
         dados = st.session_state.dados_basicos
         
-        # Criar DataFrame
         relatorio_data = {
             "Parâmetro": [
                 "Nitrogênio (N)", "Fósforo (P)", "Potássio (K)",
@@ -747,13 +631,8 @@ elif menu == "📈 4. Relatório":
         
         relatorio = pd.DataFrame(relatorio_data)
         
-        st.dataframe(
-            relatorio,
-            use_container_width=True,
-            hide_index=True
-        )
+        st.dataframe(relatorio, use_container_width=True, hide_index=True)
         
-        # Botão para exportar
         csv = relatorio.to_csv(index=False).encode('utf-8')
         st.download_button(
             label="📥 Baixar Relatório (CSV)",
@@ -761,7 +640,6 @@ elif menu == "📈 4. Relatório":
             file_name="relatorio_solo.csv",
             mime="text/csv"
         )
-        
     else:
         st.info("ℹ️ Nenhum dado cadastrado. Vá até a aba 'Dados do Solo' para inserir as informações.")
 
@@ -770,9 +648,7 @@ elif menu == "📈 4. Relatório":
 # ============================================================================
 
 elif menu == "ℹ️ 5. Métodos":
-
     st.markdown("## ℹ️ Métodos Utilizados")
-
     st.markdown("""
     ### 📐 Fórmulas e Interpretações
     
@@ -806,7 +682,7 @@ elif menu == "ℹ️ 5. Métodos":
     st.markdown("---")
     st.markdown("### 🤖 IA Gemini")
     st.markdown("""
-    O assistente utiliza o modelo **Gemini 1.5 Flash** do Google para:
+    O assistente utiliza o modelo **Gemini Pro** do Google para:
     - Interpretar laudos de análise de solo
     - Recomendar práticas de manejo
     - Sugerir correções de fertilidade
@@ -818,7 +694,4 @@ elif menu == "ℹ️ 5. Métodos":
 # ============================================================================
 
 st.markdown("---")
-
-st.caption(
-    "© 2026 - Sistema Inteligente de Fertilidade do Solo | Baseado em metodologias Embrapa"
-)
+st.caption("© 2026 - Sistema Inteligente de Fertilidade do Solo | Baseado em metodologias Embrapa")
