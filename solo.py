@@ -22,7 +22,7 @@ st.set_page_config(
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "gen-lang-client-0078787372"
+GEMINI_API_KEY = "AIzaSyBibLbN2e3gmzLlNb81wSr7GHrDqkiU6fw"  # ← USE ESTA!
 
 # ============================================================================
 # FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
