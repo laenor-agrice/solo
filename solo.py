@@ -22,7 +22,7 @@ st.set_page_config(
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "AIzaSyBibLbN2e3gmzLlNb81wSr7GHrDqkiU6fw"
+GEMINI_API_KEY = "gen-lang-client-0078787372"
 
 # ============================================================================
 # FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
@@ -56,7 +56,8 @@ def listar_modelos_disponiveis():
 def gerar_resposta_ia(pergunta, dados_solo=None):
     """Função com detecção automática do modelo"""
     
-    if not GEMINI_API_KEY or GEMINI_API_KEY == "gen-lang-client-0078787372":
+    # VERIFICAÇÃO CORRIGIDA
+    if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
         return "⚠️ **API Key não configurada!** Configure sua chave no código."
     
     try:
@@ -137,7 +138,6 @@ RESPOSTA:"""
     
     except Exception as erro:
         return f"❌ **Erro:** {str(erro)}"
-
 # ============================================================================
 # CSS PERSONALIZADO MODERNO (DESIGN APRIMORADO)
 # ============================================================================
