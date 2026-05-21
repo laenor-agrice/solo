@@ -443,99 +443,90 @@ def classificar_fertilidade(v_porcentagem):
 # FUNÇÕES DE RECOMENDAÇÃO DE ADUBAÇÃO E CALAGEM
 # ============================================================================
 
-def calcular_necessidade_calagem(v_atual, v_desejado, ctc):
-    """Calcula a necessidade de calagem em t/ha"""
+def calcular_necessidade_calagem(v_atual, v_desejado, ctc, prnt=85):
+    """Calcula a necessidade de calagem em t/ha com PRNT personalizável"""
     if v_atual >= v_desejado:
-        return 0, "✅ Solo já atingiu V% desejado. Não necessita calagem."
+        return 0, "✅ Solo já atingiu V% desejado. Não necessita calagem.", 0
     
-    f = 100/85
+    # Fator de correção do PRNT (quanto menor o PRNT, mais calcário necessário)
+    f = 100 / prnt
     nc = (ctc * (v_desejado - v_atual) / 100) * f
-    nc = round(nc * 2) / 2
+    nc = round(nc * 2) / 2  # Arredondar para 0.5 t/ha
+    
+    # Calcular tempo de espera baseado na dose
+    if nc <= 1.0:
+        tempo_espera = 30
+    elif nc <= 2.0:
+        tempo_espera = 45
+    elif nc <= 4.0:
+        tempo_espera = 60
+    else:
+        tempo_espera = 90
     
     if nc > 0:
-        recomendacao = f"🔹 **Calagem necessária:** {nc:.1f} t/ha de calcário (PRNT 85%)"
+        recomendacao = f"🔹 **Calagem necessária:** {nc:.1f} t/ha de calcário (PRNT {prnt}%)"
         if nc > 5:
             recomendacao += " - Aplicar parcelado em 2 anos"
+        return nc, recomendacao, tempo_espera
     else:
-        recomendacao = "Calagem não necessária"
-    
-    return nc, recomendacao
+        return 0, "Calagem não necessária", 0
 
 def recomendar_adubacao_nitrogenio(cultura, n_atual, n_min):
-    """Recomenda adubação nitrogenada (N)"""
+    """Recomenda adubação nitrogenada (N) em kg/ha e t/ha"""
     if n_atual >= n_min:
-        return "✅ N adequado. Adubação de manutenção: 30-50 kg/ha de N"
+        return "✅ N adequado. Adubação de manutenção: 30-50 kg/ha de N (0,03-0,05 t/ha)"
     
     deficiencia = n_min - n_atual
     
     if cultura in ["Tomate", "Alface", "Batata", "Milho Semente"]:
-        recomendacao = f"Alta demanda. Aplicar {deficiencia + 60:.0f} kg/ha de N (parcelado)"
+        kg_ha = deficiencia + 60
+        recomendacao = f"Alta demanda. Aplicar {kg_ha:.0f} kg/ha de N ({kg_ha/1000:.3f} t/ha) (parcelado)"
     elif cultura in ["Café", "Cana-de-açúcar", "Milho Grão"]:
-        recomendacao = f"Média demanda. Aplicar {deficiencia + 40:.0f} kg/ha de N"
+        kg_ha = deficiencia + 40
+        recomendacao = f"Média demanda. Aplicar {kg_ha:.0f} kg/ha de N ({kg_ha/1000:.3f} t/ha)"
     else:
-        recomendacao = f"Baixa demanda. Aplicar {deficiencia + 20:.0f} kg/ha de N"
+        kg_ha = deficiencia + 20
+        recomendacao = f"Baixa demanda. Aplicar {kg_ha:.0f} kg/ha de N ({kg_ha/1000:.3f} t/ha)"
     
     return f"❌ N baixo ({n_atual} < {n_min}). {recomendacao}"
 
 def recomendar_adubacao_fosforo(cultura, p_atual, p_min):
-    """Recomenda adubação fosfatada (P2O5)"""
+    """Recomenda adubação fosfatada (P2O5) em kg/ha e t/ha"""
     if p_atual >= p_min:
-        return "✅ P adequado. Adubação de manutenção: 40-80 kg/ha de P2O5"
+        return "✅ P adequado. Adubação de manutenção: 40-80 kg/ha de P2O5 (0,04-0,08 t/ha)"
     
     deficiencia = p_min - p_atual
     
     if cultura in ["Tomate", "Batata", "Soja"]:
-        recomendacao = f"Alta demanda. Aplicar {deficiencia + 80:.0f} kg/ha de P2O5"
+        kg_ha = deficiencia + 80
+        recomendacao = f"Alta demanda. Aplicar {kg_ha:.0f} kg/ha de P2O5 ({kg_ha/1000:.3f} t/ha)"
     elif cultura in ["Café", "Cana-de-açúcar"]:
-        recomendacao = f"Média demanda. Aplicar {deficiencia + 60:.0f} kg/ha de P2O5"
+        kg_ha = deficiencia + 60
+        recomendacao = f"Média demanda. Aplicar {kg_ha:.0f} kg/ha de P2O5 ({kg_ha/1000:.3f} t/ha)"
     else:
-        recomendacao = f"Baixa demanda. Aplicar {deficiencia + 40:.0f} kg/ha de P2O5"
+        kg_ha = deficiencia + 40
+        recomendacao = f"Baixa demanda. Aplicar {kg_ha:.0f} kg/ha de P2O5 ({kg_ha/1000:.3f} t/ha)"
     
     return f"❌ P baixo ({p_atual} < {p_min}). {recomendacao}"
 
 def recomendar_adubacao_potassio(cultura, k_atual, k_min):
-    """Recomenda adubação potássica (K2O)"""
+    """Recomenda adubação potássica (K2O) em kg/ha e t/ha"""
     if k_atual >= k_min:
-        return "✅ K adequado. Adubação de manutenção: 40-60 kg/ha de K2O"
+        return "✅ K adequado. Adubação de manutenção: 40-60 kg/ha de K2O (0,04-0,06 t/ha)"
     
     deficiencia = k_min - k_atual
     
     if cultura in ["Tomate", "Batata", "Café", "Cana-de-açúcar"]:
-        recomendacao = f"Alta demanda. Aplicar {deficiencia + 60:.0f} kg/ha de K2O"
+        kg_ha = deficiencia + 60
+        recomendacao = f"Alta demanda. Aplicar {kg_ha:.0f} kg/ha de K2O ({kg_ha/1000:.3f} t/ha)"
     elif cultura in ["Soja", "Milho Grão", "Algodão"]:
-        recomendacao = f"Média demanda. Aplicar {deficiencia + 40:.0f} kg/ha de K2O"
+        kg_ha = deficiencia + 40
+        recomendacao = f"Média demanda. Aplicar {kg_ha:.0f} kg/ha de K2O ({kg_ha/1000:.3f} t/ha)"
     else:
-        recomendacao = f"Baixa demanda. Aplicar {deficiencia + 30:.0f} kg/ha de K2O"
+        kg_ha = deficiencia + 30
+        recomendacao = f"Baixa demanda. Aplicar {kg_ha:.0f} kg/ha de K2O ({kg_ha/1000:.3f} t/ha)"
     
     return f"❌ K baixo ({k_atual:.2f} < {k_min:.2f}). {recomendacao}"
-
-def recomendar_manejo_geral(dados):
-    """Recomendações gerais de manejo"""
-    recomendacoes_gerais = []
-    
-    ph = dados.get('ph', 0)
-    m = dados.get('m_porcentagem', 0)
-    areia = dados.get('sand', 0)
-    argila = dados.get('clay', 0)
-    
-    if ph < 5.0:
-        recomendacoes_gerais.append("🔴 **Acidez muito forte** - Calagem urgente!")
-    elif ph < 5.5:
-        recomendacoes_gerais.append("🟠 **Acidez forte** - Calagem necessária.")
-    elif ph > 7.0:
-        recomendacoes_gerais.append("🟡 **pH elevado** - Evitar calagem.")
-    
-    if m > 30:
-        recomendacoes_gerais.append("⚠️ **Alta saturação por Al (m%)** - Calagem urgente!")
-    elif m > 15:
-        recomendacoes_gerais.append("⚠️ **Média saturação por Al (m%)** - Calagem recomendada.")
-    
-    if areia > 600:
-        recomendacoes_gerais.append("🏖️ **Solo arenoso** - Adubação parcelada (3-4 vezes).")
-    elif argila > 400:
-        recomendacoes_gerais.append("🧱 **Solo argiloso** - Maior retenção de nutrientes.")
-    
-    return recomendacoes_gerais
 
 # ============================================================================
 # ABA 1 - DADOS DO SOLO
@@ -693,12 +684,28 @@ elif menu == "🌱 2. Classificação":
                         st.markdown(f"- **P:** {p_atual} mg/dm³ (Mínimo: {req['p_min']}) → {'✅ OK' if p_ok else '❌ Baixo'}")
                         st.markdown(f"- **K:** {k_atual:.2f} cmolc/dm³ (Mínimo: {req['k_min']}) → {'✅ OK' if k_ok else '❌ Baixo'}")
             
-            with tab2:
+                        with tab2:
                 st.markdown("#### 🧪 Recomendação de Calagem")
                 
                 ctc = dados.get('ctc', 0)
                 v_atual = dados.get('v_porcentagem', 0)
-                nc, rec_calagem = calcular_necessidade_calagem(v_atual, req['v_desejado'], ctc)
+                
+                # Opção para o usuário informar o PRNT do calcário
+                col_prnt1, col_prnt2 = st.columns([2, 1])
+                with col_prnt1:
+                    prnt_calcario = st.slider(
+                        "PRNT do Calcário (%)", 
+                        min_value=50, 
+                        max_value=100, 
+                        value=85, 
+                        step=5,
+                        help="Poder Relativo de Neutralização Total. Quanto menor o PRNT, maior a quantidade necessária."
+                    )
+                with col_prnt2:
+                    st.metric("Fator de correção", f"{100/prnt_calcario:.2f}")
+                
+                # Calcular necessidade com PRNT personalizado
+                nc, rec_calagem, tempo_espera = calcular_necessidade_calagem(v_atual, req['v_desejado'], ctc, prnt_calcario)
                 
                 st.info(f"**V% atual:** {v_atual:.1f}% | **V% desejado:** {req['v_desejado']}% | **CTC:** {ctc:.2f} cmolc/dm³")
                 
@@ -706,60 +713,24 @@ elif menu == "🌱 2. Classificação":
                     st.success(f"### {rec_calagem}")
                     with st.container(border=True):
                         st.markdown(f"""
-                        **📋 Detalhamento:**
-                        - Necessidade: {nc:.1f} t/ha
-                        - PRNT considerado: 85%
-                        - Época: 60-90 dias antes do plantio
+                        **📋 Detalhamento da Calagem:**
+                        - Necessidade: **{nc:.1f} t/ha** de calcário
+                        - PRNT considerado: **{prnt_calcario}%**
+                        - **Tempo de espera mínimo:** **{tempo_espera} dias** antes do plantio
                         """)
+                        
+                        # Tabela de referência de tempo de espera
+                        with st.expander("⏰ Tabela de tempo de espera por dose"):
+                            st.markdown("""
+                            | Dose de calcário (t/ha) | Tempo de espera mínimo |
+                            |------------------------|----------------------|
+                            | Até 1.0 t/ha | 30 dias |
+                            | 1.1 - 2.0 t/ha | 45 dias |
+                            | 2.1 - 4.0 t/ha | 60 dias |
+                            | Acima de 4.0 t/ha | 90 dias (parcelar) |
+                            """)
                 else:
                     st.success(rec_calagem)
-            
-            with tab3:
-                st.markdown("#### 🌱 Recomendação de Adubação")
-                
-                col_n, col_p, col_k = st.columns(3)
-                
-                with col_n:
-                    with st.container(border=True):
-                        st.markdown("**🥬 Nitrogênio (N)**")
-                        rec_n = recomendar_adubacao_nitrogenio(cultura, n_atual, req['n_min'])
-                        if "✅" in rec_n:
-                            st.success(rec_n)
-                        else:
-                            st.error(rec_n)
-                
-                with col_p:
-                    with st.container(border=True):
-                        st.markdown("**🪨 Fósforo (P₂O₅)**")
-                        rec_p = recomendar_adubacao_fosforo(cultura, p_atual, req['p_min'])
-                        if "✅" in rec_p:
-                            st.success(rec_p)
-                        else:
-                            st.error(rec_p)
-                
-                with col_k:
-                    with st.container(border=True):
-                        st.markdown("**🍌 Potássio (K₂O)**")
-                        rec_k = recomendar_adubacao_potassio(cultura, k_atual, req['k_min'])
-                        if "✅" in rec_k:
-                            st.success(rec_k)
-                        else:
-                            st.error(rec_k)
-            
-            with tab4:
-                st.markdown("#### 📝 Recomendações de Manejo Geral")
-                
-                recomendacoes_gerais = recomendar_manejo_geral(dados)
-                
-                if recomendacoes_gerais:
-                    for rec in recomendacoes_gerais:
-                        st.info(rec)
-                else:
-                    st.success("✅ Solo com boas condições físicas e químicas!")
-                
-                st.markdown("---")
-                st.markdown(f"#### 🌟 Dica para {cultura}")
-                st.info("Realize análise de solo anualmente para monitorar a fertilidade e ajustar as recomendações.")
 
 # ============================================================================
 # ABA 3 - IA
