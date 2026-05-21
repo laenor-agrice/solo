@@ -1,14 +1,7 @@
-# =========================================================
-# AGROSOLO IA - SISTEMA INTELIGENTE DE FERTILIDADE DO SOLO
-# =========================================================
-# Desenvolvido para fins acadêmicos e educacionais.
-# Base conceitual: Embrapa / SiBCS / Boletins Técnicos.
-# =========================================================
-
 import streamlit as st
 import pandas as pd
 import math
-import os
+import matplotlib.pyplot as plt
 
 # =========================================================
 # CONFIGURAÇÃO DA PÁGINA
@@ -17,28 +10,8 @@ import os
 st.set_page_config(
     page_title="AgroSolo IA",
     page_icon="🌱",
-    layout="wide",
+    layout="wide"
 )
-
-# =========================================================
-# IA GENERATIVA (GEMINI)
-# =========================================================
-
-GEMINI_OK = False
-modelo_gemini = None
-
-try:
-    import google.generativeai as genai
-
-    API_KEY = os.getenv("GEMINI_API_KEY", "")
-
-    if API_KEY:
-        genai.configure(api_key=API_KEY)
-        modelo_gemini = genai.GenerativeModel("gemini-1.5-flash")
-        GEMINI_OK = True
-
-except:
-    GEMINI_OK = False
 
 # =========================================================
 # CSS MODERNO
@@ -47,75 +20,52 @@ except:
 st.markdown("""
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
-}
-
 .stApp {
-    background: linear-gradient(135deg,#071b11,#0c2d1d,#071b11);
+    background: linear-gradient(135deg,#071b11,#0d2818,#071b11);
     color: white;
 }
 
-.block-container{
-    max-width: 100%;
+.block-container {
     padding-top: 1rem;
-    padding-bottom: 2rem;
+    max-width: 100%;
 }
 
-h1,h2,h3,h4,h5{
-    color:#9df5b3;
+h1,h2,h3,h4,h5 {
+    color: #9df5b3 !important;
 }
 
-section[data-testid="stSidebar"]{
-    background:#08150e;
-}
-
-div[data-baseweb="select"] > div{
-    background:#10251a;
-    border:1px solid #2d6a4f;
+.stButton>button {
+    background: linear-gradient(90deg,#1d8348,#27ae60);
+    color: white;
+    border-radius: 12px;
+    border: none;
+    font-weight: bold;
+    padding: 0.7rem 1rem;
 }
 
 .stTextInput input,
-.stNumberInput input{
-    background:#10251a;
-    color:white;
-    border:1px solid #2d6a4f;
-    border-radius:10px;
+.stNumberInput input,
+textarea {
+    border-radius: 12px !important;
+    border: 2px solid #2ecc71 !important;
 }
 
-.stButton button{
-    background:linear-gradient(90deg,#2d6a4f,#40916c);
-    color:white;
-    border:none;
-    border-radius:12px;
-    font-weight:600;
+div[data-baseweb="select"] > div {
+    border-radius: 12px !important;
+    border: 2px solid #2ecc71 !important;
 }
 
-.metric-card{
-    background:#10251a;
-    padding:1rem;
-    border-radius:16px;
-    border:1px solid #2d6a4f;
-}
-
-.info-box{
-    background:#10251a;
-    border-left:4px solid #52b788;
-    padding:1rem;
-    border-radius:12px;
-}
-
-footer{
-    visibility:hidden;
+.metric-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 1rem;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
 # =========================================================
-# CULTURAS EM ORDEM ALFABÉTICA
+# CULTURAS
 # =========================================================
 
 culturas = {
@@ -129,28 +79,28 @@ culturas = {
     "Café": {
         "n": 180,
         "p": 120,
-        "k": 100,
+        "k": 140,
         "plantio": "Outubro a Dezembro"
     },
 
     "Cana-de-açúcar": {
         "n": 120,
         "p": 100,
-        "k": 120,
+        "k": 140,
         "plantio": "Janeiro a Março"
     },
 
     "Feijão": {
         "n": 80,
-        "p": 90,
-        "k": 70,
-        "plantio": "Abril a Julho"
+        "p": 80,
+        "k": 60,
+        "plantio": "Agosto a Outubro"
     },
 
     "Milheto": {
-        "n": 60,
-        "p": 50,
-        "k": 40,
+        "n": 70,
+        "p": 60,
+        "k": 50,
         "plantio": "Setembro a Novembro"
     },
 
@@ -176,24 +126,24 @@ culturas = {
     },
 
     "Sorgo": {
-        "n": 80,
-        "p": 60,
-        "k": 50,
+        "n": 100,
+        "p": 70,
+        "k": 60,
         "plantio": "Setembro a Novembro"
     },
 
     "Tomate": {
         "n": 180,
-        "p": 150,
-        "k": 130,
+        "p": 160,
+        "k": 180,
         "plantio": "Ano todo"
     },
 
     "Trigo": {
         "n": 120,
-        "p": 80,
+        "p": 90,
         "k": 70,
-        "plantio": "Maio a Julho"
+        "plantio": "Abril a Junho"
     }
 }
 
@@ -201,372 +151,367 @@ culturas = {
 # FUNÇÕES
 # =========================================================
 
-def calcular_ph(ca, mg, k, al, hal):
-    try:
-        base = (ca + mg + k) * 0.25
-        acidez = (al + hal) * 0.15
-        ph = 5.5 + base - acidez
-        return max(4.0, min(7.5, round(ph,1)))
-    except:
-        return 5.5
+def calcular_ph(ca, mg, al, hal, k):
+    ph = 7 + ((ca + mg + k) * 0.1) - ((al + hal) * 0.08)
+    return round(max(4.0, min(7.5, ph)), 1)
 
-def classificar_fertilidade(v, ph):
-    score = 0
+def calcular_v(sb, ctc):
+    if ctc == 0:
+        return 0
+    return round((sb / ctc) * 100, 1)
 
-    if ph >= 5.5:
-        score += 1
+def classificar_fertilidade(ph, v):
 
-    if v >= 60:
-        score += 1
+    if ph < 5.2 or v < 40:
+        return "🔴 Baixa Fertilidade"
 
-    if score == 2:
-        return "🟢 Alta Fertilidade"
-
-    elif score == 1:
+    elif 40 <= v < 65:
         return "🟡 Média Fertilidade"
 
-    return "🔴 Baixa Fertilidade"
+    else:
+        return "🟢 Alta Fertilidade"
 
-def calcular_calagem(v_atual, v_desejado, ctc):
-    if v_atual >= v_desejado:
-        return 0
-    return round(((v_desejado - v_atual) * ctc)/100,2)
+def resposta_ia(pergunta):
 
-def calcular_gessagem(clay, calagem):
-    if clay >= 350:
-        return round(calagem*0.5,2)
-    return 0
+    pergunta = pergunta.lower()
 
-def adubacao_vaso(area, dose):
-    return round((dose/10000)*area*1000,2)
+    respostas = {
+
+        "calagem":
+        "A calagem corrige a acidez do solo, aumenta o pH e melhora a disponibilidade de nutrientes.",
+
+        "gessagem":
+        "A gessagem reduz toxidez por alumínio em profundidade e melhora o crescimento radicular.",
+
+        "fertilidade":
+        "A fertilidade do solo influencia diretamente produtividade, raízes e absorção de nutrientes.",
+
+        "compactação":
+        "Evite excesso de máquinas e utilize cobertura vegetal para reduzir compactação.",
+
+        "erosão":
+        "Cobertura vegetal e plantio em nível ajudam a evitar erosão.",
+
+        "matéria orgânica":
+        "A matéria orgânica melhora retenção de água, microbiologia e estrutura do solo.",
+
+        "nitrogênio":
+        "O nitrogênio deve ser parcelado para reduzir perdas por volatilização e lixiviação.",
+
+        "fósforo":
+        "O fósforo é essencial para raízes e desenvolvimento inicial.",
+
+        "potássio":
+        "O potássio melhora resistência da planta e enchimento de grãos."
+    }
+
+    for chave in respostas:
+        if chave in pergunta:
+            return respostas[chave]
+
+    return "Pergunta fora do escopo do sistema."
 
 # =========================================================
 # HEADER
 # =========================================================
 
-st.markdown("""
-<h1 style='text-align:center;'>🌱 AgroSolo IA</h1>
-<p style='text-align:center;color:#9df5b3;font-size:18px;'>
-Sistema Inteligente de Fertilidade do Solo
-</p>
-""", unsafe_allow_html=True)
-
-# =========================================================
-# SIDEBAR
-# =========================================================
-
-with st.sidebar:
-
-    st.header("⚙️ Sistema")
-
-    if GEMINI_OK:
-        st.success("IA conectada com Gemini.")
-    else:
-        st.warning("IA não conectada.")
-        st.caption("Defina GEMINI_API_KEY nas variáveis de ambiente.")
-
-    st.markdown("---")
-
-    st.markdown("""
-### 📘 Recursos
-
-- Classificação do solo
-- Recomendações NPK
-- Calagem
-- Gessagem
-- Adubação para vasos
-- IA para dúvidas agrícolas
-- Relatório técnico
-""")
+st.title("🌱 AgroSolo IA")
+st.markdown("### Sistema Inteligente de Fertilidade do Solo")
 
 # =========================================================
 # ABAS
 # =========================================================
 
-abas = st.tabs([
+aba1, aba2, aba3, aba4, aba5 = st.tabs([
     "📋 Cadastro",
-    "🌱 Solo",
-    "🧪 Vaso",
+    "🌱 Classificação",
+    "🧪 Adubação",
     "📊 Relatório",
-    "🤖 IA Agrícola"
+    "🤖 IA"
 ])
 
 # =========================================================
 # ABA 1
 # =========================================================
 
-with abas[0]:
+with aba1:
 
-    st.subheader("📋 Cadastro do Usuário")
+    st.header("📋 Cadastro")
 
-    col1,col2,col3 = st.columns(3)
+    col1, col2 = st.columns(2)
 
     with col1:
         nome = st.text_input("Nome")
-
-    with col2:
         fazenda = st.text_input("Fazenda")
-
-    with col3:
         cidade = st.text_input("Cidade")
 
-    col4,col5 = st.columns(2)
-
-    with col4:
+    with col2:
         estado = st.text_input("Estado")
-
-    with col5:
         cep = st.text_input("CEP")
 
-    st.info("O preenchimento é opcional.")
+        cultura = st.selectbox(
+            "🌾 Cultura",
+            sorted(culturas.keys())
+        )
+
+    st.markdown("---")
+
+    st.header("🌱 Dados do Solo")
+
+    c1, c2, c3 = st.columns(3)
+
+    with c1:
+        n = st.number_input("Nitrogênio", 0.0)
+        p = st.number_input("Fósforo", 0.0)
+        k = st.number_input("Potássio", 0.0)
+
+    with c2:
+        ca = st.number_input("Cálcio", 0.0)
+        mg = st.number_input("Magnésio", 0.0)
+        al = st.number_input("Alumínio", 0.0)
+
+    with c3:
+        hal = st.number_input("H+Al", 0.0)
+        mo = st.number_input("Matéria Orgânica", 0.0)
+        argila = st.number_input("Argila g/kg", 0.0)
+
+    if st.button("💾 Salvar Dados"):
+
+        st.session_state["dados"] = {
+            "nome": nome,
+            "fazenda": fazenda,
+            "cidade": cidade,
+            "estado": estado,
+            "cep": cep,
+            "cultura": cultura,
+            "n": n,
+            "p": p,
+            "k": k,
+            "ca": ca,
+            "mg": mg,
+            "al": al,
+            "hal": hal,
+            "mo": mo,
+            "argila": argila
+        }
+
+        st.success("Dados salvos com sucesso.")
 
 # =========================================================
 # ABA 2
 # =========================================================
 
-with abas[1]:
+with aba2:
 
-    st.subheader("🌱 Dados do Solo")
+    st.header("🌱 Classificação da Fertilidade")
 
-    cultura = st.selectbox(
-        "🌾 Cultura",
-        sorted(culturas.keys())
-    )
+    if "dados" not in st.session_state:
 
-    col1,col2,col3 = st.columns(3)
+        st.warning("Preencha os dados primeiro.")
 
-    with col1:
-        n = st.number_input("Nitrogênio",0.0)
-        p = st.number_input("Fósforo",0.0)
-        k = st.number_input("Potássio",0.0)
+    else:
 
-    with col2:
-        ca = st.number_input("Cálcio",0.0)
-        mg = st.number_input("Magnésio",0.0)
-        al = st.number_input("Alumínio",0.0)
+        dados = st.session_state["dados"]
 
-    with col3:
-        hal = st.number_input("H + Al",0.0)
-        clay = st.number_input("Argila g/kg",0.0)
-        mo = st.number_input("Matéria Orgânica",0.0)
+        sb = dados["ca"] + dados["mg"] + dados["k"]
+        ctc = sb + dados["hal"]
 
-    if st.button("🔬 Classificar Solo"):
+        ph = calcular_ph(
+            dados["ca"],
+            dados["mg"],
+            dados["al"],
+            dados["hal"],
+            dados["k"]
+        )
 
-        ph = calcular_ph(ca,mg,k,al,hal)
+        v = calcular_v(sb, ctc)
 
-        sb = ca + mg + k
-        ctc = sb + hal
+        fertilidade = classificar_fertilidade(ph, v)
 
-        if ctc > 0:
-            v = (sb/ctc)*100
-        else:
-            v = 0
+        col1, col2, col3 = st.columns(3)
 
-        fertilidade = classificar_fertilidade(v,ph)
+        with col1:
+            st.metric("pH", ph)
 
-        st.session_state["dados"] = {
-            "ph":ph,
-            "v":v,
-            "ctc":ctc,
-            "cultura":cultura,
-            "clay":clay
-        }
+        with col2:
+            st.metric("V%", v)
 
-        st.success("Classificação concluída.")
+        with col3:
+            st.metric("CTC", round(ctc,2))
 
-        c1,c2,c3 = st.columns(3)
-
-        with c1:
-            st.metric("pH",ph)
-
-        with c2:
-            st.metric("V%",round(v,1))
-
-        with c3:
-            st.metric("CTC",round(ctc,1))
+        st.success(f"Classificação IA: {fertilidade}")
 
         st.markdown("---")
 
-        st.subheader("📈 Indicador Visual")
+        st.subheader("📊 Indicador Visual")
 
-        pizza = pd.DataFrame({
-            "Classe":["Acidez","Bases","Matéria Orgânica"],
-            "Valor":[max(1,7-ph), max(1,v), max(1,mo)]
-        })
+        fig, ax = plt.subplots(figsize=(5,5))
 
-        st.plotly_chart({
-            "data":[
-                {
-                    "labels":pizza["Classe"],
-                    "values":pizza["Valor"],
-                    "type":"pie"
-                }
-            ],
-            "layout":{
-                "paper_bgcolor":"#071b11",
-                "font":{"color":"white"},
-                "title":"Indicadores de Fertilidade"
-            }
-        }, use_container_width=True)
+        valores = [
+            max(dados["n"],1),
+            max(dados["p"],1),
+            max(dados["k"],1)
+        ]
 
-        st.markdown(f"""
-<div class='info-box'>
-<h4>{fertilidade}</h4>
+        labels = [
+            "Nitrogênio",
+            "Fósforo",
+            "Potássio"
+        ]
 
-<p><b>O gráfico representa:</b></p>
+        ax.pie(
+            valores,
+            labels=labels,
+            autopct='%1.1f%%'
+        )
 
-<ul>
-<li><b>Acidez:</b> influência do pH.</li>
-<li><b>Bases:</b> fertilidade química do solo.</li>
-<li><b>Matéria Orgânica:</b> qualidade biológica.</li>
-</ul>
+        st.pyplot(fig)
 
-</div>
-""", unsafe_allow_html=True)
-
-        st.markdown("---")
-
-        st.subheader("🌾 Recomendação")
-
-        dados_cultura = culturas[cultura]
-
-        calagem = calcular_calagem(v,60,ctc)
-        gessagem = calcular_gessagem(clay,calagem)
-
-        st.markdown(f"""
-### 🪨 Calagem
-Aplicar aproximadamente **{calagem} t/ha** de calcário.
-
-### 💎 Gessagem
-Aplicar aproximadamente **{gessagem} t/ha** de gesso agrícola.
-
-### ⚛️ Nitrogênio (N)
-Aplicar **{dados_cultura['n']} kg/ha** parcelado:
-- 30% no plantio
-- 40% aos 30 dias
-- 30% aos 60 dias
-
-### 🪨 Fósforo (P₂O₅)
-Aplicar **{dados_cultura['p']} kg/ha**
-preferencialmente no sulco de plantio.
-
-### 🍌 Potássio (K₂O)
-Aplicar **{dados_cultura['k']} kg/ha**
-parcelado entre plantio e cobertura.
-
-### 📅 Melhor época de plantio
-**{dados_cultura['plantio']}**
-""")
+        st.info(
+            "O gráfico representa a participação relativa dos nutrientes N, P e K presentes no solo."
+        )
 
 # =========================================================
 # ABA 3
 # =========================================================
 
-with abas[2]:
+with aba3:
 
-    st.subheader("🧪 Adubação para Vasos")
+    st.header("🧪 Adubação")
 
-    altura = st.number_input("Altura do vaso (cm)",1.0)
-    raio = st.number_input("Raio do vaso (cm)",1.0)
+    if "dados" not in st.session_state:
 
-    area = math.pi*(raio**2)/10000
+        st.warning("Preencha os dados primeiro.")
 
-    st.write(f"Área do vaso: {area:.4f} m²")
+    else:
 
-    if "dados" in st.session_state:
+        dados = st.session_state["dados"]
 
-        cultura = st.session_state["dados"]["cultura"]
+        cultura = dados["cultura"]
 
-        dados_cultura = culturas[cultura]
+        info = culturas[cultura]
 
-        n_vaso = adubacao_vaso(area,dados_cultura["n"])
-        p_vaso = adubacao_vaso(area,dados_cultura["p"])
-        k_vaso = adubacao_vaso(area,dados_cultura["k"])
+        st.subheader(f"🌾 Cultura: {cultura}")
 
-        st.success(f"""
-Nitrogênio: {n_vaso:.2f} g
+        st.markdown(f"### 📅 Melhor época de plantio")
+        st.success(info["plantio"])
 
-Fósforo: {p_vaso:.2f} g
+        st.markdown("---")
 
-Potássio: {k_vaso:.2f} g
-""")
+        st.subheader("📦 Recomendação de Campo")
+
+        st.write(
+            f"⚛️ Nitrogênio: {info['n']} kg/ha "
+            "(parcelado aos 30, 60 e 90 dias)"
+        )
+
+        st.write(
+            f"🪨 Fósforo: {info['p']} kg/ha "
+            "(aplicação no plantio)"
+        )
+
+        st.write(
+            f"🍌 Potássio: {info['k']} kg/ha "
+            "(50% plantio e 50% cobertura)"
+        )
+
+        st.markdown("---")
+
+        st.subheader("🪴 Cálculo para Vasos")
+
+        altura = st.number_input(
+            "Altura do vaso (cm)",
+            min_value=1.0
+        )
+
+        raio = st.number_input(
+            "Raio do vaso (cm)",
+            min_value=1.0
+        )
+
+        area = math.pi * (raio ** 2)
+
+        volume = area * altura
+
+        fator = volume / 100000
+
+        n_vaso = round(info["n"] * fator, 2)
+        p_vaso = round(info["p"] * fator, 2)
+        k_vaso = round(info["k"] * fator, 2)
+
+        st.success(f"⚛️ Nitrogênio no vaso: {n_vaso} g")
+        st.success(f"🪨 Fósforo no vaso: {p_vaso} g")
+        st.success(f"🍌 Potássio no vaso: {k_vaso} g")
 
 # =========================================================
 # ABA 4
 # =========================================================
 
-with abas[3]:
+with aba4:
 
-    st.subheader("📊 Relatório Técnico")
+    st.header("📊 Relatório Técnico")
 
-    if "dados" in st.session_state:
+    if "dados" not in st.session_state:
+
+        st.warning("Sem dados.")
+
+    else:
 
         dados = st.session_state["dados"]
 
         tabela = pd.DataFrame({
-            "Parâmetro":[
-                "Cultura",
-                "pH",
-                "V%",
-                "CTC"
-            ],
-            "Valor":[
-                dados["cultura"],
-                dados["ph"],
-                round(dados["v"],1),
-                round(dados["ctc"],1)
-            ]
+            "Parâmetro": list(dados.keys()),
+            "Valor": list(dados.values())
         })
 
-        st.dataframe(tabela,use_container_width=True)
+        st.dataframe(
+            tabela,
+            use_container_width=True
+        )
+
+        csv = tabela.to_csv(index=False).encode("utf-8")
+
+        st.download_button(
+            "📥 Baixar Relatório",
+            csv,
+            "relatorio.csv",
+            "text/csv"
+        )
 
 # =========================================================
 # ABA 5
 # =========================================================
 
-with abas[4]:
+with aba5:
 
-    st.subheader("🤖 IA Agrícola")
+    st.header("🤖 IA Agrícola")
 
-    pergunta = st.text_area(
-        "Digite sua dúvida",
-        placeholder="""
-Exemplos:
-
-- Porque fazer calagem?
-- Como evitar compactação?
-- Qual importância do nitrogênio?
-- Como evitar erosão?
-"""
+    st.info(
+        "Esta IA responde apenas dúvidas sobre fertilidade, "
+        "adubação, manejo do solo, calagem e gessagem."
     )
 
-    st.caption("""
-A IA responde apenas dúvidas relacionadas ao sistema,
-fertilidade do solo, adubação, manejo e interpretação agrícola.
-""")
+    pergunta = st.text_area(
+        "Digite sua dúvida"
+    )
 
-    if st.button("Perguntar à IA"):
+    if st.button("Responder"):
 
-        if not GEMINI_OK:
-            st.error("IA não conectada.")
-        else:
+        resposta = resposta_ia(pergunta)
 
-            prompt = f"""
-Você é um engenheiro agrônomo especialista da Embrapa.
+        st.success(resposta)
 
-Responda de forma técnica, clara e objetiva.
+        st.markdown("---")
 
-Pergunta:
-{pergunta}
-"""
+        st.subheader("📚 Perguntas sugeridas")
 
-            try:
-                resposta = modelo_gemini.generate_content(prompt)
-
-                st.success(resposta.text)
-
-            except Exception as e:
-                st.error(f"Erro IA: {e}")
+        st.write("• Porque fazer calagem?")
+        st.write("• Porque a fertilidade é importante?")
+        st.write("• Como evitar compactação?")
+        st.write("• Como evitar erosão?")
+        st.write("• Porque parcelar nitrogênio?")
+        st.write("• Qual importância do fósforo?")
+        st.write("• Qual importância do potássio?")
 
 # =========================================================
 # RODAPÉ
@@ -575,14 +520,10 @@ Pergunta:
 st.markdown("---")
 
 st.caption("""
-© 2026 - AgroSolo IA
-
 Sistema acadêmico e educacional sem fins lucrativos.
 
 Ferramenta desenvolvida para estudos agronômicos,
 fertilidade do solo e apoio técnico.
 
-O uso da API Gemini segue os termos da Google AI.
-A responsabilidade pelas respostas geradas pela IA
-é exclusivamente informativa e educacional.
+As respostas da IA possuem caráter informativo.
 """)
