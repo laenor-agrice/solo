@@ -24,58 +24,78 @@ st.set_page_config(
 GEMINI_API_KEY = "SUA_API_KEY_AQUI"
 
 # ============================================================================
-# FUNÇÃO IA GEMINI VIA REQUESTS
+# FUNÇÃO IA GEMINI VIA REQUESTS (CORRIGIDA)
 # ============================================================================
 
 def gerar_resposta_ia(pergunta, dados_solo=None):
-
-    try:
-
-        contexto = ""
-
-        if dados_solo:
-
-            contexto = f"""
-            Dados atuais do solo:
-
-            Nitrogênio: {dados_solo.get('nitrogen', 'N/A')}
-            Fósforo: {dados_solo.get('phosphorus', 'N/A')}
-            Potássio: {dados_solo.get('potassium', 'N/A')}
-            pH: {dados_solo.get('ph', 'N/A')}
-            Alumínio: {dados_solo.get('aluminum', 'N/A')}
-            Cálcio: {dados_solo.get('calcium', 'N/A')}
-            Magnésio: {dados_solo.get('magnesium', 'N/A')}
-            Argila: {dados_solo.get('clay', 'N/A')}
-            Silte: {dados_solo.get('silt', 'N/A')}
-            Areia: {dados_solo.get('sand', 'N/A')}
-            V_porcentagem: {dados_solo.get('v_porcentagem', 'N/A')}
-            m_porcentagem: {dados_solo.get('m_porcentagem', 'N/A')}
-            """
-
-        prompt = f"""
-        Você é um especialista em:
-        - Fertilidade do solo
-        - SiBCS
-        - Manejo agrícola
-        - Nutrição de plantas
-        - Interpretação agronômica
-
-        Utilize os dados abaixo para responder:
-
-        {contexto}
-
-        Pergunta:
-        {pergunta}
-
-        Responda de forma técnica, clara e objetiva.
+    """
+    Função melhorada para comunicação com a API Gemini
+    """
+    
+    # VERIFICAÇÃO INICIAL DA API KEY
+    if GEMINI_API_KEY == "SUA_API_KEY_AQUI" or not GEMINI_API_KEY:
+        return """
+        ⚠️ **API Key não configurada!**
+        
+        Para usar o assistente IA, você precisa:
+        1. Acessar https://makersuite.google.com/app/apikey
+        2. Criar uma API Key gratuita do Gemini
+        3. Substituir "SUA_API_KEY_AQUI" pela sua chave no código
         """
 
+    try:
+        # CONSTRUIR CONTEXTO COM DADOS DO SOLO
+        contexto = ""
+        
+        if dados_solo and len(dados_solo) > 0:
+            contexto = f"""
+            Dados atuais do solo:
+            
+            🌱 Nitrogênio: {dados_solo.get('nitrogen', 'N/A')} mg/dm³
+            🔴 Fósforo: {dados_solo.get('phosphorus', 'N/A')} mg/dm³
+            🟡 Potássio: {dados_solo.get('potassium', 'N/A')} cmolc/dm³
+            🧪 pH: {dados_solo.get('ph', 'N/A')}
+            ⚠️ Alumínio: {dados_solo.get('aluminum', 'N/A')} cmolc/dm³
+            🥛 Cálcio: {dados_solo.get('calcium', 'N/A')} cmolc/dm³
+            🧂 Magnésio: {dados_solo.get('magnesium', 'N/A')} cmolc/dm³
+            📊 H + Al: {dados_solo.get('h_al', 'N/A')} cmolc/dm³
+            📐 SB: {dados_solo.get('sb', 0):.2f} cmolc/dm³
+            📈 V%: {dados_solo.get('v_porcentagem', 0):.1f}%
+            🧮 m%: {dados_solo.get('m_porcentagem', 0):.1f}%
+            🏖️ Areia: {dados_solo.get('sand', 'N/A')} g/kg
+            🏞️ Silte: {dados_solo.get('silt', 'N/A')} g/kg
+            🧱 Argila: {dados_solo.get('clay', 'N/A')} g/kg
+            """
+        
+        # PROMPT ESTRUTURADO
+        prompt = f"""
+        Você é um engenheiro agrônomo especialista em:
+        - Fertilidade do solo e nutrição de plantas
+        - SiBCS (Sistema Brasileiro de Classificação de Solos)
+        - Manejo agrícola sustentável
+        - Recomendação de calagem e adubação
+        - Interpretação de análises de solo
+        
+        {contexto}
+        
+        Pergunta do usuário:
+        {pergunta}
+        
+        IMPORTANTE:
+        - Responda em português do Brasil
+        - Seja técnico, mas claro e objetivo
+        - Se não souber a resposta, diga honestamente
+        - Use linguagem acessível para produtores rurais
+        - Inclua recomendações práticas quando possível
+        """
+        
+        # CONFIGURAÇÃO DA REQUISIÇÃO
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
-
+        
         headers = {
             "Content-Type": "application/json"
         }
-
+        
         data = {
             "contents": [
                 {
@@ -85,24 +105,67 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
                         }
                     ]
                 }
-            ]
+            ],
+            "generationConfig": {
+                "temperature": 0.7,
+                "topK": 40,
+                "topP": 0.95,
+                "maxOutputTokens": 1024,
+            }
         }
-
+        
+        # ENVIAR REQUISIÇÃO
         response = requests.post(
             url,
             headers=headers,
-            json=data
+            json=data,
+            timeout=30  # Timeout de 30 segundos
         )
-
+        
+        # VERIFICAR STATUS DA RESPOSTA
+        if response.status_code != 200:
+            erro_msg = f"Erro {response.status_code}: "
+            
+            if response.status_code == 401:
+                erro_msg += "API Key inválida. Verifique sua chave!"
+            elif response.status_code == 403:
+                erro_msg += "Acesso negado. Verifique se a API está ativada!"
+            elif response.status_code == 429:
+                erro_msg += "Limite de requisições excedido. Tente novamente em alguns instantes."
+            else:
+                try:
+                    erro_json = response.json()
+                    erro_msg += erro_json.get('error', {}).get('message', 'Erro desconhecido')
+                except:
+                    erro_msg += response.text[:200]
+            
+            return f"❌ **Erro na API Gemini:** {erro_msg}"
+        
+        # EXTRAIR RESPOSTA
         resultado = response.json()
-
-        resposta = resultado["candidates"][0]["content"]["parts"][0]["text"]
-
+        
+        # NAVEGAÇÃO SEGURA PELO JSON
+        resposta = None
+        
+        if "candidates" in resultado and len(resultado["candidates"]) > 0:
+            candidate = resultado["candidates"][0]
+            if "content" in candidate and "parts" in candidate["content"]:
+                if len(candidate["content"]["parts"]) > 0:
+                    resposta = candidate["content"]["parts"][0].get("text", "")
+        
+        if not resposta:
+            return "❌ Não foi possível obter uma resposta da IA. Tente novamente."
+        
         return resposta
-
+    
+    except requests.exceptions.Timeout:
+        return "⏰ **Tempo limite excedido!** A API demorou muito para responder. Tente novamente."
+    
+    except requests.exceptions.ConnectionError:
+        return "🌐 **Erro de conexão!** Verifique sua internet e tente novamente."
+    
     except Exception as erro:
-
-        return f"❌ Erro na IA Gemini: {erro}"
+        return f"❌ **Erro inesperado:** {str(erro)}\n\nPor favor, tente novamente mais tarde."
 
 # ============================================================================
 # CSS PERSONALIZADO MODERNO
