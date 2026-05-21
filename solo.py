@@ -316,8 +316,8 @@ with st.container(border=True):
         """
         <div style="text-align: center;">
             <img src="https://rehagro.com.br/blog/wp-content/uploads/2025/02/capa-adubacao-base.jpg" 
-                 style="width: 100%; max-height: 280px; object-fit: cover; border-radius: 8px;">
-            <p style="margin-top: 8px; font-size: 13px; color: #aaa;">🌱 Análise Inteligente do Solo</p>
+                 style="width: 100%; max-height: 380px; object-fit: cover; border-radius: 8px;">
+            <p style="margin-top: 8px; font-size: 23px; color: #aaa;">🌱 Análise Inteligente do Solo</p>
         </div>
         """,
         unsafe_allow_html=True
