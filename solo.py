@@ -1,34 +1,39 @@
 # =============================================================================
-# APP: CLASSIFICADOR INTELIGENTE DE FERTILIDADE DO SOLO + IA AGRONÔMICA
-# =============================================================================
-# BLOCO 01 - IMPORTAÇÕES
+# APP: AGROSOLO IA
 # =============================================================================
 
 import streamlit as st
 import pandas as pd
 import math
-import plotly.express as px
 
 # =============================================================================
-# BLOCO 02 - CONFIGURAÇÃO DA PÁGINA
+# BLOCO - PROTEÇÃO PLOTLY
+# =============================================================================
+
+try:
+    import plotly.express as px
+    PLOTLY_AVAILABLE = True
+except:
+    PLOTLY_AVAILABLE = False
+
+# =============================================================================
+# CONFIGURAÇÃO DA PÁGINA
 # =============================================================================
 
 st.set_page_config(
     page_title="AgroSolo IA",
     page_icon="🌿",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
 # =============================================================================
-# BLOCO 03 - CSS / DESIGN MODERNO
-# ALTERE AQUI APENAS VISUAL
+# CSS MODERNO
 # =============================================================================
 
 st.markdown("""
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&display=swap');
 
 html, body, [class*="css"]{
     font-family:'Inter',sans-serif;
@@ -116,8 +121,7 @@ section[data-testid="stSidebar"]{
 """, unsafe_allow_html=True)
 
 # =============================================================================
-# BLOCO 04 - CULTURAS EMBRAPA (ORDEM ALFABÉTICA)
-# ALTERE CULTURAS AQUI
+# CULTURAS EMBRAPA
 # =============================================================================
 
 necessidades_culturas = {
@@ -213,8 +217,7 @@ necessidades_culturas = {
 }
 
 # =============================================================================
-# BLOCO 05 - FUNÇÕES
-# ALTERAR CÁLCULOS AQUI
+# FUNÇÕES
 # =============================================================================
 
 def calcular_ph(dados):
@@ -264,143 +267,86 @@ def calcular_adubacao_vaso(area,recomendacao):
     return round(g,2)
 
 # =============================================================================
-# BLOCO 06 - IA AGRONÔMICA
-# ALTERE RESPOSTAS DA IA AQUI
+# IA AGRONÔMICA
 # =============================================================================
 
 def assistente_agronomico(pergunta,dados):
 
     pergunta = pergunta.lower()
 
-    ph = dados.get("ph",5.5)
-
     if "calagem" in pergunta:
 
         return """
-🪨 A calagem é importante porque:
-
-✔ corrige a acidez do solo
-✔ aumenta disponibilidade de nutrientes
-✔ reduz alumínio tóxico
-✔ melhora crescimento radicular
-✔ aumenta produtividade
+🪨 A calagem corrige a acidez do solo e melhora a disponibilidade de nutrientes.
 """
 
     elif "gessagem" in pergunta:
 
         return """
-💎 A gessagem ajuda:
-
-✔ reduzir alumínio em profundidade
-✔ aumentar cálcio nas camadas profundas
-✔ melhorar enraizamento
-✔ aumentar resistência à seca
+💎 A gessagem melhora o perfil do solo e reduz alumínio em profundidade.
 """
 
     elif "fertilidade" in pergunta:
 
         return """
-🌿 A fertilidade é essencial porque:
-
-✔ aumenta produtividade
-✔ melhora crescimento das plantas
-✔ aumenta eficiência da adubação
-✔ reduz perdas nutricionais
+🌿 Fertilidade adequada aumenta produtividade e eficiência da adubação.
 """
 
-    elif "matéria organica" in pergunta or "matéria orgânica" in pergunta:
+    elif "matéria" in pergunta:
 
         return """
-🍂 Como aumentar matéria orgânica:
-
-✔ usar plantas de cobertura
-✔ adicionar esterco
-✔ usar palhada
-✔ reduzir revolvimento
-✔ fazer rotação de culturas
+🍂 Aumente matéria orgânica usando:
+- palhada
+- esterco
+- plantas de cobertura
 """
 
     elif "compactação" in pergunta:
 
         return """
-🚜 Como evitar compactação:
-
-✔ evitar máquinas em solo úmido
-✔ usar plantas com raiz profunda
-✔ manter cobertura do solo
-✔ usar tráfego controlado
+🚜 Evite compactação:
+- reduzir tráfego
+- evitar solo úmido
+- usar cobertura vegetal
 """
 
     elif "erosão" in pergunta:
 
         return """
-🌧 Como evitar erosão:
-
-✔ plantio direto
-✔ curvas de nível
-✔ cobertura vegetal
-✔ terraceamento
-✔ reduzir solo descoberto
-"""
-
-    elif "cobertura" in pergunta:
-
-        return """
-🌱 Cobertura do solo é importante porque:
-
-✔ reduz erosão
-✔ conserva umidade
-✔ aumenta matéria orgânica
-✔ reduz temperatura do solo
+🌧 Evite erosão:
+- curvas de nível
+- plantio direto
+- cobertura do solo
 """
 
     elif "nitrogênio" in pergunta:
 
         return """
-⚛️ Nitrogênio deve ser parcelado porque:
-
-✔ reduz perdas
-✔ melhora absorção
-✔ evita lixiviação
-✔ aumenta eficiência da adubação
-"""
-
-    elif "importância" in pergunta:
-
-        return """
-🌾 Os adubos são importantes porque:
-
-✔ fornecem nutrientes
-✔ aumentam produtividade
-✔ melhoram desenvolvimento vegetal
-✔ corrigem deficiências nutricionais
+⚛️ Nitrogênio deve ser parcelado para reduzir perdas.
 """
 
     else:
 
         return """
 🤖 Perguntas aceitas:
-
 - calagem
 - gessagem
 - fertilidade
 - matéria orgânica
 - compactação
 - erosão
-- cobertura do solo
 - nitrogênio
-- importância dos adubos
 """
 
 # =============================================================================
-# BLOCO 07 - SESSION STATE
+# SESSION STATE
 # =============================================================================
 
 if "dados" not in st.session_state:
     st.session_state.dados = {}
 
 # =============================================================================
-# BLOCO 08 - HEADER
+# HEADER
 # =============================================================================
 
 st.markdown("""
@@ -411,7 +357,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================================================================
-# BLOCO 09 - TABS
+# TABS
 # =============================================================================
 
 abas = st.tabs([
@@ -424,7 +370,7 @@ abas = st.tabs([
 ])
 
 # =============================================================================
-# ABA 01 - CADASTRO
+# ABA CADASTRO
 # =============================================================================
 
 with abas[0]:
@@ -434,20 +380,16 @@ with abas[0]:
     c1,c2 = st.columns(2)
 
     with c1:
-
         nome = st.text_input("Nome")
         fazenda = st.text_input("Fazenda")
         cidade = st.text_input("Cidade")
 
     with c2:
-
         estado = st.text_input("Estado")
         cep = st.text_input("CEP")
 
-    st.info("Cadastro opcional.")
-
 # =============================================================================
-# ABA 02 - SOLO
+# ABA SOLO
 # =============================================================================
 
 with abas[1]:
@@ -457,19 +399,16 @@ with abas[1]:
     c1,c2,c3 = st.columns(3)
 
     with c1:
-
         nitrogen = st.number_input("Nitrogênio",0.0)
         phosphorus = st.number_input("Fósforo",0.0)
         potassium = st.number_input("Potássio",0.0)
 
     with c2:
-
         calcium = st.number_input("Cálcio",0.0)
         magnesium = st.number_input("Magnésio",0.0)
         aluminum = st.number_input("Alumínio",0.0)
 
     with c3:
-
         h_al = st.number_input("H + Al",0.0)
         organic_matter = st.number_input("Matéria Orgânica",0.0)
         clay = st.number_input("Argila",0.0)
@@ -502,7 +441,7 @@ with abas[1]:
         st.success("Dados salvos.")
 
 # =============================================================================
-# ABA 03 - CLASSIFICAÇÃO + IA
+# ABA FERTILIDADE
 # =============================================================================
 
 with abas[2]:
@@ -533,42 +472,44 @@ with abas[2]:
 
         if ph < 5.5 or v < 50:
 
-            classificacao = "🔴 BAIXA FERTILIDADE"
-
-            st.error(classificacao)
+            st.error("🔴 BAIXA FERTILIDADE")
 
             st.info("""
-🤖 IA AGRONÔMICA:
-
+🤖 IA:
 O solo apresenta limitações químicas.
-Recomenda-se:
-- calagem
-- manejo da matéria orgânica
-- correção fosfatada
+Recomenda-se correção com calagem.
 """)
 
         else:
 
-            classificacao = "🟢 BOA FERTILIDADE"
+            st.success("🟢 BOA FERTILIDADE")
 
-            st.success(classificacao)
+        if PLOTLY_AVAILABLE:
 
-        grafico = pd.DataFrame({
-            "Indicador":["pH","V%","MO"],
-            "Valor":[ph,v,dados["organic_matter"]]
-        })
+            grafico = pd.DataFrame({
+                "Indicador":["pH","V%","MO"],
+                "Valor":[ph,v,dados["organic_matter"]]
+            })
 
-        fig = px.bar(
-            grafico,
-            x="Indicador",
-            y="Valor",
-            title="Indicadores de Fertilidade"
-        )
+            fig = px.bar(
+                grafico,
+                x="Indicador",
+                y="Valor",
+                title="Indicadores de Fertilidade"
+            )
 
-        st.plotly_chart(fig,use_container_width=True)
+            st.plotly_chart(fig,use_container_width=True)
+
+        else:
+
+            st.warning("⚠️ Plotly não instalado.")
+
+            st.bar_chart({
+                "Valor":[ph,v,dados["organic_matter"]]
+            })
 
 # =============================================================================
-# ABA 04 - ADUBAÇÃO + VASO
+# ABA ADUBAÇÃO
 # =============================================================================
 
 with abas[3]:
@@ -607,22 +548,18 @@ with abas[3]:
         st.metric("🪨 Calcário",f"{calagem} t/ha")
         st.metric("💎 Gesso",f"{gesso} t/ha")
 
-        st.markdown("---")
-
         st.markdown(f"""
-### ⚛️ Nitrogênio (N)
-
+### ⚛️ Nitrogênio
 ✔ {info['n']} kg/ha
 
 Aplicação:
 - 30% plantio
-- 30% 30 dias
-- 40% 60 dias
+- 30% aos 30 dias
+- 40% aos 60 dias
 
 ---
 
-### 🪨 Fósforo (P₂O₅)
-
+### 🪨 Fósforo
 ✔ {info['p']} kg/ha
 
 Aplicação:
@@ -631,8 +568,7 @@ Aplicação:
 
 ---
 
-### 🍌 Potássio (K₂O)
-
+### 🍌 Potássio
 ✔ {info['k']} kg/ha
 
 Aplicação:
@@ -662,12 +598,8 @@ Aplicação:
         st.success(f"Fósforo: {p_vaso:.2f} g")
         st.success(f"Potássio: {k_vaso:.2f} g")
 
-        st.info("""
-🧪 Recomendação baseada na análise do solo para experimentos em vasos.
-""")
-
 # =============================================================================
-# ABA 05 - RELATÓRIO
+# ABA RELATÓRIO
 # =============================================================================
 
 with abas[4]:
@@ -695,7 +627,7 @@ with abas[4]:
                 "Matéria Orgânica",
                 "Argila",
                 "Cultura",
-                "Plantio Recomendado"
+                "Plantio"
             ],
 
             "Valor":[
@@ -720,7 +652,7 @@ with abas[4]:
         )
 
 # =============================================================================
-# ABA 06 - IA AGRONÔMICA
+# ABA IA
 # =============================================================================
 
 with abas[5]:
@@ -732,13 +664,11 @@ with abas[5]:
     )
 
     st.caption("""
-⚠️ A IA responde apenas dúvidas relacionadas:
-- fertilidade
+⚠️ IA focada apenas em:
 - solo
+- fertilidade
 - adubação
 - manejo
-- compactação
-- erosão
 - nutrientes
 """)
 
@@ -752,7 +682,7 @@ with abas[5]:
         st.success(resposta)
 
 # =============================================================================
-# BLOCO FINAL
+# RODAPÉ
 # =============================================================================
 
 st.markdown("---")
