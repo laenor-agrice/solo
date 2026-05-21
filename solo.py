@@ -48,6 +48,8 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
             Argila: {dados_solo.get('clay', 'N/A')}
             Silte: {dados_solo.get('silt', 'N/A')}
             Areia: {dados_solo.get('sand', 'N/A')}
+            V_porcentagem: {dados_solo.get('v_porcentagem', 'N/A')}
+            m_porcentagem: {dados_solo.get('m_porcentagem', 'N/A')}
             """
 
         prompt = f"""
@@ -239,6 +241,14 @@ st.markdown("""
         margin-bottom: 2rem;
         backdrop-filter: blur(10px);
     }
+    
+    .hero h1 {
+        color: white !important;
+    }
+    
+    .hero p {
+        color: white !important;
+    }
 
 </style>
 """, unsafe_allow_html=True)
@@ -249,15 +259,11 @@ st.markdown("""
 
 st.markdown("""
 <div class="hero">
-    <h1 style="color:white !important;">
-        🌾 Classificador Inteligente de Fertilidade do Solo
-    </h1>
-
-    <p style="font-size:1.2rem; color:white !important;">
+    <h1>🌾 Classificador Inteligente de Fertilidade do Solo</h1>
+    <p style="font-size:1.2rem;">
         Sistema Inteligente baseado no SiBCS - Embrapa
     </p>
-
-    <p style="color:#d1fae5 !important;">
+    <p>
         📊 Análise • 🤖 IA Gemini • 🌱 Fertilidade • 📈 Relatórios
     </p>
 </div>
@@ -312,17 +318,105 @@ menu = st.radio(
 )
 
 # ============================================================================
-# CULTURAS
+# CULTURAS (EM ORDEM ALFABÉTICA)
 # ============================================================================
 
 necessidades_culturas = {
-    "Soja": {
+    "Alface": {
+        "v_desejado": 80,
+        "n_min": 45,
+        "p_min": 30,
+        "k_min": 0.45,
+        "ph_min": 6.0,
+        "ph_max": 7.0
+    },
+    "Algodão": {
+        "v_desejado": 70,
+        "n_min": 40,
+        "p_min": 25,
+        "k_min": 0.4,
+        "ph_min": 5.8,
+        "ph_max": 6.8
+    },
+    "Arroz": {
+        "v_desejado": 65,
+        "n_min": 35,
+        "p_min": 20,
+        "k_min": 0.35,
+        "ph_min": 5.5,
+        "ph_max": 6.5
+    },
+    "Batata": {
+        "v_desejado": 80,
+        "n_min": 45,
+        "p_min": 30,
+        "k_min": 0.45,
+        "ph_min": 5.5,
+        "ph_max": 6.5
+    },
+    "Café": {
+        "v_desejado": 70,
+        "n_min": 40,
+        "p_min": 25,
+        "k_min": 0.4,
+        "ph_min": 5.8,
+        "ph_max": 6.3
+    },
+    "Cana-de-açúcar": {
+        "v_desejado": 65,
+        "n_min": 35,
+        "p_min": 20,
+        "k_min": 0.35,
+        "ph_min": 5.5,
+        "ph_max": 6.5
+    },
+    "Cebola": {
+        "v_desejado": 75,
+        "n_min": 40,
+        "p_min": 25,
+        "k_min": 0.4,
+        "ph_min": 6.0,
+        "ph_max": 7.0
+    },
+    "Cenoura": {
         "v_desejado": 75,
         "n_min": 40,
         "p_min": 25,
         "k_min": 0.4,
         "ph_min": 5.8,
+        "ph_max": 6.8
+    },
+    "Couve-flor": {
+        "v_desejado": 75,
+        "n_min": 40,
+        "p_min": 25,
+        "k_min": 0.4,
+        "ph_min": 6.0,
+        "ph_max": 7.0
+    },
+    "Feijão": {
+        "v_desejado": 65,
+        "n_min": 35,
+        "p_min": 20,
+        "k_min": 0.35,
+        "ph_min": 5.5,
         "ph_max": 6.5
+    },
+    "Mandioca": {
+        "v_desejado": 60,
+        "n_min": 30,
+        "p_min": 15,
+        "k_min": 0.3,
+        "ph_min": 5.0,
+        "ph_max": 6.5
+    },
+    "Milheto": {
+        "v_desejado": 60,
+        "n_min": 30,
+        "p_min": 18,
+        "k_min": 0.3,
+        "ph_min": 5.2,
+        "ph_max": 6.2
     },
     "Milho Grão": {
         "v_desejado": 70,
@@ -340,12 +434,20 @@ necessidades_culturas = {
         "ph_min": 5.8,
         "ph_max": 6.8
     },
-    "Trigo": {
-        "v_desejado": 65,
-        "n_min": 35,
+    "Pimentão": {
+        "v_desejado": 80,
+        "n_min": 45,
+        "p_min": 30,
+        "k_min": 0.45,
+        "ph_min": 5.8,
+        "ph_max": 6.8
+    },
+    "Soja": {
+        "v_desejado": 75,
+        "n_min": 40,
         "p_min": 25,
         "k_min": 0.4,
-        "ph_min": 5.5,
+        "ph_min": 5.8,
         "ph_max": 6.5
     },
     "Sorgo": {
@@ -356,54 +458,6 @@ necessidades_culturas = {
         "ph_min": 5.5,
         "ph_max": 6.5
     },
-    "Milheto": {
-        "v_desejado": 60,
-        "n_min": 30,
-        "p_min": 18,
-        "k_min": 0.3,
-        "ph_min": 5.2,
-        "ph_max": 6.2
-    },
-    "Cana-de-açúcar": {
-        "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.35,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-    "Café": {
-        "v_desejado": 70,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 5.8,
-        "ph_max": 6.3
-    },
-    "Arroz": {
-        "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.35,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-    "Feijão": {
-        "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.35,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-    "Algodão": {
-        "v_desejado": 70,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
     "Tomate": {
         "v_desejado": 85,
         "n_min": 50,
@@ -412,63 +466,50 @@ necessidades_culturas = {
         "ph_min": 5.8,
         "ph_max": 6.8
     },
-    "Alface": {
-        "v_desejado": 80,
-        "n_min": 45,
-        "p_min": 30,
-        "k_min": 0.45,
-        "ph_min": 6.0,
-        "ph_max": 7.0
-    },
-    "Cenoura": {
-        "v_desejado": 75,
-        "n_min": 40,
+    "Trigo": {
+        "v_desejado": 65,
+        "n_min": 35,
         "p_min": 25,
         "k_min": 0.4,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-    "Batata": {
-        "v_desejado": 80,
-        "n_min": 45,
-        "p_min": 30,
-        "k_min": 0.45,
         "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-    "Cebola": {
-        "v_desejado": 75,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 6.0,
-        "ph_max": 7.0
-    },
-    "Pimentão": {
-        "v_desejado": 80,
-        "n_min": 45,
-        "p_min": 30,
-        "k_min": 0.45,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-    "Couve-flor": {
-        "v_desejado": 75,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.4,
-        "ph_min": 6.0,
-        "ph_max": 7.0
-    },
-    "Mandioca": {
-        "v_desejado": 60,
-        "n_min": 30,
-        "p_min": 15,
-        "k_min": 0.3,
-        "ph_min": 5.0,
         "ph_max": 6.5
     }
 }
+
+# ============================================================================
+# FUNÇÕES DE CÁLCULO
+# ============================================================================
+
+def calcular_sb(ca, mg, k):
+    """Soma de Bases (SB) = Ca + Mg + K"""
+    return ca + mg + k
+
+def calcular_tct_potencial(sb, h_al):
+    """TCT potencial = SB + H+Al"""
+    return sb + h_al
+
+def calcular_v_porcentagem(sb, tct_potencial):
+    """Saturação por bases V% = (SB/TCT) * 100"""
+    if tct_potencial == 0:
+        return 0
+    return (sb / tct_potencial) * 100
+
+def calcular_m_porcentagem(al, sb):
+    """Saturação por alumínio m% = (Al / (Al + SB)) * 100"""
+    if (al + sb) == 0:
+        return 0
+    return (al / (al + sb)) * 100
+
+def classificar_fertilidade(v_porcentagem):
+    """Classificação da fertilidade baseada no V%"""
+    if v_porcentagem < 50:
+        return "Baixa fertilidade (V% < 50)"
+    elif v_porcentagem < 70:
+        return "Fertilidade média (V% entre 50 e 70)"
+    elif v_porcentagem < 85:
+        return "Fertilidade boa (V% entre 70 e 85)"
+    else:
+        return "Fertilidade muito boa (V% > 85)"
 
 # ============================================================================
 # ABA 1 - DADOS DO SOLO
@@ -481,30 +522,70 @@ if menu == "📊 1. Dados do Solo":
     col1, col2 = st.columns(2)
 
     with col1:
-
-        nitrogen = st.text_input("🌱 Nitrogênio", value="30")
-        phosphorus = st.text_input("🔴 Fósforo", value="20")
-        potassium = st.text_input("🟡 Potássio", value="0.25")
+        nitrogen = st.text_input("🌱 Nitrogênio (mg/dm³)", value="30")
+        phosphorus = st.text_input("🔴 Fósforo (mg/dm³)", value="20")
+        potassium = st.text_input("🟡 Potássio (cmolc/dm³)", value="0.25")
+        ph = st.text_input("🧪 pH (água)", value="6.0")
 
     with col2:
+        aluminum = st.text_input("⚠️ Alumínio (cmolc/dm³)", value="0.5")
+        calcium = st.text_input("🥛 Cálcio (cmolc/dm³)", value="3.0")
+        magnesium = st.text_input("🧂 Magnésio (cmolc/dm³)", value="1.5")
+        h_al = st.text_input("📊 H + Al (cmolc/dm³)", value="3.5")
 
-        sand = st.text_input("🏖️ Areia", value="350")
-        silt = st.text_input("🏞️ Silte", value="300")
-        clay = st.text_input("🧱 Argila", value="350")
+    col3, col4 = st.columns(2)
+    with col3:
+        sand = st.text_input("🏖️ Areia (g/kg)", value="350")
+    with col4:
+        silt = st.text_input("🏞️ Silte (g/kg)", value="300")
+        clay = st.text_input("🧱 Argila (g/kg)", value="350")
 
     if st.button("✅ SALVAR DADOS"):
 
-        st.session_state.dados_basicos = {
-
-            "nitrogen": float(nitrogen),
-            "phosphorus": float(phosphorus),
-            "potassium": float(potassium),
-            "sand": float(sand),
-            "silt": float(silt),
-            "clay": float(clay)
-        }
-
-        st.success("✅ Dados salvos!")
+        try:
+            dados = {
+                "nitrogen": float(nitrogen),
+                "phosphorus": float(phosphorus),
+                "potassium": float(potassium),
+                "ph": float(ph),
+                "aluminum": float(aluminum),
+                "calcium": float(calcium),
+                "magnesium": float(magnesium),
+                "h_al": float(h_al),
+                "sand": float(sand),
+                "silt": float(silt),
+                "clay": float(clay)
+            }
+            
+            # Cálculos complementares
+            sb = calcular_sb(dados["calcium"], dados["magnesium"], dados["potassium"])
+            tct = calcular_tct_potencial(sb, dados["h_al"])
+            v = calcular_v_porcentagem(sb, tct)
+            m = calcular_m_porcentagem(dados["aluminum"], sb)
+            
+            dados["sb"] = sb
+            dados["tct"] = tct
+            dados["v_porcentagem"] = v
+            dados["m_porcentagem"] = m
+            
+            st.session_state.dados_basicos = dados
+            
+            st.success("✅ Dados salvos com sucesso!")
+            
+            # Mostrar resumo dos cálculos
+            st.markdown("### 📊 Resumo dos Cálculos")
+            col_a, col_b, col_c, col_d = st.columns(4)
+            with col_a:
+                st.metric("SB (Soma de Bases)", f"{sb:.2f} cmolc/dm³")
+            with col_b:
+                st.metric("TCT (Potencial)", f"{tct:.2f} cmolc/dm³")
+            with col_c:
+                st.metric("V% (Saturação)", f"{v:.1f}%")
+            with col_d:
+                st.metric("m% (Alumínio)", f"{m:.1f}%")
+                
+        except ValueError:
+            st.error("❌ Erro: Verifique se todos os valores são números válidos!")
 
 # ============================================================================
 # ABA 2 - CLASSIFICAÇÃO
@@ -512,18 +593,108 @@ if menu == "📊 1. Dados do Solo":
 
 elif menu == "🌱 2. Classificação":
 
-    st.markdown("## 🌱 Classificação")
-
-    ph = st.text_input("🧪 pH", value="6.0")
-    aluminum = st.text_input("⚠️ Alumínio", value="0.5")
-    calcium = st.text_input("🥛 Cálcio", value="3.0")
-    magnesium = st.text_input("🧂 Magnésio", value="1.5")
-    h_al = st.text_input("📊 H + Al", value="3.5")
-
-    cultura = st.selectbox(
-        "🌾 Cultura",
-        list(necessidades_culturas.keys())
-    )
+    st.markdown("## 🌱 Classificação e Recomendações")
+    
+    if not st.session_state.dados_basicos:
+        st.warning("⚠️ Por favor, vá até a aba 'Dados do Solo' e insira as informações primeiro!")
+    else:
+        dados = st.session_state.dados_basicos
+        
+        # Mostrar dados atuais
+        st.markdown("### 📊 Dados Atuais do Solo")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("pH", f"{dados.get('ph', 'N/A')}")
+            st.metric("V%", f"{dados.get('v_porcentagem', 0):.1f}%")
+            st.metric("m%", f"{dados.get('m_porcentagem', 0):.1f}%")
+        with col2:
+            st.metric("N", f"{dados.get('nitrogen', 'N/A')} mg/dm³")
+            st.metric("P", f"{dados.get('phosphorus', 'N/A')} mg/dm³")
+            st.metric("K", f"{dados.get('potassium', 'N/A')} cmolc/dm³")
+        with col3:
+            st.metric("Ca", f"{dados.get('calcium', 'N/A')} cmolc/dm³")
+            st.metric("Mg", f"{dados.get('magnesium', 'N/A')} cmolc/dm³")
+            st.metric("Al", f"{dados.get('aluminum', 'N/A')} cmolc/dm³")
+        
+        # Classificação da fertilidade
+        v = dados.get('v_porcentagem', 0)
+        classificacao = classificar_fertilidade(v)
+        st.info(f"📌 **Classificação:** {classificacao}")
+        
+        st.markdown("---")
+        
+        # Seleção da cultura
+        st.markdown("### 🌾 Selecione a Cultura")
+        cultura = st.selectbox(
+            "Cultura planejada",
+            list(necessidades_culturas.keys())
+        )
+        
+        if cultura:
+            req = necessidades_culturas[cultura]
+            
+            st.markdown(f"### 📋 Recomendações para {cultura}")
+            
+            # Verificar pH
+            ph_atual = dados.get('ph', 0)
+            ph_ok = req['ph_min'] <= ph_atual <= req['ph_max']
+            
+            # Verificar V%
+            v_atual = dados.get('v_porcentagem', 0)
+            v_ok = v_atual >= req['v_desejado']
+            
+            # Verificar N
+            n_atual = dados.get('nitrogen', 0)
+            n_ok = n_atual >= req['n_min']
+            
+            # Verificar P
+            p_atual = dados.get('phosphorus', 0)
+            p_ok = p_atual >= req['p_min']
+            
+            # Verificar K
+            k_atual = dados.get('potassium', 0)
+            k_ok = k_atual >= req['k_min']
+            
+            # Exibir status
+            col_a, col_b = st.columns(2)
+            
+            with col_a:
+                st.markdown("#### ✅ Condições Ideais")
+                st.markdown(f"- **pH:** {req['ph_min']} - {req['ph_max']} → {'✅ OK' if ph_ok else '❌ Ajustar'}")
+                st.markdown(f"- **V%:** ≥ {req['v_desejado']}% → {'✅ OK' if v_ok else '❌ Baixo'}")
+                st.markdown(f"- **N:** ≥ {req['n_min']} mg/dm³ → {'✅ OK' if n_ok else '❌ Baixo'}")
+            
+            with col_b:
+                st.markdown(f"- **P:** ≥ {req['p_min']} mg/dm³ → {'✅ OK' if p_ok else '❌ Baixo'}")
+                st.markdown(f"- **K:** ≥ {req['k_min']} cmolc/dm³ → {'✅ OK' if k_ok else '❌ Baixo'}")
+            
+            # Recomendações
+            st.markdown("#### 💡 Recomendações de Manejo")
+            recomendacoes = []
+            
+            if not ph_ok:
+                if ph_atual < req['ph_min']:
+                    recomendacoes.append(f"🔹 **Calagem necessária:** pH atual {ph_atual:.1f} está abaixo do ideal ({req['ph_min']}-{req['ph_max']}). Aplicar calcário para elevar o pH.")
+                else:
+                    recomendacoes.append(f"🔹 **pH elevado:** pH atual {ph_atual:.1f} está acima do ideal. Evitar calcário.")
+            
+            if not v_ok:
+                recomendacoes.append(f"🔹 **Saturação por bases baixa:** V% atual {v_atual:.1f}% < {req['v_desejado']}%. Recomenda-se calagem e adubação corretiva.")
+            
+            if not n_ok:
+                recomendacoes.append(f"🔹 **Nitrogênio insuficiente:** {n_atual} < {req['n_min']} mg/dm³. Aplicar adubo nitrogenado (ex: ureia, sulfato de amônio).")
+            
+            if not p_ok:
+                recomendacoes.append(f"🔹 **Fósforo insuficiente:** {p_atual} < {req['p_min']} mg/dm³. Aplicar fósforo (ex: superfosfato simples ou triplo).")
+            
+            if not k_ok:
+                recomendacoes.append(f"🔹 **Potássio insuficiente:** {k_atual} < {req['k_min']} cmolc/dm³. Aplicar cloreto de potássio (KCl).")
+            
+            if all([ph_ok, v_ok, n_ok, p_ok, k_ok]):
+                recomendacoes.append("🎉 **Solo adequado para a cultura!** Apenas mantenha a adubação de manutenção.")
+            
+            for rec in recomendacoes:
+                st.markdown(rec)
 
 # ============================================================================
 # ABA 3 - IA
@@ -533,23 +704,32 @@ elif menu == "🤖 3. Assistente IA":
 
     st.markdown("## 🤖 Assistente IA Gemini")
 
+    if not st.session_state.dados_basicos:
+        st.warning("⚠️ Para melhores respostas, preencha os dados do solo na aba 'Dados do Solo' primeiro!")
+
     pergunta = st.text_area(
-        "💬 Faça sua pergunta:"
+        "💬 Faça sua pergunta sobre fertilidade do solo, manejo ou culturas:",
+        height=150,
+        placeholder="Exemplo: Qual a recomendação de calagem para um solo com pH 5.0?"
     )
 
     if st.button("🚀 GERAR RESPOSTA"):
 
-        resposta = gerar_resposta_ia(
-            pergunta,
-            st.session_state.dados_basicos
-        )
+        if not pergunta:
+            st.warning("⚠️ Por favor, digite uma pergunta!")
+        else:
+            with st.spinner("🤖 Consultando IA Gemini..."):
+                resposta = gerar_resposta_ia(
+                    pergunta,
+                    st.session_state.dados_basicos if st.session_state.dados_basicos else None
+                )
 
-        st.markdown(f"""
-        <div class="result-card">
-            <h2>🤖 Resposta da IA</h2>
-            <p>{resposta}</p>
-        </div>
-        """, unsafe_allow_html=True)
+                st.markdown(f"""
+                <div class="result-card">
+                    <h2>🤖 Resposta da IA</h2>
+                    <p style="text-align: left;">{resposta}</p>
+                </div>
+                """, unsafe_allow_html=True)
 
 # ============================================================================
 # ABA 4 - RELATÓRIO
@@ -561,15 +741,54 @@ elif menu == "📈 4. Relatório":
 
     if st.session_state.dados_basicos:
 
-        relatorio = pd.DataFrame(
-            st.session_state.dados_basicos.items(),
-            columns=["Parâmetro", "Valor"]
-        )
-
+        dados = st.session_state.dados_basicos
+        
+        # Criar DataFrame
+        relatorio_data = {
+            "Parâmetro": [
+                "Nitrogênio (N)", "Fósforo (P)", "Potássio (K)",
+                "pH", "Alumínio (Al)", "Cálcio (Ca)", "Magnésio (Mg)",
+                "H + Al", "Areia", "Silte", "Argila",
+                "Soma de Bases (SB)", "TCT Potencial", "V (%)", "m (%)"
+            ],
+            "Valor": [
+                f"{dados.get('nitrogen', 'N/A')} mg/dm³",
+                f"{dados.get('phosphorus', 'N/A')} mg/dm³",
+                f"{dados.get('potassium', 'N/A')} cmolc/dm³",
+                f"{dados.get('ph', 'N/A')}",
+                f"{dados.get('aluminum', 'N/A')} cmolc/dm³",
+                f"{dados.get('calcium', 'N/A')} cmolc/dm³",
+                f"{dados.get('magnesium', 'N/A')} cmolc/dm³",
+                f"{dados.get('h_al', 'N/A')} cmolc/dm³",
+                f"{dados.get('sand', 'N/A')} g/kg",
+                f"{dados.get('silt', 'N/A')} g/kg",
+                f"{dados.get('clay', 'N/A')} g/kg",
+                f"{dados.get('sb', 0):.2f} cmolc/dm³",
+                f"{dados.get('tct', 0):.2f} cmolc/dm³",
+                f"{dados.get('v_porcentagem', 0):.1f}%",
+                f"{dados.get('m_porcentagem', 0):.1f}%"
+            ]
+        }
+        
+        relatorio = pd.DataFrame(relatorio_data)
+        
         st.dataframe(
             relatorio,
-            use_container_width=True
+            use_container_width=True,
+            hide_index=True
         )
+        
+        # Botão para exportar
+        csv = relatorio.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Baixar Relatório (CSV)",
+            data=csv,
+            file_name="relatorio_solo.csv",
+            mime="text/csv"
+        )
+        
+    else:
+        st.info("ℹ️ Nenhum dado cadastrado. Vá até a aba 'Dados do Solo' para inserir as informações.")
 
 # ============================================================================
 # ABA 5 - MÉTODOS
@@ -580,10 +799,43 @@ elif menu == "ℹ️ 5. Métodos":
     st.markdown("## ℹ️ Métodos Utilizados")
 
     st.markdown("""
-    - Saturação por bases (V%)
-    - Saturação por alumínio (m%)
-    - Interpretação SiBCS
-    - IA Gemini integrada
+    ### 📐 Fórmulas e Interpretações
+    
+    | Parâmetro | Fórmula | Interpretação |
+    |-----------|---------|---------------|
+    | **Soma de Bases (SB)** | SB = Ca²⁺ + Mg²⁺ + K⁺ (cmolc/dm³) | Indica a quantidade de cátions básicos |
+    | **TCT Potencial (T)** | T = SB + (H+Al) (cmolc/dm³) | Capacidade máxima de troca catiônica |
+    | **Saturação por Bases (V%)** | V% = (SB/T) × 100 | Fertilidade do solo |
+    | **Saturação por Alumínio (m%)** | m% = (Al³⁺ / (Al³⁺ + SB)) × 100 | Toxicidade por alumínio |
+    
+    ### 🌡️ Classificação do V%
+    
+    - **V% < 50%** → Baixa fertilidade (solos ácidos)
+    - **50% ≤ V% < 70%** → Fertilidade média
+    - **70% ≤ V% < 85%** → Fertilidade boa
+    - **V% ≥ 85%** → Fertilidade muito boa
+    
+    ### 🧪 pH e Disponibilidade de Nutrientes
+    
+    - **pH < 5.5** → Alumínio tóxico, baixa disponibilidade de P, Ca, Mg
+    - **pH 5.5 - 6.5** → Faixa ideal para maioria das culturas
+    - **pH > 6.5** → Pode reduzir disponibilidade de micronutrientes
+    
+    ### 📚 Referências
+    
+    - SiBCS - Sistema Brasileiro de Classificação de Solos (Embrapa)
+    - Manual de Adubação e Calagem (CONAB)
+    - Recomendações técnicas para as principais culturas
+    """)
+    
+    st.markdown("---")
+    st.markdown("### 🤖 IA Gemini")
+    st.markdown("""
+    O assistente utiliza o modelo **Gemini 1.5 Flash** do Google para:
+    - Interpretar laudos de análise de solo
+    - Recomendar práticas de manejo
+    - Sugerir correções de fertilidade
+    - Esclarecer dúvidas sobre nutrição de plantas
     """)
 
 # ============================================================================
@@ -593,5 +845,5 @@ elif menu == "ℹ️ 5. Métodos":
 st.markdown("---")
 
 st.caption(
-    "© 2026 - Sistema Inteligente de Fertilidade do Solo"
+    "© 2026 - Sistema Inteligente de Fertilidade do Solo | Baseado em metodologias Embrapa"
 )
