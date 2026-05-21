@@ -33,29 +33,22 @@ GEMINI_API_KEY = "AIzaSyD2bF4xL5mN8oP9qR0sT1uV2wX3yZ4aB5cC6dD7eE"  # <-- COLE SU
 # Exemplo de como deve ficar com uma chave real:
 # GEMINI_API_KEY = "AIzaSyD2bF4xL5mN8oP9qR0sT1uV2wX3yZ4aB5cC6dD7eE"
 # ============================================================================
-# FUNÇÃO IA GEMINI VIA REQUESTS (CORRIGIDA)
+# FUNÇÃO IA GEMINI VIA SDK OFICIAL
 # ============================================================================
 
-def gerar_resposta_ia(pergunta, dados_solo=None):
-    """
-    Função melhorada para comunicação com a API Gemini
-    """
-    
-    # VERIFICAÇÃO INICIAL DA API KEY
-    if GEMINI_API_KEY == "SUA_API_KEY_AQUI" or not GEMINI_API_KEY:
-        return """
-        ⚠️ **API Key não configurada!**
-        
-        Para usar o assistente IA, você precisa:
-        1. Acessar https://makersuite.google.com/app/apikey
-        2. Criar uma API Key gratuita do Gemini
-        3. Substituir "SUA_API_KEY_AQUI" pela sua chave no código
-        """
+from google import genai
 
+def gerar_resposta_ia(pergunta, dados_solo=None):
+    """Versão usando SDK oficial do Google - MAIS CONFIÁVEL"""
+    
+    if GEMINI_API_KEY == "SUA_API_KEY_AQUI":
+        return "⚠️ Configure sua API Key primeiro!"
+    
     try:
-        # CONSTRUIR CONTEXTO COM DADOS DO SOLO
-        contexto = ""
+        client = genai.Client(api_key=GEMINI_API_KEY)
         
+        # Preparar contexto 
+        contexto = ""
         if dados_solo and len(dados_solo) > 0:
             contexto = f"""
             Dados atuais do solo:
@@ -71,110 +64,28 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
             📐 SB: {dados_solo.get('sb', 0):.2f} cmolc/dm³
             📈 V%: {dados_solo.get('v_porcentagem', 0):.1f}%
             🧮 m%: {dados_solo.get('m_porcentagem', 0):.1f}%
-            🏖️ Areia: {dados_solo.get('sand', 'N/A')} g/kg
-            🏞️ Silte: {dados_solo.get('silt', 'N/A')} g/kg
-            🧱 Argila: {dados_solo.get('clay', 'N/A')} g/kg
             """
         
-        # PROMPT ESTRUTURADO
         prompt = f"""
-        Você é um engenheiro agrônomo especialista em:
-        - Fertilidade do solo e nutrição de plantas
-        - SiBCS (Sistema Brasileiro de Classificação de Solos)
-        - Manejo agrícola sustentável
-        - Recomendação de calagem e adubação
-        - Interpretação de análises de solo
+        Você é um engenheiro agrônomo especialista em fertilidade do solo.
         
         {contexto}
         
         Pergunta do usuário:
         {pergunta}
         
-        IMPORTANTE:
-        - Responda em português do Brasil
-        - Seja técnico, mas claro e objetivo
-        - Se não souber a resposta, diga honestamente
-        - Use linguagem acessível para produtores rurais
-        - Inclua recomendações práticas quando possível
+        Responda de forma técnica, clara e objetiva em português do Brasil.
         """
         
-        # CONFIGURAÇÃO DA REQUISIÇÃO
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
-        
-        headers = {
-            "Content-Type": "application/json"
-        }
-        
-        data = {
-            "contents": [
-                {
-                    "parts": [
-                        {
-                            "text": prompt
-                        }
-                    ]
-                }
-            ],
-            "generationConfig": {
-                "temperature": 0.7,
-                "topK": 40,
-                "topP": 0.95,
-                "maxOutputTokens": 1024,
-            }
-        }
-        
-        # ENVIAR REQUISIÇÃO
-        response = requests.post(
-            url,
-            headers=headers,
-            json=data,
-            timeout=30  # Timeout de 30 segundos
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
         )
         
-        # VERIFICAR STATUS DA RESPOSTA
-        if response.status_code != 200:
-            erro_msg = f"Erro {response.status_code}: "
-            
-            if response.status_code == 401:
-                erro_msg += "API Key inválida. Verifique sua chave!"
-            elif response.status_code == 403:
-                erro_msg += "Acesso negado. Verifique se a API está ativada!"
-            elif response.status_code == 429:
-                erro_msg += "Limite de requisições excedido. Tente novamente em alguns instantes."
-            else:
-                try:
-                    erro_json = response.json()
-                    erro_msg += erro_json.get('error', {}).get('message', 'Erro desconhecido')
-                except:
-                    erro_msg += response.text[:200]
-            
-            return f"❌ **Erro na API Gemini:** {erro_msg}"
-        
-        # EXTRAIR RESPOSTA
-        resultado = response.json()
-        
-        # NAVEGAÇÃO SEGURA PELO JSON
-        resposta = None
-        
-        if "candidates" in resultado and len(resultado["candidates"]) > 0:
-            candidate = resultado["candidates"][0]
-            if "content" in candidate and "parts" in candidate["content"]:
-                if len(candidate["content"]["parts"]) > 0:
-                    resposta = candidate["content"]["parts"][0].get("text", "")
-        
-        if not resposta:
-            return "❌ Não foi possível obter uma resposta da IA. Tente novamente."
-        
-        return resposta
-    
-    except requests.exceptions.Timeout:
-        return "⏰ **Tempo limite excedido!** A API demorou muito para responder. Tente novamente."
-    
-    except requests.exceptions.ConnectionError:
-        return "🌐 **Erro de conexão!** Verifique sua internet e tente novamente."
+        return response.text
     
     except Exception as erro:
-        return f"❌ **Erro inesperado:** {str(erro)}\n\nPor favor, tente novamente mais tarde."
+        return f"❌ Erro na IA Gemini: {erro}"
 
 # ============================================================================
 # CSS PERSONALIZADO MODERNO
