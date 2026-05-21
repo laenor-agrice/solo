@@ -610,9 +610,9 @@ elif menu == "🌱 2. Classificação":
                 
                 ctc = dados.get('ctc', 0)
                 v_atual = dados.get('v_porcentagem', 0)
-                nc, rec_calagem = calcular_necessidade_calagem(v_atual, req['v_desejado'], tct)
+                nc, rec_calagem = calcular_necessidade_calagem(v_atual, req['v_desejado'], ctc)
                 
-                st.info(f"**V% atual:** {v_atual:.1f}% | **V% desejado:** {req['v_desejado']}% | **CTC:** {tct:.2f} cmolc/dm³")
+                st.info(f"**V% atual:** {v_atual:.1f}% | **V% desejado:** {req['v_desejado']}% | **CTC:** {ctc:.2f} cmolc/dm³")
                 
                 if nc > 0:
                     st.success(f"### {rec_calagem}")
