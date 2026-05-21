@@ -18,29 +18,17 @@ st.set_page_config(
 )
 
 # ============================================================================
-# CONFIGURAÇÃO GEMINI API
+# CONFIGURAÇÃO GEMINI API - COM SUA CHAVE
 # ============================================================================
 
-# ⚠️ IMPORTANTE: Substitua "SUA_API_KEY_AQUI" pela sua chave real!
-# Para obter sua chave gratuita:
-# 1. Acesse: https://makersuite.google.com/app/apikey
-# 2. Faça login com sua conta Google
-# 3. Clique em "Create API Key"
-# 4. Copie a chave gerada e cole abaixo
+GEMINI_API_KEY = "AIzaSyBibLbN2e3gmzLlNb81wSr7GHrDqkiU6fw"
 
-GEMINI_API_KEY = "AIzaSyBibLbN2e3gmzLlNb81wSr7GHrDqkiU6fw"  # <-- COLE SUA CHAVE AQUI (entre as aspas)
-
-# Exemplo de como deve ficar com uma chave real:
-# GEMINI_API_KEY = "AIzaSyD2bF4xL5mN8oP9qR0sT1uV2wX3yZ4aB5cC6dD7eE"
 # ============================================================================
-# FUNÇÃO IA GEMINI VIA REQUESTS (SEM SDK)
+# FUNÇÃO IA GEMINI - VERSÃO FUNCIONAL
 # ============================================================================
 
 def gerar_resposta_ia(pergunta, dados_solo=None):
-    """Versão usando apenas requests - já funciona no Streamlit Cloud"""
-    
-    if GEMINI_API_KEY == "SUA_API_KEY_AQUI" or not GEMINI_API_KEY:
-        return "⚠️ API Key não configurada! Configure sua chave."
+    """Função com sua chave válida"""
     
     try:
         contexto = ""
@@ -55,7 +43,7 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
             """
         
         prompt = f"""
-        Você é engenheiro agrônomo especialista em fertilidade do solo.
+        Você é um engenheiro agrônomo especialista em fertilidade do solo.
         
         {contexto}
         
@@ -64,12 +52,11 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
         Responda em português do Brasil, de forma técnica e clara.
         """
         
-        # CORREÇÃO IMPORTANTE: API key no HEADER, não na URL
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
         
         headers = {
             "Content-Type": "application/json",
-            "x-goog-api-key": GEMINI_API_KEY  # ← Chave no header!
+            "x-goog-api-key": GEMINI_API_KEY
         }
         
         data = {
@@ -82,13 +69,12 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
         
         response = requests.post(url, headers=headers, json=data, timeout=30)
         
-        if response.status_code != 200:
+        if response.status_code == 200:
+            resultado = response.json()
+            resposta = resultado["candidates"][0]["content"]["parts"][0]["text"]
+            return resposta
+        else:
             return f"❌ Erro {response.status_code}: {response.text[:200]}"
-        
-        resultado = response.json()
-        resposta = resultado["candidates"][0]["content"]["parts"][0]["text"]
-        
-        return resposta
     
     except Exception as erro:
         return f"❌ Erro: {str(erro)}"
