@@ -505,7 +505,7 @@ if menu == "📊 1. Dados do Solo":
             
             sb = calcular_sb(dados["calcium"], dados["magnesium"], dados["potassium"])
             ctc = calcular_tct_potencial(sb, dados["h_al"])
-            v = calcular_v_porcentagem(sb, tct)
+            v = calcular_v_porcentagem(sb, ctc)
             m = calcular_m_porcentagem(dados["aluminum"], sb)
             
             dados["sb"] = sb
