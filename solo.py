@@ -310,18 +310,20 @@ with st.container(border=True):
     st.write("### Sistema baseado no SiBCS - Embrapa • Análise • IA Gemini • Fertilidade • Relatórios")
 
 # OU com uma imagem de solo/plantação (se quiser manter):
-# GIF COMPACTA - LARGURA TOTAL (DE PONTA A PONTA)
-# GIF SEM MARGENS - 100% LARGURA
-st.markdown(
-    """
-    <div style="width: 100%; margin: 0; padding: 0; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; width: 100vw;">
-        <img src="https://media2.giphy.com/media/l0MYEqEzwymFC8jG0/giphy.gif" 
-             style="width: 100%; height: auto; max-height: 150px; object-fit: cover; display: block;">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-st.caption("🌱 Análise Inteligente do Solo", anchor="center")
+# GIF DE LARGURA TOTAL COM ALTURA CONTROLADA
+col_gif1, col_gif2, col_gif3 = st.columns([0.3, 3, 0.3])
+with col_gif2:
+    st.markdown(
+        """
+        <div style="display: flex; justify-content: center;">
+            <img src="https://media2.giphy.com/media/l0MYEqEzwymFC8jG0/giphy.gif" 
+                 style="width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.caption("🌱 Análise Inteligente do Solo - Tecnologia no Campo")
+    
 st.write("")  # Espaçamento
 
 # ============================================================================
