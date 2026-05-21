@@ -316,7 +316,7 @@ with col_gif2:
     st.markdown(
         """
         <div style="display: flex; justify-content: center;">
-            <img src="https://pt.vecteezy.com/video/76553721-lindo-tempo-lapso-do-crescimento-microgreens-rabanete-plantas-contra-preto-fundo-4k" 
+            <img src="https://lottiefiles.com/free-animation/agriculture-loader-GDIgacW9H7" 
                  style="width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
         </div>
         """,
