@@ -310,19 +310,13 @@ with st.container(border=True):
     st.write("### Sistema baseado no SiBCS - Embrapa • Análise • IA Gemini • Fertilidade • Relatórios")
 
 # OU com uma imagem de solo/plantação (se quiser manter):
-# GIF DE LARGURA TOTAL COM ALTURA CONTROLADA
-col_gif1, col_gif2, col_gif3 = st.columns([0.5, 3, 0.5])
-with col_gif2:
-    st.markdown(
-        """
-        <div style="display: flex; justify-content: center;">
-            <img src="https://lottiefiles.com/free-animation/agriculture-loader-GDIgacW9H7" 
-                 style="width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-        </div>
-        """,
-        unsafe_allow_html=True
+col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
+with col_img2:
+    st.image(
+        "https://i1-e.pinimg.com/1200x/f3/80/16/f38016a4d311466d3e29281be090e2d2.jpg",  # Foto de plantação
+        caption="🌱 Análise Inteligente do Solo",
+        use_container_width=True
     )
-    st.caption("🌱 Análise Inteligente do Solo - Tecnologia no Campo")
     
 st.write("")  # Espaçamento
 
