@@ -22,7 +22,7 @@ st.set_page_config(
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "AIzaSyBibLbN2e3gmzLlNb81wSr7GHrDqkiU6fw"  # ← USE ESTA!
+GEMINI_API_KEY = "AIzaSyCbBzrvMUD8EZLO7v9EoYM9jiTmDDvDs9I"  # ← USE ESTA!
 
 # ============================================================================
 # FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
