@@ -371,7 +371,7 @@ def calcular_necessidade_calagem(v_atual, v_desejado, tct):
         return 0, "✅ Solo já atingiu V% desejado. Não necessita calagem."
     
     f = 100/85
-    nc = (tct * (v_desejado - v_atual) / 100) * f
+    nc = (ctc * (v_desejado - v_atual) / 100) * f
     nc = round(nc * 2) / 2
     
     if nc > 0:
@@ -504,12 +504,12 @@ if menu == "📊 1. Dados do Solo":
             }
             
             sb = calcular_sb(dados["calcium"], dados["magnesium"], dados["potassium"])
-            tct = calcular_tct_potencial(sb, dados["h_al"])
+            ctc = calcular_tct_potencial(sb, dados["h_al"])
             v = calcular_v_porcentagem(sb, tct)
             m = calcular_m_porcentagem(dados["aluminum"], sb)
             
             dados["sb"] = sb
-            dados["tct"] = tct
+            dados["ctc"] = ctc
             dados["v_porcentagem"] = v
             dados["m_porcentagem"] = m
             
@@ -608,7 +608,7 @@ elif menu == "🌱 2. Classificação":
             with tab2:
                 st.markdown("#### 🧪 Recomendação de Calagem")
                 
-                tct = dados.get('tct', 0)
+                ctc = dados.get('ctc', 0)
                 v_atual = dados.get('v_porcentagem', 0)
                 nc, rec_calagem = calcular_necessidade_calagem(v_atual, req['v_desejado'], tct)
                 
@@ -714,7 +714,7 @@ elif menu == "📈 4. Relatório":
                 "Nitrogênio (N)", "Fósforo (P)", "Potássio (K)",
                 "pH", "Alumínio (Al)", "Cálcio (Ca)", "Magnésio (Mg)",
                 "H + Al", "Areia", "Silte", "Argila",
-                "Soma de Bases (SB)", "TCT Potencial", "V (%)", "m (%)"
+                "Soma de Bases (SB)", "CTC Potencial", "V (%)", "m (%)"
             ],
             "Valor": [
                 f"{dados.get('nitrogen', 'N/A')} mg/dm³",
@@ -729,7 +729,7 @@ elif menu == "📈 4. Relatório":
                 f"{dados.get('silt', 'N/A')} g/kg",
                 f"{dados.get('clay', 'N/A')} g/kg",
                 f"{dados.get('sb', 0):.2f} cmolc/dm³",
-                f"{dados.get('tct', 0):.2f} cmolc/dm³",
+                f"{dados.get('ctc', 0):.2f} cmolc/dm³",
                 f"{dados.get('v_porcentagem', 0):.1f}%",
                 f"{dados.get('m_porcentagem', 0):.1f}%"
             ]
@@ -761,7 +761,7 @@ elif menu == "ℹ️ 5. Métodos":
     | Parâmetro | Fórmula | Interpretação |
     |-----------|---------|---------------|
     | **Soma de Bases (SB)** | SB = Ca²⁺ + Mg²⁺ + K⁺ (cmolc/dm³) | Indica a quantidade de cátions básicos |
-    | **TCT Potencial (T)** | T = SB + (H+Al) (cmolc/dm³) | Capacidade máxima de troca catiônica |
+    | **CTC Potencial (T)** | T = SB + (H+Al) (cmolc/dm³) | Capacidade máxima de troca catiônica |
     | **Saturação por Bases (V%)** | V% = (SB/T) × 100 | Fertilidade do solo |
     | **Saturação por Alumínio (m%)** | m% = (Al³⁺ / (Al³⁺ + SB)) × 100 | Toxicidade por alumínio |
     
