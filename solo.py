@@ -33,59 +33,65 @@ GEMINI_API_KEY = "AIzaSyD2bF4xL5mN8oP9qR0sT1uV2wX3yZ4aB5cC6dD7eE"  # <-- COLE SU
 # Exemplo de como deve ficar com uma chave real:
 # GEMINI_API_KEY = "AIzaSyD2bF4xL5mN8oP9qR0sT1uV2wX3yZ4aB5cC6dD7eE"
 # ============================================================================
-# FUNÇÃO IA GEMINI VIA SDK OFICIAL
+# FUNÇÃO IA GEMINI VIA REQUESTS (SEM SDK)
 # ============================================================================
 
-from google import genai
-
 def gerar_resposta_ia(pergunta, dados_solo=None):
-    """Versão usando SDK oficial do Google - MAIS CONFIÁVEL"""
+    """Versão usando apenas requests - já funciona no Streamlit Cloud"""
     
-    if GEMINI_API_KEY == "SUA_API_KEY_AQUI":
-        return "⚠️ Configure sua API Key primeiro!"
+    if GEMINI_API_KEY == "SUA_API_KEY_AQUI" or not GEMINI_API_KEY:
+        return "⚠️ API Key não configurada! Configure sua chave."
     
     try:
-        client = genai.Client(api_key=GEMINI_API_KEY)
-        
-        # Preparar contexto 
         contexto = ""
         if dados_solo and len(dados_solo) > 0:
             contexto = f"""
-            Dados atuais do solo:
-            
-            🌱 Nitrogênio: {dados_solo.get('nitrogen', 'N/A')} mg/dm³
-            🔴 Fósforo: {dados_solo.get('phosphorus', 'N/A')} mg/dm³
-            🟡 Potássio: {dados_solo.get('potassium', 'N/A')} cmolc/dm³
-            🧪 pH: {dados_solo.get('ph', 'N/A')}
-            ⚠️ Alumínio: {dados_solo.get('aluminum', 'N/A')} cmolc/dm³
-            🥛 Cálcio: {dados_solo.get('calcium', 'N/A')} cmolc/dm³
-            🧂 Magnésio: {dados_solo.get('magnesium', 'N/A')} cmolc/dm³
-            📊 H + Al: {dados_solo.get('h_al', 'N/A')} cmolc/dm³
-            📐 SB: {dados_solo.get('sb', 0):.2f} cmolc/dm³
-            📈 V%: {dados_solo.get('v_porcentagem', 0):.1f}%
-            🧮 m%: {dados_solo.get('m_porcentagem', 0):.1f}%
+            Dados do solo:
+            pH: {dados_solo.get('ph', 'N/A')}
+            V%: {dados_solo.get('v_porcentagem', 0):.1f}%
+            N: {dados_solo.get('nitrogen', 'N/A')} mg/dm³
+            P: {dados_solo.get('phosphorus', 'N/A')} mg/dm³
+            K: {dados_solo.get('potassium', 'N/A')} cmolc/dm³
             """
         
         prompt = f"""
-        Você é um engenheiro agrônomo especialista em fertilidade do solo.
+        Você é engenheiro agrônomo especialista em fertilidade do solo.
         
         {contexto}
         
-        Pergunta do usuário:
-        {pergunta}
+        Pergunta: {pergunta}
         
-        Responda de forma técnica, clara e objetiva em português do Brasil.
+        Responda em português do Brasil, de forma técnica e clara.
         """
         
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
-        )
+        # CORREÇÃO IMPORTANTE: API key no HEADER, não na URL
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
         
-        return response.text
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": GEMINI_API_KEY  # ← Chave no header!
+        }
+        
+        data = {
+            "contents": [
+                {
+                    "parts": [{"text": prompt}]
+                }
+            ]
+        }
+        
+        response = requests.post(url, headers=headers, json=data, timeout=30)
+        
+        if response.status_code != 200:
+            return f"❌ Erro {response.status_code}: {response.text[:200]}"
+        
+        resultado = response.json()
+        resposta = resultado["candidates"][0]["content"]["parts"][0]["text"]
+        
+        return resposta
     
     except Exception as erro:
-        return f"❌ Erro na IA Gemini: {erro}"
+        return f"❌ Erro: {str(erro)}"
 
 # ============================================================================
 # CSS PERSONALIZADO MODERNO
