@@ -310,14 +310,12 @@ with st.container(border=True):
     st.write("### Sistema baseado no SiBCS - Embrapa • Análise • IA Gemini • Fertilidade • Relatórios")
 
 # OU com uma imagem de solo/plantação (se quiser manter):
-col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
-with col_img2:
-    st.image(
-        "https://i1-e.pinimg.com/1200x/f3/80/16/f38016a4d311466d3e29281be090e2d2.jpg",  # Foto de plantação
-        caption="🌱 Análise Inteligente do Solo",
-        use_container_width=True
-    )
-
+# GIF ANIMADA EM LARGURA TOTAL
+st.image(
+    "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3R5bXZqeDZ6bXZqeDZ6bXZqeDZ6bXZqeDZ6bXZqeDZ6bXZqeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0MYEqEzwymFC8jG0/giphy.gif",
+    caption="🌱 Tecnologia no Campo",
+    use_container_width=True
+)
 st.write("")  # Espaçamento
 
 # ============================================================================
