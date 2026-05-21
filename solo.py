@@ -311,9 +311,10 @@ with st.container(border=True):
 
 # OU com uma imagem de solo/plantação (se quiser manter):
 # GIF COMPACTA - LARGURA TOTAL (DE PONTA A PONTA)
+# GIF SEM MARGENS - 100% LARGURA
 st.markdown(
     """
-    <div style="width: 100%; margin: 0; padding: 0;">
+    <div style="width: 100%; margin: 0; padding: 0; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw; width: 100vw;">
         <img src="https://media2.giphy.com/media/l0MYEqEzwymFC8jG0/giphy.gif" 
              style="width: 100%; height: auto; max-height: 150px; object-fit: cover; display: block;">
     </div>
