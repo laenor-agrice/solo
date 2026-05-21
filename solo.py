@@ -313,7 +313,7 @@ with st.container(border=True):
 col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
 with col_img2:
     st.image(
-        "https://pin.it/1A07wPKth",  # Foto de plantação
+        "https://i1-e.pinimg.com/1200x/f3/80/16/f38016a4d311466d3e29281be090e2d2.jpg",  # Foto de plantação
         caption="🌱 Análise Inteligente do Solo",
         use_container_width=True
     )
