@@ -4,7 +4,7 @@
 
 import streamlit as st
 import pandas as pd
-import google.generativeai as genai
+import requests
 
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA
@@ -23,9 +23,84 @@ st.set_page_config(
 
 GEMINI_API_KEY = "SUA_API_KEY_AQUI"
 
-genai.configure(api_key=GEMINI_API_KEY)
+# ============================================================================
+# FUNÇÃO IA GEMINI VIA REQUESTS
+# ============================================================================
 
-modelo_gemini = genai.GenerativeModel("gemini-1.5-flash")
+def gerar_resposta_ia(pergunta, dados_solo=None):
+
+    try:
+
+        contexto = ""
+
+        if dados_solo:
+
+            contexto = f"""
+            Dados atuais do solo:
+
+            Nitrogênio: {dados_solo.get('nitrogen', 'N/A')}
+            Fósforo: {dados_solo.get('phosphorus', 'N/A')}
+            Potássio: {dados_solo.get('potassium', 'N/A')}
+            pH: {dados_solo.get('ph', 'N/A')}
+            Alumínio: {dados_solo.get('aluminum', 'N/A')}
+            Cálcio: {dados_solo.get('calcium', 'N/A')}
+            Magnésio: {dados_solo.get('magnesium', 'N/A')}
+            Argila: {dados_solo.get('clay', 'N/A')}
+            Silte: {dados_solo.get('silt', 'N/A')}
+            Areia: {dados_solo.get('sand', 'N/A')}
+            """
+
+        prompt = f"""
+        Você é um especialista em:
+        - Fertilidade do solo
+        - SiBCS
+        - Manejo agrícola
+        - Nutrição de plantas
+        - Interpretação agronômica
+
+        Utilize os dados abaixo para responder:
+
+        {contexto}
+
+        Pergunta:
+        {pergunta}
+
+        Responda de forma técnica, clara e objetiva.
+        """
+
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        data = {
+            "contents": [
+                {
+                    "parts": [
+                        {
+                            "text": prompt
+                        }
+                    ]
+                }
+            ]
+        }
+
+        response = requests.post(
+            url,
+            headers=headers,
+            json=data
+        )
+
+        resultado = response.json()
+
+        resposta = resultado["candidates"][0]["content"]["parts"][0]["text"]
+
+        return resposta
+
+    except Exception as erro:
+
+        return f"❌ Erro na IA Gemini: {erro}"
 
 # ============================================================================
 # CSS PERSONALIZADO MODERNO
@@ -155,10 +230,6 @@ st.markdown("""
         border-radius: 50px;
     }
 
-    .dataframe {
-        color: white !important;
-    }
-
     .hero {
         background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(59,130,246,0.15));
         border: 1px solid rgba(255,255,255,0.08);
@@ -167,15 +238,6 @@ st.markdown("""
         text-align: center;
         margin-bottom: 2rem;
         backdrop-filter: blur(10px);
-    }
-
-    ::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #2ecc71;
-        border-radius: 20px;
     }
 
 </style>
@@ -196,7 +258,7 @@ st.markdown("""
     </p>
 
     <p style="color:#d1fae5 !important;">
-        📊 Análise • 🤖 Inteligência Artificial • 🌱 Fertilidade • 📈 Relatórios
+        📊 Análise • 🤖 IA Gemini • 🌱 Fertilidade • 📈 Relatórios
     </p>
 </div>
 """, unsafe_allow_html=True)
@@ -219,13 +281,8 @@ with st.sidebar:
 ✅ Cálculo de V% e m%  
 ✅ Classificação SiBCS  
 ✅ Relatório técnico  
-✅ Inteligência Artificial Gemini  
+✅ IA Gemini integrada  
     """)
-
-    st.markdown("---")
-
-    st.caption("🚀 Versão 4.0")
-    st.caption("🌾 Agricultura Inteligente")
 
 # ============================================================================
 # SESSION STATE
@@ -255,7 +312,7 @@ menu = st.radio(
 )
 
 # ============================================================================
-# DICIONÁRIO DAS CULTURAS
+# CULTURAS
 # ============================================================================
 
 necessidades_culturas = {
@@ -412,58 +469,6 @@ necessidades_culturas = {
         "ph_max": 6.5
     }
 }
-# ============================================================================
-# FUNÇÃO IA GEMINI
-# ============================================================================
-
-def gerar_resposta_ia(pergunta, dados_solo=None):
-
-    try:
-
-        contexto = ""
-
-        if dados_solo:
-
-            contexto = f"""
-            Dados atuais do solo:
-
-            Nitrogênio: {dados_solo.get('nitrogen', 'N/A')}
-            Fósforo: {dados_solo.get('phosphorus', 'N/A')}
-            Potássio: {dados_solo.get('potassium', 'N/A')}
-            pH: {dados_solo.get('ph', 'N/A')}
-            Alumínio: {dados_solo.get('aluminum', 'N/A')}
-            Cálcio: {dados_solo.get('calcium', 'N/A')}
-            Magnésio: {dados_solo.get('magnesium', 'N/A')}
-            Argila: {dados_solo.get('clay', 'N/A')}
-            Silte: {dados_solo.get('silt', 'N/A')}
-            Areia: {dados_solo.get('sand', 'N/A')}
-            """
-
-        prompt = f"""
-        Você é um especialista em:
-        - Fertilidade do solo
-        - SiBCS
-        - Manejo agrícola
-        - Nutrição de plantas
-        - Interpretação agronômica
-
-        Use os dados do solo abaixo para responder:
-
-        {contexto}
-
-        Pergunta:
-        {pergunta}
-
-        Responda de forma técnica, objetiva e clara.
-        """
-
-        resposta = modelo_gemini.generate_content(prompt)
-
-        return resposta.text
-
-    except Exception as erro:
-
-        return f"❌ Erro na IA Gemini: {erro}"
 
 # ============================================================================
 # ABA 1 - DADOS DO SOLO
@@ -477,74 +482,29 @@ if menu == "📊 1. Dados do Solo":
 
     with col1:
 
-        st.markdown("### 🧪 Macronutrientes")
-
-        nitrogen = st.text_input(
-            "🌱 Nitrogênio (N) - mg/dm³",
-            value="30.0"
-        )
-
-        phosphorus = st.text_input(
-            "🔴 Fósforo (P) - mg/dm³",
-            value="20.0"
-        )
-
-        potassium = st.text_input(
-            "🟡 Potássio (K⁺) - cmolc/dm³",
-            value="0.25"
-        )
-
-        st.markdown("### 🌿 Matéria Orgânica")
-
-        organic_matter = st.text_input(
-            "🌱 Matéria Orgânica (g/kg)",
-            value="25.0"
-        )
+        nitrogen = st.text_input("🌱 Nitrogênio", value="30")
+        phosphorus = st.text_input("🔴 Fósforo", value="20")
+        potassium = st.text_input("🟡 Potássio", value="0.25")
 
     with col2:
 
-        st.markdown("### ⚖️ Densidade")
+        sand = st.text_input("🏖️ Areia", value="350")
+        silt = st.text_input("🏞️ Silte", value="300")
+        clay = st.text_input("🧱 Argila", value="350")
 
-        bulk_density = st.text_input(
-            "📦 Densidade do Solo (g/cm³)",
-            value="1.20"
-        )
+    if st.button("✅ SALVAR DADOS"):
 
-        particle_density = st.text_input(
-            "💎 Densidade de Partícula (g/cm³)",
-            value="2.65"
-        )
+        st.session_state.dados_basicos = {
 
-        st.markdown("### 🏺 Textura")
+            "nitrogen": float(nitrogen),
+            "phosphorus": float(phosphorus),
+            "potassium": float(potassium),
+            "sand": float(sand),
+            "silt": float(silt),
+            "clay": float(clay)
+        }
 
-        sand = st.text_input("🏖️ Areia (g/kg)", value="350")
-        silt = st.text_input("🏞️ Silte (g/kg)", value="300")
-        clay = st.text_input("🧱 Argila (g/kg)", value="350")
-
-    st.markdown("---")
-
-    if st.button("✅ SALVAR DADOS BÁSICOS"):
-
-        try:
-
-            st.session_state.dados_basicos = {
-
-                "nitrogen": float(nitrogen.replace(",", ".")),
-                "phosphorus": float(phosphorus.replace(",", ".")),
-                "potassium": float(potassium.replace(",", ".")),
-                "organic_matter": float(organic_matter.replace(",", ".")),
-                "bulk_density": float(bulk_density.replace(",", ".")),
-                "particle_density": float(particle_density.replace(",", ".")),
-                "sand": float(sand.replace(",", ".")),
-                "silt": float(silt.replace(",", ".")),
-                "clay": float(clay.replace(",", "."))
-            }
-
-            st.success("✅ Dados básicos salvos com sucesso!")
-
-        except ValueError:
-
-            st.error("❌ Verifique os valores inseridos.")
+        st.success("✅ Dados salvos!")
 
 # ============================================================================
 # ABA 2 - CLASSIFICAÇÃO
@@ -552,117 +512,44 @@ if menu == "📊 1. Dados do Solo":
 
 elif menu == "🌱 2. Classificação":
 
-    if not st.session_state.dados_basicos:
+    st.markdown("## 🌱 Classificação")
 
-        st.warning("⚠️ Preencha primeiro os dados básicos.")
-        st.stop()
+    ph = st.text_input("🧪 pH", value="6.0")
+    aluminum = st.text_input("⚠️ Alumínio", value="0.5")
+    calcium = st.text_input("🥛 Cálcio", value="3.0")
+    magnesium = st.text_input("🧂 Magnésio", value="1.5")
+    h_al = st.text_input("📊 H + Al", value="3.5")
 
-    st.markdown("## 🌱 Classificação da Fertilidade")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-
-        ph = st.text_input("🧪 pH do Solo", value="6.0")
-        aluminum = st.text_input("⚠️ Alumínio (Al³⁺)", value="0.50")
-        h_al = st.text_input("📊 H + Al", value="3.50")
-
-    with col2:
-
-        calcium = st.text_input("🥛 Cálcio (Ca²⁺)", value="3.00")
-        magnesium = st.text_input("🧂 Magnésio (Mg²⁺)", value="1.50")
-
-        cultura = st.selectbox(
-            "🌾 Cultura",
-            list(necessidades_culturas.keys())
-        )
-
-    st.markdown("---")
-
-    if st.button("🔬 CALCULAR CLASSIFICAÇÃO"):
-
-        try:
-
-            dados = st.session_state.dados_basicos.copy()
-
-            dados["ph"] = float(ph.replace(",", "."))
-            dados["aluminum"] = float(aluminum.replace(",", "."))
-            dados["h_al"] = float(h_al.replace(",", "."))
-            dados["calcium"] = float(calcium.replace(",", "."))
-            dados["magnesium"] = float(magnesium.replace(",", "."))
-
-            sb = (
-                dados["calcium"] +
-                dados["magnesium"] +
-                dados["potassium"]
-            )
-
-            ctc_efetiva = sb + dados["aluminum"]
-
-            ctc_potencial = sb + dados["h_al"]
-
-            v_percent = (
-                (sb / ctc_potencial) * 100
-                if ctc_potencial > 0 else 0
-            )
-
-            m_percent = (
-                (dados["aluminum"] / ctc_efetiva) * 100
-                if ctc_efetiva > 0 else 0
-            )
-
-            st.session_state.dados_calculados = dados
-            st.session_state.sb = sb
-            st.session_state.ctc_potencial = ctc_potencial
-            st.session_state.v_percent = v_percent
-            st.session_state.m_percent = m_percent
-            st.session_state.cultura = cultura
-
-            st.success("✅ Classificação realizada!")
-
-        except ValueError:
-
-            st.error("❌ Erro ao converter os dados.")
+    cultura = st.selectbox(
+        "🌾 Cultura",
+        list(necessidades_culturas.keys())
+    )
 
 # ============================================================================
-# ABA 3 - ASSISTENTE IA
+# ABA 3 - IA
 # ============================================================================
 
 elif menu == "🤖 3. Assistente IA":
 
-    st.markdown("## 🤖 Assistente Inteligente de Solos")
+    st.markdown("## 🤖 Assistente IA Gemini")
 
     pergunta = st.text_area(
-        "💬 Digite sua pergunta para a IA:",
-        height=180
+        "💬 Faça sua pergunta:"
     )
 
-    if st.button("🚀 GERAR RESPOSTA IA"):
+    if st.button("🚀 GERAR RESPOSTA"):
 
-        if pergunta.strip() == "":
+        resposta = gerar_resposta_ia(
+            pergunta,
+            st.session_state.dados_basicos
+        )
 
-            st.warning("⚠️ Digite uma pergunta.")
-
-        else:
-
-            dados_atuais = {}
-
-            if "dados_calculados" in st.session_state:
-                dados_atuais = st.session_state.dados_calculados
-
-            resposta = gerar_resposta_ia(
-                pergunta,
-                dados_atuais
-            )
-
-            st.markdown(f"""
-            <div class="result-card">
-                <h2>🤖 Resposta da IA Gemini</h2>
-                <p style="font-size:1.1rem;">
-                    {resposta}
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="result-card">
+            <h2>🤖 Resposta da IA</h2>
+            <p>{resposta}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # ============================================================================
 # ABA 4 - RELATÓRIO
@@ -672,36 +559,12 @@ elif menu == "📈 4. Relatório":
 
     st.markdown("## 📈 Relatório Técnico")
 
-    if "v_percent" not in st.session_state:
+    if st.session_state.dados_basicos:
 
-        st.warning("⚠️ Execute a classificação primeiro.")
-
-    else:
-
-        dados = st.session_state.dados_calculados
-
-        relatorio = pd.DataFrame({
-
-            "Parâmetro": [
-                "pH",
-                "Nitrogênio",
-                "Fósforo",
-                "Potássio",
-                "Cálcio",
-                "Magnésio",
-                "Alumínio"
-            ],
-
-            "Valor": [
-                dados["ph"],
-                dados["nitrogen"],
-                dados["phosphorus"],
-                dados["potassium"],
-                dados["calcium"],
-                dados["magnesium"],
-                dados["aluminum"]
-            ]
-        })
+        relatorio = pd.DataFrame(
+            st.session_state.dados_basicos.items(),
+            columns=["Parâmetro", "Valor"]
+        )
 
         st.dataframe(
             relatorio,
@@ -716,21 +579,12 @@ elif menu == "ℹ️ 5. Métodos":
 
     st.markdown("## ℹ️ Métodos Utilizados")
 
-    with st.expander("📊 Saturação por Bases (V%)"):
-
-        st.markdown("""
-### Fórmula:
-
-V% = (SB / CTC) × 100
-        """)
-
-    with st.expander("🔬 Saturação por Alumínio (m%)"):
-
-        st.markdown("""
-### Fórmula:
-
-m% = (Al³⁺ / CTC efetiva) × 100
-        """)
+    st.markdown("""
+    - Saturação por bases (V%)
+    - Saturação por alumínio (m%)
+    - Interpretação SiBCS
+    - IA Gemini integrada
+    """)
 
 # ============================================================================
 # RODAPÉ
@@ -739,5 +593,5 @@ m% = (Al³⁺ / CTC efetiva) × 100
 st.markdown("---")
 
 st.caption(
-    "© 2026 - Sistema Inteligente de Fertilidade do Solo | SiBCS - Embrapa"
+    "© 2026 - Sistema Inteligente de Fertilidade do Solo"
 )
