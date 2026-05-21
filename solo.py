@@ -82,7 +82,7 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
             - Alumínio (Al): {dados_solo.get('aluminum', 'N/A')} cmolc/dm³
             - H+Al: {dados_solo.get('h_al', 'N/A')} cmolc/dm³
             - Soma de Bases (SB): {dados_solo.get('sb', 0):.2f} cmolc/dm³
-            - CTC Potencial: {dados_solo.get('tct', 0):.2f} cmolc/dm³
+            - CTC Potencial: {dados_solo.get('ctc', 0):.2f} cmolc/dm³
             """
         
         prompt = f"""Você é um engenheiro agrônomo especialista em fertilidade do solo, SiBCS e manejo agrícola.
