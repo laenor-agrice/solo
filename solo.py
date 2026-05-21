@@ -21,8 +21,17 @@ st.set_page_config(
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "SUA_API_KEY_AQUI"
+# ⚠️ IMPORTANTE: Substitua "SUA_API_KEY_AQUI" pela sua chave real!
+# Para obter sua chave gratuita:
+# 1. Acesse: https://makersuite.google.com/app/apikey
+# 2. Faça login com sua conta Google
+# 3. Clique em "Create API Key"
+# 4. Copie a chave gerada e cole abaixo
 
+GEMINI_API_KEY = "SUA_API_KEY_AQUI"  # <-- COLE SUA CHAVE AQUI (entre as aspas)
+
+# Exemplo de como deve ficar com uma chave real:
+# GEMINI_API_KEY = "AIzaSyD2bF4xL5mN8oP9qR0sT1uV2wX3yZ4aB5cC6dD7eE"
 # ============================================================================
 # FUNÇÃO IA GEMINI VIA REQUESTS (CORRIGIDA)
 # ============================================================================
