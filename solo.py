@@ -139,7 +139,7 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# CSS PERSONALIZADO
+# CSS PERSONALIZADO MODERNO (DESIGN APRIMORADO)
 # ============================================================================
 
 st.markdown("""
@@ -149,12 +149,12 @@ st.markdown("""
     }
 
     .stApp {
-        background: linear-gradient(135deg, #050505, #0f172a);
+        background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
         color: white;
     }
 
     section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #071019, #0f172a);
+        background: linear-gradient(180deg, #0f0f1a, #1a1a2e);
         border-right: 1px solid rgba(46,204,113,0.3);
     }
 
@@ -164,9 +164,15 @@ st.markdown("""
     }
 
     p, span, div, label {
-        color: #f5f5f5 !important;
+        color: #e0e0e0 !important;
     }
 
+    /* Containers com borda arredondada */
+    div.element-container:has(.stButton) {
+        border-radius: 12px;
+    }
+
+    /* Inputs */
     .stTextInput > div > div > input {
         background-color: rgba(255,255,255,0.08);
         color: white !important;
@@ -187,6 +193,7 @@ st.markdown("""
         border: 1px solid rgba(46,204,113,0.4) !important;
     }
 
+    /* Botões */
     .stButton button {
         width: 100%;
         border: none;
@@ -204,6 +211,16 @@ st.markdown("""
         box-shadow: 0px 6px 20px rgba(34,197,94,0.4);
     }
 
+    /* Cards */
+    .stContainer {
+        background: rgba(255,255,255,0.03);
+        backdrop-filter: blur(10px);
+        border-radius: 22px;
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0px 8px 25px rgba(0,0,0,0.25);
+    }
+
+    /* Resultado da IA */
     .result-card {
         background: linear-gradient(145deg, rgba(34,197,94,0.12), rgba(255,255,255,0.04));
         border: 1px solid rgba(46,204,113,0.4);
@@ -213,8 +230,9 @@ st.markdown("""
         margin-top: 1rem;
     }
 
+    /* Hero Section */
     .hero {
-        background: linear-gradient(135deg, rgba(34,197,94,0.2), rgba(59,130,246,0.15));
+        background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(59,130,246,0.1));
         border: 1px solid rgba(255,255,255,0.08);
         padding: 2rem;
         border-radius: 28px;
@@ -225,29 +243,82 @@ st.markdown("""
     
     .hero h1 {
         color: white !important;
+        font-size: 2.5rem;
     }
     
     .hero p {
         color: white !important;
+        font-size: 1.1rem;
+    }
+
+    /* Métricas */
+    .metric-card {
+        background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+        border-radius: 20px;
+        padding: 1.2rem;
+        text-align: center;
+        border: 1px solid rgba(46,204,113,0.3);
+    }
+
+    .metric-card h2 {
+        color: #2ecc71 !important;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-card h3 {
+        color: white !important;
+        font-size: 0.9rem;
+    }
+
+    /* Expander */
+    .streamlit-expanderHeader {
+        background-color: rgba(46,204,113,0.1);
+        border-radius: 12px;
+        font-weight: bold;
+    }
+
+    /* Abas */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: rgba(255,255,255,0.05);
+        border-radius: 12px;
+        padding: 8px 16px;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: rgba(46,204,113,0.2);
+        color: #2ecc71 !important;
+    }
+
+    hr {
+        margin: 1.5rem 0;
+        border-color: rgba(255,255,255,0.1);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# CABEÇALHO
+# CABEÇALHO HERO
 # ============================================================================
 
-st.markdown("""
-<div class="hero">
-    <h1>🌾 Classificador Inteligente de Fertilidade do Solo</h1>
-    <p style="font-size:1.2rem;">
-        Sistema Inteligente baseado no SiBCS - Embrapa
-    </p>
-    <p>
-        📊 Análise • 🤖 IA Gemini • 🌱 Fertilidade • 📈 Relatórios
-    </p>
-</div>
-""", unsafe_allow_html=True)
+with st.container(border=True):
+    st.title("🌾 Classificador Inteligente de Fertilidade do Solo")
+    st.write("### Sistema baseado no SiBCS - Embrapa • Análise • IA Gemini • Fertilidade • Relatórios")
+
+# Imagem centralizada (se quiser adicionar)
+col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
+with col_img2:
+    st.image(
+        "https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
+        caption="🌱 Análise Inteligente do Solo",
+        use_container_width=True
+    )
+
+st.write("")  # Espaçamento
 
 # ============================================================================
 # SIDEBAR
@@ -256,21 +327,21 @@ st.markdown("""
 with st.sidebar:
     st.image(
         "https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
-        width=110
+        width=90
     )
     
     st.markdown("## 🌱 Sistema Inteligente")
     st.markdown("""
-✅ Avaliação da fertilidade  
-✅ Cálculo de V% e m%  
-✅ Classificação SiBCS  
-✅ Relatório técnico  
-✅ IA Gemini integrada  
+    ✅ Avaliação da fertilidade  
+    ✅ Cálculo de V% e m%  
+    ✅ Classificação SiBCS  
+    ✅ Relatório técnico  
+    ✅ IA Gemini integrada  
     """)
     
     st.markdown("---")
     
-    if st.button("🔧 Testar Conexão API"):
+    if st.button("🔧 Testar Conexão API", use_container_width=True):
         with st.spinner("Testando..."):
             modelos = listar_modelos_disponiveis()
             if modelos:
@@ -365,7 +436,7 @@ def classificar_fertilidade(v_porcentagem):
 # FUNÇÕES DE RECOMENDAÇÃO DE ADUBAÇÃO E CALAGEM
 # ============================================================================
 
-def calcular_necessidade_calagem(v_atual, v_desejado, tct):
+def calcular_necessidade_calagem(v_atual, v_desejado, ctc):
     """Calcula a necessidade de calagem em t/ha"""
     if v_atual >= v_desejado:
         return 0, "✅ Solo já atingiu V% desejado. Não necessita calagem."
@@ -469,25 +540,32 @@ if menu == "📊 1. Dados do Solo":
     col1, col2 = st.columns(2)
 
     with col1:
-        nitrogen = st.text_input("🌱 Nitrogênio (mg/dm³)", value="30")
-        phosphorus = st.text_input("🔴 Fósforo (mg/dm³)", value="20")
-        potassium = st.text_input("🟡 Potássio (cmolc/dm³)", value="0.25")
-        ph = st.text_input("🧪 pH (água)", value="6.0")
+        with st.container(border=True):
+            st.subheader("📊 Parâmetros Químicos")
+            nitrogen = st.text_input("🌱 Nitrogênio (mg/dm³)", value="30")
+            phosphorus = st.text_input("🔴 Fósforo (mg/dm³)", value="20")
+            potassium = st.text_input("🟡 Potássio (cmolc/dm³)", value="0.25")
+            ph = st.text_input("🧪 pH (água)", value="6.0")
 
     with col2:
-        aluminum = st.text_input("⚠️ Alumínio (cmolc/dm³)", value="0.5")
-        calcium = st.text_input("🥛 Cálcio (cmolc/dm³)", value="3.0")
-        magnesium = st.text_input("🧂 Magnésio (cmolc/dm³)", value="1.5")
-        h_al = st.text_input("📊 H + Al (cmolc/dm³)", value="3.5")
+        with st.container(border=True):
+            st.subheader("⚗️ Cátions e Acidez")
+            aluminum = st.text_input("⚠️ Alumínio (cmolc/dm³)", value="0.5")
+            calcium = st.text_input("🥛 Cálcio (cmolc/dm³)", value="3.0")
+            magnesium = st.text_input("🧂 Magnésio (cmolc/dm³)", value="1.5")
+            h_al = st.text_input("📊 H + Al (cmolc/dm³)", value="3.5")
 
-    col3, col4 = st.columns(2)
-    with col3:
-        sand = st.text_input("🏖️ Areia (g/kg)", value="350")
-    with col4:
-        silt = st.text_input("🏞️ Silte (g/kg)", value="300")
-        clay = st.text_input("🧱 Argila (g/kg)", value="350")
+    with st.container(border=True):
+        st.subheader("🏞️ Textura do Solo")
+        col3, col4, col5 = st.columns(3)
+        with col3:
+            sand = st.text_input("🏖️ Areia (g/kg)", value="350")
+        with col4:
+            silt = st.text_input("🏞️ Silte (g/kg)", value="300")
+        with col5:
+            clay = st.text_input("🧱 Argila (g/kg)", value="350")
 
-    if st.button("✅ SALVAR DADOS"):
+    if st.button("✅ SALVAR DADOS", use_container_width=True):
         try:
             dados = {
                 "nitrogen": float(nitrogen),
@@ -544,19 +622,20 @@ elif menu == "🌱 2. Classificação":
         dados = st.session_state.dados_basicos
         
         st.markdown("### 📊 Dados Atuais do Solo")
-        col1, col2, col3 = st.columns(3)
-        with col1:
+        
+        col_metric1, col_metric2, col_metric3, col_metric4, col_metric5, col_metric6 = st.columns(6)
+        with col_metric1:
             st.metric("pH", f"{dados.get('ph', 'N/A')}")
+        with col_metric2:
             st.metric("V%", f"{dados.get('v_porcentagem', 0):.1f}%")
+        with col_metric3:
             st.metric("m%", f"{dados.get('m_porcentagem', 0):.1f}%")
-        with col2:
+        with col_metric4:
             st.metric("N", f"{dados.get('nitrogen', 'N/A')} mg/dm³")
+        with col_metric5:
             st.metric("P", f"{dados.get('phosphorus', 'N/A')} mg/dm³")
+        with col_metric6:
             st.metric("K", f"{dados.get('potassium', 'N/A')} cmolc/dm³")
-        with col3:
-            st.metric("Ca", f"{dados.get('calcium', 'N/A')} cmolc/dm³")
-            st.metric("Mg", f"{dados.get('magnesium', 'N/A')} cmolc/dm³")
-            st.metric("Al", f"{dados.get('aluminum', 'N/A')} cmolc/dm³")
         
         v = dados.get('v_porcentagem', 0)
         classificacao = classificar_fertilidade(v)
@@ -594,16 +673,18 @@ elif menu == "🌱 2. Classificação":
                 col_a, col_b = st.columns(2)
                 
                 with col_a:
-                    st.markdown("**Parâmetros Químicos:**")
-                    st.markdown(f"- **pH:** {ph_atual:.1f} (Ideal: {req['ph_min']}-{req['ph_max']}) → {'✅ OK' if ph_ok else '❌ Ajustar'}")
-                    st.markdown(f"- **V%:** {v_atual:.1f}% (Desejado: ≥{req['v_desejado']}%) → {'✅ OK' if v_ok else '❌ Baixo'}")
-                    st.markdown(f"- **m%:** {dados.get('m_porcentagem', 0):.1f}% → {'✅ OK' if dados.get('m_porcentagem', 0) < 15 else '⚠️ Atenção'}")
+                    with st.container(border=True):
+                        st.markdown("**Parâmetros Químicos:**")
+                        st.markdown(f"- **pH:** {ph_atual:.1f} (Ideal: {req['ph_min']}-{req['ph_max']}) → {'✅ OK' if ph_ok else '❌ Ajustar'}")
+                        st.markdown(f"- **V%:** {v_atual:.1f}% (Desejado: ≥{req['v_desejado']}%) → {'✅ OK' if v_ok else '❌ Baixo'}")
+                        st.markdown(f"- **m%:** {dados.get('m_porcentagem', 0):.1f}% → {'✅ OK' if dados.get('m_porcentagem', 0) < 15 else '⚠️ Atenção'}")
                 
                 with col_b:
-                    st.markdown("**Nutrientes:**")
-                    st.markdown(f"- **N:** {n_atual} mg/dm³ (Mínimo: {req['n_min']}) → {'✅ OK' if n_ok else '❌ Baixo'}")
-                    st.markdown(f"- **P:** {p_atual} mg/dm³ (Mínimo: {req['p_min']}) → {'✅ OK' if p_ok else '❌ Baixo'}")
-                    st.markdown(f"- **K:** {k_atual:.2f} cmolc/dm³ (Mínimo: {req['k_min']}) → {'✅ OK' if k_ok else '❌ Baixo'}")
+                    with st.container(border=True):
+                        st.markdown("**Nutrientes:**")
+                        st.markdown(f"- **N:** {n_atual} mg/dm³ (Mínimo: {req['n_min']}) → {'✅ OK' if n_ok else '❌ Baixo'}")
+                        st.markdown(f"- **P:** {p_atual} mg/dm³ (Mínimo: {req['p_min']}) → {'✅ OK' if p_ok else '❌ Baixo'}")
+                        st.markdown(f"- **K:** {k_atual:.2f} cmolc/dm³ (Mínimo: {req['k_min']}) → {'✅ OK' if k_ok else '❌ Baixo'}")
             
             with tab2:
                 st.markdown("#### 🧪 Recomendação de Calagem")
@@ -616,38 +697,47 @@ elif menu == "🌱 2. Classificação":
                 
                 if nc > 0:
                     st.success(f"### {rec_calagem}")
-                    st.markdown(f"""
-                    **📋 Detalhamento:**
-                    - Necessidade: {nc:.1f} t/ha
-                    - PRNT considerado: 85%
-                    - Época: 60-90 dias antes do plantio
-                    """)
+                    with st.container(border=True):
+                        st.markdown(f"""
+                        **📋 Detalhamento:**
+                        - Necessidade: {nc:.1f} t/ha
+                        - PRNT considerado: 85%
+                        - Época: 60-90 dias antes do plantio
+                        """)
                 else:
                     st.success(rec_calagem)
             
             with tab3:
                 st.markdown("#### 🌱 Recomendação de Adubação")
                 
-                st.markdown("**🥬 Nitrogênio (N):**")
-                rec_n = recomendar_adubacao_nitrogenio(cultura, n_atual, req['n_min'])
-                if "✅" in rec_n:
-                    st.success(rec_n)
-                else:
-                    st.error(rec_n)
+                col_n, col_p, col_k = st.columns(3)
                 
-                st.markdown("**🪨 Fósforo (P₂O₅):**")
-                rec_p = recomendar_adubacao_fosforo(cultura, p_atual, req['p_min'])
-                if "✅" in rec_p:
-                    st.success(rec_p)
-                else:
-                    st.error(rec_p)
+                with col_n:
+                    with st.container(border=True):
+                        st.markdown("**🥬 Nitrogênio (N)**")
+                        rec_n = recomendar_adubacao_nitrogenio(cultura, n_atual, req['n_min'])
+                        if "✅" in rec_n:
+                            st.success(rec_n)
+                        else:
+                            st.error(rec_n)
                 
-                st.markdown("**🍌 Potássio (K₂O):**")
-                rec_k = recomendar_adubacao_potassio(cultura, k_atual, req['k_min'])
-                if "✅" in rec_k:
-                    st.success(rec_k)
-                else:
-                    st.error(rec_k)
+                with col_p:
+                    with st.container(border=True):
+                        st.markdown("**🪨 Fósforo (P₂O₅)**")
+                        rec_p = recomendar_adubacao_fosforo(cultura, p_atual, req['p_min'])
+                        if "✅" in rec_p:
+                            st.success(rec_p)
+                        else:
+                            st.error(rec_p)
+                
+                with col_k:
+                    with st.container(border=True):
+                        st.markdown("**🍌 Potássio (K₂O)**")
+                        rec_k = recomendar_adubacao_potassio(cultura, k_atual, req['k_min'])
+                        if "✅" in rec_k:
+                            st.success(rec_k)
+                        else:
+                            st.error(rec_k)
             
             with tab4:
                 st.markdown("#### 📝 Recomendações de Manejo Geral")
@@ -656,7 +746,7 @@ elif menu == "🌱 2. Classificação":
                 
                 if recomendacoes_gerais:
                     for rec in recomendacoes_gerais:
-                        st.markdown(rec)
+                        st.info(rec)
                 else:
                     st.success("✅ Solo com boas condições físicas e químicas!")
                 
@@ -755,35 +845,46 @@ elif menu == "📈 4. Relatório":
 
 elif menu == "ℹ️ 5. Métodos":
     st.markdown("## ℹ️ Métodos Utilizados")
-    st.markdown("""
-    ### 📐 Fórmulas e Interpretações
     
-    | Parâmetro | Fórmula | Interpretação |
-    |-----------|---------|---------------|
-    | **Soma de Bases (SB)** | SB = Ca²⁺ + Mg²⁺ + K⁺ (cmolc/dm³) | Indica a quantidade de cátions básicos |
-    | **CTC Potencial (T)** | T = SB + (H+Al) (cmolc/dm³) | Capacidade máxima de troca catiônica |
-    | **Saturação por Bases (V%)** | V% = (SB/T) × 100 | Fertilidade do solo |
-    | **Saturação por Alumínio (m%)** | m% = (Al³⁺ / (Al³⁺ + SB)) × 100 | Toxicidade por alumínio |
+    with st.container(border=True):
+        st.markdown("""
+        ### 📐 Fórmulas e Interpretações
+        
+        | Parâmetro | Fórmula | Interpretação |
+        |-----------|---------|---------------|
+        | **Soma de Bases (SB)** | SB = Ca²⁺ + Mg²⁺ + K⁺ (cmolc/dm³) | Indica a quantidade de cátions básicos |
+        | **CTC Potencial (T)** | T = SB + (H+Al) (cmolc/dm³) | Capacidade máxima de troca catiônica |
+        | **Saturação por Bases (V%)** | V% = (SB/T) × 100 | Fertilidade do solo |
+        | **Saturação por Alumínio (m%)** | m% = (Al³⁺ / (Al³⁺ + SB)) × 100 | Toxicidade por alumínio |
+        """)
     
-    ### 🌡️ Classificação do V%
+    with st.container(border=True):
+        st.markdown("""
+        ### 🌡️ Classificação do V%
+        
+        - **V% < 50%** → Baixa fertilidade (solos ácidos)
+        - **50% ≤ V% < 70%** → Fertilidade média
+        - **70% ≤ V% < 85%** → Fertilidade boa
+        - **V% ≥ 85%** → Fertilidade muito boa
+        """)
     
-    - **V% < 50%** → Baixa fertilidade (solos ácidos)
-    - **50% ≤ V% < 70%** → Fertilidade média
-    - **70% ≤ V% < 85%** → Fertilidade boa
-    - **V% ≥ 85%** → Fertilidade muito boa
+    with st.container(border=True):
+        st.markdown("""
+        ### 🧪 pH e Disponibilidade de Nutrientes
+        
+        - **pH < 5.5** → Alumínio tóxico, baixa disponibilidade de P, Ca, Mg
+        - **pH 5.5 - 6.5** → Faixa ideal para maioria das culturas
+        - **pH > 6.5** → Pode reduzir disponibilidade de micronutrientes
+        """)
     
-    ### 🧪 pH e Disponibilidade de Nutrientes
-    
-    - **pH < 5.5** → Alumínio tóxico, baixa disponibilidade de P, Ca, Mg
-    - **pH 5.5 - 6.5** → Faixa ideal para maioria das culturas
-    - **pH > 6.5** → Pode reduzir disponibilidade de micronutrientes
-    
-    ### 📚 Referências
-    
-    - SiBCS - Sistema Brasileiro de Classificação de Solos (Embrapa)
-    - Manual de Adubação e Calagem (CONAB)
-    - Recomendações técnicas para as principais culturas
-    """)
+    with st.container(border=True):
+        st.markdown("""
+        ### 📚 Referências
+        
+        - SiBCS - Sistema Brasileiro de Classificação de Solos (Embrapa)
+        - Manual de Adubação e Calagem (CONAB)
+        - Recomendações técnicas para as principais culturas
+        """)
     
     st.markdown("---")
     st.markdown("### 🤖 IA Gemini")
@@ -800,4 +901,8 @@ elif menu == "ℹ️ 5. Métodos":
 # ============================================================================
 
 st.markdown("---")
-st.caption("© 2026 - Sistema Inteligente de Fertilidade do Solo | Baseado em metodologias Embrapa")
+
+col_rodape1, col_rodape2, col_rodape3 = st.columns([1, 2, 1])
+with col_rodape2:
+    st.caption("© 2026 - Sistema Inteligente de Fertilidade do Solo | Baseado em metodologias Embrapa")
+    st.caption("📧 Contato: [solo@pesquisa.agr.br](mailto:solo@pesquisa.agr.br)")
