@@ -25,17 +25,51 @@ st.set_page_config(
 GEMINI_API_KEY = "AIzaSyBibLbN2e3gmzLlNb81wSr7GHrDqkiU6fw"
 
 # ============================================================================
+# FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
+# ============================================================================
+
+def listar_modelos_disponiveis():
+    """Lista todos os modelos Gemini disponíveis para sua chave"""
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            modelos = response.json()
+            nomes_modelos = []
+            
+            for model in modelos.get('models', []):
+                nome = model.get('name', '').replace('models/', '')
+                if 'gemini' in nome and 'generateContent' in str(model.get('supportedGenerationMethods', [])):
+                    nomes_modelos.append(nome)
+            
+            return nomes_modelos
+        else:
+            return []
+    except Exception as e:
+        return []
+
+# ============================================================================
 # FUNÇÃO IA GEMINI - VERSÃO CORRIGIDA
 # ============================================================================
 
 def gerar_resposta_ia(pergunta, dados_solo=None):
-    """Função corrigida com modelo correto e melhor tratamento de erros"""
+    """Função corrigida com detecção automática do modelo"""
     
     # Verificar se a chave é válida
     if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
         return "⚠️ **API Key não configurada!** Configure sua chave no código."
     
     try:
+        # Obter modelo disponível
+        modelos = listar_modelos_disponiveis()
+        
+        if not modelos:
+            return "❌ **Nenhum modelo Gemini disponível!** Verifique sua API Key."
+        
+        # Escolher o primeiro modelo disponível (geralmente gemini-1.5-flash)
+        modelo = modelos[0]
+        
         # Preparar contexto dos dados do solo
         contexto = ""
         if dados_solo and len(dados_solo) > 0:
@@ -68,12 +102,11 @@ INSTRUÇÕES:
 - Dê recomendações práticas quando possível
 - Se não souber algo, diga honestamente
 - Use linguagem acessível para produtores rurais
-- Máximo de 500 palavras
 
 RESPOSTA:"""
         
-        # URL da API com o modelo correto
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
+        # URL com o modelo correto
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={GEMINI_API_KEY}"
         
         # Headers da requisição
         headers = {
@@ -90,13 +123,7 @@ RESPOSTA:"""
                         }
                     ]
                 }
-            ],
-            "generationConfig": {
-                "temperature": 0.7,
-                "topK": 40,
-                "topP": 0.95,
-                "maxOutputTokens": 1024,
-            }
+            ]
         }
         
         # Fazer a requisição
@@ -143,27 +170,6 @@ RESPOSTA:"""
     
     except Exception as erro:
         return f"❌ **Erro inesperado:** {str(erro)}"
-
-# ============================================================================
-# TESTE RÁPIDO DA API (opcional - roda uma vez)
-# ============================================================================
-
-def testar_api_gemini():
-    """Função de teste para verificar se a API está funcionando"""
-    try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
-        response = requests.get(url, timeout=10)
-        
-        if response.status_code == 200:
-            modelos = response.json()
-            st.sidebar.success("✅ API Gemini conectada!")
-            return True
-        else:
-            st.sidebar.error(f"❌ API falhou: {response.status_code}")
-            return False
-    except:
-        st.sidebar.warning("⚠️ Não foi possível testar a API")
-        return False
 
 # ============================================================================
 # CSS PERSONALIZADO MODERNO
@@ -231,16 +237,6 @@ st.markdown("""
         box-shadow: 0px 6px 20px rgba(34,197,94,0.4);
     }
 
-    .card {
-        background: rgba(255,255,255,0.05);
-        backdrop-filter: blur(10px);
-        border-radius: 22px;
-        padding: 1.5rem;
-        border: 1px solid rgba(255,255,255,0.08);
-        box-shadow: 0px 8px 25px rgba(0,0,0,0.25);
-        margin-bottom: 1rem;
-    }
-
     .result-card {
         background: linear-gradient(145deg, rgba(34,197,94,0.12), rgba(255,255,255,0.04));
         border: 1px solid rgba(46,204,113,0.4);
@@ -305,10 +301,16 @@ with st.sidebar:
 ✅ IA Gemini integrada  
     """)
     
-    # Teste da API (opcional)
-    if st.button("🔧 Testar API Gemini"):
-        with st.spinner("Testando conexão..."):
-            testar_api_gemini()
+    st.markdown("---")
+    
+    # Botão para testar a API
+    if st.button("🔧 Testar Conexão API"):
+        with st.spinner("Testando..."):
+            modelos = listar_modelos_disponiveis()
+            if modelos:
+                st.success(f"✅ API conectada! Modelo: {modelos[0]}")
+            else:
+                st.error("❌ Falha na conexão. Verifique sua API Key.")
 
 # ============================================================================
 # SESSION STATE
@@ -572,26 +574,24 @@ elif menu == "🤖 3. Assistente IA":
         placeholder="Exemplo: Qual a recomendação de calagem para um solo com pH 5.0? Como interpretar o V%? Qual a cultura mais adequada para meu solo?"
     )
 
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
-        if st.button("🚀 GERAR RESPOSTA", use_container_width=True):
-            if not pergunta:
-                st.warning("⚠️ Por favor, digite uma pergunta!")
-            else:
-                with st.spinner("🤖 Consultando IA Gemini..."):
-                    resposta = gerar_resposta_ia(
-                        pergunta,
-                        st.session_state.dados_basicos if st.session_state.dados_basicos else None
-                    )
-                    
-                    st.markdown(f"""
-                    <div class="result-card">
-                        <h2 style="text-align: center;">🤖 Resposta da IA</h2>
-                        <div style="margin-top: 20px;">
-                            {resposta}
-                        </div>
+    if st.button("🚀 GERAR RESPOSTA", use_container_width=True):
+        if not pergunta:
+            st.warning("⚠️ Por favor, digite uma pergunta!")
+        else:
+            with st.spinner("🤖 Consultando IA Gemini..."):
+                resposta = gerar_resposta_ia(
+                    pergunta,
+                    st.session_state.dados_basicos if st.session_state.dados_basicos else None
+                )
+                
+                st.markdown(f"""
+                <div class="result-card">
+                    <h2 style="text-align: center;">🤖 Resposta da IA</h2>
+                    <div style="margin-top: 20px;">
+                        {resposta}
                     </div>
-                    """, unsafe_allow_html=True)
+                </div>
+                """, unsafe_allow_html=True)
 
 # ============================================================================
 # ABA 4 - RELATÓRIO
@@ -682,7 +682,7 @@ elif menu == "ℹ️ 5. Métodos":
     st.markdown("---")
     st.markdown("### 🤖 IA Gemini")
     st.markdown("""
-    O assistente utiliza o modelo **Gemini Pro** do Google para:
+    O assistente utiliza o modelo **Gemini** do Google para:
     - Interpretar laudos de análise de solo
     - Recomendar práticas de manejo
     - Sugerir correções de fertilidade
