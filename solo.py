@@ -316,7 +316,7 @@ with col_gif2:
     st.markdown(
         """
         <div style="display: flex; justify-content: center;">
-            <img src="https://br.pinterest.com/pin/722757440242247822/" 
+            <img src="https://media4.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" 
                  style="width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
         </div>
         """,
