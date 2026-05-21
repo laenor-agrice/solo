@@ -310,10 +310,10 @@ with st.container(border=True):
     st.write("### Sistema baseado no SiBCS - Embrapa • Análise • IA Gemini • Fertilidade • Relatórios")
 
 # OU com uma imagem de solo/plantação (se quiser manter):
-col_img1, col_img2, col_img3 = st.columns([1, 2, 1])
+col_img1, col_img2, col_img3 = st.columns([0.5, 3, 0.5])
 with col_img2:
     st.image(
-        "https://i1-e.pinimg.com/1200x/f3/80/16/f38016a4d311466d3e29281be090e2d2.jpg",  # Foto de plantação
+        "https://br.pinterest.com/pin/571746115214347654/",  # Foto de plantação
         caption="🌱 Análise Inteligente do Solo",
         use_container_width=True
     )
