@@ -313,7 +313,7 @@ with st.container(border=True):
 col_img1, col_img2, col_img3 = st.columns([0.5, 3, 0.5])
 with col_img2:
     st.image(
-        "https://br.pinterest.com/pin/571746115214347654/",  # Foto de plantação
+        "https://terramagna.com.br/wp-content/uploads/2022/12/mao-tipos-de-adubacao-solo-tres-plantulas.jpg",  # Foto de plantação
         caption="🌱 Análise Inteligente do Solo",
         use_container_width=True
     )
