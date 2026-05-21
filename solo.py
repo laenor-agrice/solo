@@ -56,7 +56,7 @@ def listar_modelos_disponiveis():
 def gerar_resposta_ia(pergunta, dados_solo=None):
     """Função com detecção automática do modelo"""
     
-    if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
+    if not GEMINI_API_KEY or GEMINI_API_KEY == "gen-lang-client-0078787372":
         return "⚠️ **API Key não configurada!** Configure sua chave no código."
     
     try:
