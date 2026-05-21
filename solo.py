@@ -311,7 +311,7 @@ with st.container(border=True):
 
 # OU com uma imagem de solo/plantação (se quiser manter):
 # GIF DE LARGURA TOTAL COM ALTURA CONTROLADA
-col_gif1, col_gif2, col_gif3 = st.columns([1, 2, 1])
+col_gif1, col_gif2, col_gif3 = st.columns([0,5, 3, 0,5])
 with col_gif2:
     st.markdown(
         """
