@@ -522,7 +522,7 @@ if menu == "📊 1. Dados do Solo":
             with col_a:
                 st.metric("SB (Soma de Bases)", f"{sb:.2f} cmolc/dm³")
             with col_b:
-                st.metric("CTC (Potencial)", f"{tct:.2f} cmolc/dm³")
+                st.metric("CTC (Potencial)", f"{ctc:.2f} cmolc/dm³")
             with col_c:
                 st.metric("V% (Saturação)", f"{v:.1f}%")
             with col_d:
