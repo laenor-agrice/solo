@@ -685,6 +685,7 @@ elif menu == "🌱 2. Classificação":
                         st.markdown(f"- **K:** {k_atual:.2f} cmolc/dm³ (Mínimo: {req['k_min']}) → {'✅ OK' if k_ok else '❌ Baixo'}")
             
                         with tab2:
+                            with tab2:
                 st.markdown("#### 🧪 Recomendação de Calagem")
                 
                 ctc = dados.get('ctc', 0)
