@@ -2,7 +2,8 @@
 # IMPORTAÇÕES
 # ============================================================================
 
-import streamlit as st
+impo
+rt streamlit as st
 import pandas as pd
 import requests
 import json
