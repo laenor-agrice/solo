@@ -337,10 +337,10 @@ def aba_cadastro():
         st.success("Cadastro salvo com sucesso!")
 
 
-#Bloco 6 - Aba 2: Análises
+#Bloco 6 - Aba 2: Análises Básicas (para classificação CONAMA)
 def aba_analises():
-    st.header("🧪 2. Análises de Qualidade da Água")
-    st.caption("Preencha os parâmetros para cada ponto de coleta. No mínimo 1 ponto, máximo 10.")
+    st.header("🧪 2. Análises Básicas de Qualidade da Água")
+    st.caption("Preencha os parâmetros essenciais para classificação conforme CONAMA 357/2005. Mínimo 1 ponto, máximo 10.")
     
     # Inicializar lista de análises na sessão se não existir
     if 'analises_temp' not in st.session_state:
@@ -357,41 +357,69 @@ def aba_analises():
     # Layout para cada ponto
     for i in range(num_pontos):
         with st.expander(f"📌 Ponto de Coleta {i+1}", expanded=(i == num_pontos-1)):
-            col1, col2, col3 = st.columns(3)
+            col1, col2 = st.columns(2)
             
-            # Dados básicos do ponto
-            ponto_nome = st.text_input(f"Nome/ID do ponto {i+1}", key=f"nome_{i}", 
-                                       value=st.session_state.analises_temp[i].get("nome", f"Ponto {i+1}"))
-            ponto_lat = st.number_input(f"Latitude (ponto {i+1})", key=f"lat_{i}", format="%.6f",
-                                        value=st.session_state.analises_temp[i].get("lat", -15.0))
-            ponto_lon = st.number_input(f"Longitude (ponto {i+1})", key=f"lon_{i}", format="%.6f",
-                                        value=st.session_state.analises_temp[i].get("lon", -45.0))
-            data_coleta = st.date_input(f"Data da coleta {i+1}", key=f"data_{i}",
-                                        value=datetime.strptime(st.session_state.analises_temp[i].get("data", datetime.now().strftime("%Y-%m-%d")), "%Y-%m-%d") if st.session_state.analises_temp[i].get("data") else datetime.now())
+            with col1:
+                st.markdown("**📍 Identificação do Ponto**")
+                ponto_nome = st.text_input(f"Nome/ID do ponto {i+1}", key=f"nome_{i}", 
+                                           value=st.session_state.analises_temp[i].get("nome", f"Ponto {i+1}"))
+                ponto_lat = st.number_input(f"Latitude (ponto {i+1})", key=f"lat_{i}", format="%.6f",
+                                            value=st.session_state.analises_temp[i].get("lat", -15.0))
+                ponto_lon = st.number_input(f"Longitude (ponto {i+1})", key=f"lon_{i}", format="%.6f",
+                                            value=st.session_state.analises_temp[i].get("lon", -45.0))
+                data_coleta = st.date_input(f"Data da coleta {i+1}", key=f"data_{i}",
+                                            value=datetime.strptime(st.session_state.analises_temp[i].get("data", datetime.now().strftime("%Y-%m-%d")), "%Y-%m-%d") if st.session_state.analises_temp[i].get("data") else datetime.now())
             
-            col4, col5 = st.columns(2)
-            with col4:
-                st.markdown("**Parâmetros Físico-Químicos**")
-                od = st.number_input(f"Oxigênio Dissolvido - OD (mg/L)", key=f"od_{i}", value=float(st.session_state.analises_temp[i].get("od", 7.0)), step=0.1)
-                ph = st.number_input(f"pH", key=f"ph_{i}", value=float(st.session_state.analises_temp[i].get("ph", 7.0)), step=0.1)
-                dbo = st.number_input(f"DBO (mg/L)", key=f"dbo_{i}", value=float(st.session_state.analises_temp[i].get("dbo", 2.0)), step=0.1)
-                turbidez = st.number_input(f"Turbidez (NTU)", key=f"turbidez_{i}", value=float(st.session_state.analises_temp[i].get("turbidez", 5.0)), step=0.1)
+            with col2:
+                st.markdown("**📊 Parâmetros Físico-Químicos Básicos**")
                 temperatura = st.number_input(f"Temperatura (°C)", key=f"temp_{i}", value=float(st.session_state.analises_temp[i].get("temperatura", 25.0)), step=0.1)
+                ph = st.number_input(f"pH", key=f"ph_{i}", value=float(st.session_state.analises_temp[i].get("ph", 7.0)), step=0.1)
+                turbidez = st.number_input(f"Turbidez (NTU)", key=f"turbidez_{i}", value=float(st.session_state.analises_temp[i].get("turbidez", 5.0)), step=0.1)
+                cor_aparente = st.number_input(f"Cor Aparente (mg/L Pt-Co)", key=f"cor_aparente_{i}", value=int(st.session_state.analises_temp[i].get("cor_aparente", 10)), step=5)
+                cor_verdadeira = st.number_input(f"Cor Verdadeira (mg/L Pt-Co)", key=f"cor_verdadeira_{i}", value=int(st.session_state.analises_temp[i].get("cor_verdadeira", 5)), step=5)
             
-            with col5:
-                st.markdown("**Parâmetros Biológicos e Nutrientes**")
-                coliformes = st.number_input(f"E. coli/Coliformes (NMP/100mL)", key=f"col_{i}", value=int(st.session_state.analises_temp[i].get("coliformes", 50)), step=10)
-                fosforo = st.number_input(f"Fósforo Total (mg/L)", key=f"p_{i}", value=float(st.session_state.analises_temp[i].get("fosforo", 0.03)), step=0.01, format="%.4f")
-                nitrogenio = st.number_input(f"Nitrogênio Total (mg/L)", key=f"n_{i}", value=float(st.session_state.analises_temp[i].get("nitrogenio", 0.5)), step=0.1)
-                cor_aparente = st.number_input(f"Cor Aparente (mg/L Pt-Co)", key=f"cor_{i}", value=int(st.session_state.analises_temp[i].get("cor_aparente", 10)), step=5)
-                residuo_total = st.number_input(f"Resíduo Total (mg/L)", key=f"res_{i}", value=int(st.session_state.analises_temp[i].get("residuo_total", 200)), step=50)
+            st.markdown("---")
+            col3, col4 = st.columns(2)
+            
+            with col3:
+                st.markdown("**💨 Oxigênio e Demanda**")
+                od = st.number_input(f"Oxigênio Dissolvido - OD (mg/L)", key=f"od_{i}", value=float(st.session_state.analises_temp[i].get("od", 7.0)), step=0.1)
+                dbo = st.number_input(f"DBO₅,₂₀ (mg/L)", key=f"dbo_{i}", value=float(st.session_state.analises_temp[i].get("dbo", 2.0)), step=0.1)
+                dqo = st.number_input(f"DQO (mg/L)", key=f"dqo_{i}", value=float(st.session_state.analises_temp[i].get("dqo", 10.0)), step=1.0)
+                
+                st.markdown("**🧫 Nutrientes**")
+                nitrogenio_amoniacal = st.number_input(f"Nitrogênio Amoniacal Total (mg/L N)", key=f"nh3_{i}", value=float(st.session_state.analises_temp[i].get("nitrogenio_amoniacal", 0.5)), step=0.1)
+                nitrato = st.number_input(f"Nitrato (mg/L N)", key=f"no3_{i}", value=float(st.session_state.analises_temp[i].get("nitrato", 1.0)), step=0.1)
+                nitrito = st.number_input(f"Nitrito (mg/L N)", key=f"no2_{i}", value=float(st.session_state.analises_temp[i].get("nitrito", 0.05)), step=0.01)
+                nitrogenio_total = st.number_input(f"Nitrogênio Total (mg/L N)", key=f"n_total_{i}", value=float(st.session_state.analises_temp[i].get("nitrogenio_total", 1.0)), step=0.1)
+                fosforo_total = st.number_input(f"Fósforo Total (mg/L P)", key=f"p_total_{i}", value=float(st.session_state.analises_temp[i].get("fosforo_total", 0.03)), step=0.01, format="%.4f")
+                fosfato_total = st.number_input(f"Fosfato Total (mg/L)", key=f"po4_{i}", value=float(st.session_state.analises_temp[i].get("fosfato_total", 0.1)), step=0.01)
+            
+            with col4:
+                st.markdown("**🦠 Indicadores Biológicos**")
+                coliformes = st.number_input(f"Coliformes Termotolerantes (NMP/100mL)", key=f"col_{i}", value=int(st.session_state.analises_temp[i].get("coliformes", 50)), step=10)
+                e_coli = st.number_input(f"Escherichia coli - E. coli (NMP/100mL)", key=f"ecoli_{i}", value=int(st.session_state.analises_temp[i].get("e_coli", 50)), step=10)
+                clorofila_a = st.number_input(f"Clorofila-a (µg/L)", key=f"clorofila_{i}", value=float(st.session_state.analises_temp[i].get("clorofila_a", 5.0)), step=1.0)
+                
+                st.markdown("**⚡ Outros Parâmetros Físico-Químicos**")
+                condutividade = st.number_input(f"Condutividade Elétrica (µS/cm)", key=f"cond_{i}", value=float(st.session_state.analises_temp[i].get("condutividade", 100.0)), step=10.0)
+                std = st.number_input(f"Sólidos Totais Dissolvidos - STD (mg/L)", key=f"std_{i}", value=int(st.session_state.analises_temp[i].get("std", 200)), step=10)
+                sst = st.number_input(f"Sólidos Suspensos Totais - SST (mg/L)", key=f"sst_{i}", value=int(st.session_state.analises_temp[i].get("sst", 50)), step=10)
+                alcalinidade = st.number_input(f"Alcalinidade (mg/L CaCO₃)", key=f"alc_{i}", value=float(st.session_state.analises_temp[i].get("alcalinidade", 50.0)), step=10.0)
+                dureza = st.number_input(f"Dureza Total (mg/L CaCO₃)", key=f"dur_{i}", value=float(st.session_state.analises_temp[i].get("dureza", 100.0)), step=10.0)
+                cloretos = st.number_input(f"Cloretos (mg/L Cl)", key=f"cl_{i}", value=float(st.session_state.analises_temp[i].get("cloretos", 50.0)), step=10.0)
             
             # Salvar no dicionário temporário
             st.session_state.analises_temp[i] = {
                 "nome": ponto_nome, "lat": ponto_lat, "lon": ponto_lon, "data": str(data_coleta),
-                "od": od, "ph": ph, "dbo": dbo, "turbidez": turbidez, "temperatura": temperatura,
-                "coliformes": coliformes, "fosforo": fosforo, "nitrogenio": nitrogenio,
-                "cor_aparente": cor_aparente, "residuo_total": residuo_total
+                "temperatura": temperatura, "ph": ph, "turbidez": turbidez,
+                "cor_aparente": cor_aparente, "cor_verdadeira": cor_verdadeira,
+                "od": od, "dbo": dbo, "dqo": dqo,
+                "nitrogenio_amoniacal": nitrogenio_amoniacal, "nitrato": nitrato, "nitrito": nitrito,
+                "nitrogenio_total": nitrogenio_total, "fosforo_total": fosforo_total, "fosfato_total": fosfato_total,
+                "coliformes": coliformes, "e_coli": e_coli, "clorofila_a": clorofila_a,
+                "condutividade": condutividade, "std": std, "sst": sst,
+                "alcalinidade": alcalinidade, "dureza": dureza, "cloretos": cloretos
             }
     
     # Botões para adicionar/remover pontos
@@ -406,15 +434,188 @@ def aba_analises():
             st.rerun()
     
     st.divider()
-    if st.button("💾 Salvar todas as análises", type="primary"):
+    if st.button("💾 Salvar todas as análises básicas", type="primary"):
         st.session_state.dados_app["analises"] = st.session_state.analises_temp
         salvar_dados(st.session_state.dados_app)
         st.success(f"{len(st.session_state.analises_temp)} ponto(s) de coleta salvo(s) com sucesso!")
 
 
-#Bloco 7 - Aba 3: Levantamento Ambiental
+#Bloco 7 - Aba 3: Análises Avançadas (Parâmetros complementares)
+def aba_analises_avancadas():
+    st.header("🔬 3. Análises Avançadas de Qualidade da Água")
+    st.caption("Parâmetros complementares para avaliação detalhada (Metais, Toxicidade, Microcontaminantes, etc.) - Base: CONAMA 357/2005 e Portaria 888/2021")
+    
+    # Inicializar lista de análises avançadas na sessão
+    if 'analises_avancadas_temp' not in st.session_state:
+        st.session_state.analises_avancadas_temp = st.session_state.dados_app.get("analises_avancadas", [])
+        if not st.session_state.analises_avancadas_temp:
+            st.session_state.analises_avancadas_temp = [{}]
+    
+    num_pontos = len(st.session_state.analises_avancadas_temp)
+    
+    for i in range(num_pontos):
+        with st.expander(f"🔬 Parâmetros Avançados - Ponto {i+1}", expanded=(i == num_pontos-1)):
+            
+            # Referência do ponto
+            ponto_ref = st.text_input(f"Referência do ponto (nome/ID) {i+1}", key=f"ref_av_{i}",
+                                      value=st.session_state.analises_avancadas_temp[i].get("ponto_ref", f"Ponto {i+1}"))
+            
+            st.markdown("---")
+            st.markdown("### 🦠 Indicadores Microbiológicos e Biológicos")
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                densidade_ciano = st.number_input(f"Densidade de Cianobactérias (cel/mL)", key=f"ciano_{i}",
+                                                  value=float(st.session_state.analises_avancadas_temp[i].get("densidade_ciano", 0)), step=100.0)
+                enterococos = st.number_input(f"Enterococos (NMP/100mL)", key=f"enter_{i}",
+                                             value=int(st.session_state.analises_avancadas_temp[i].get("enterococos", 0)), step=10)
+                transparencia = st.number_input(f"Transparência - Disco de Secchi (m)", key=f"secchi_{i}",
+                                               value=float(st.session_state.analises_avancadas_temp[i].get("transparencia", 2.0)), step=0.1)
+            
+            with col2:
+                toxicidade_aguda = st.selectbox(f"Toxicidade Aguda", ["Não detectada", "Detectada", "Não analisado"],
+                                               key=f"tox_ag_{i}", index=["Não detectada", "Detectada", "Não analisado"].index(
+                                                   st.session_state.analises_avancadas_temp[i].get("toxicidade_aguda", "Não analisado")))
+                toxicidade_cronica = st.selectbox(f"Toxicidade Crônica", ["Não detectada", "Detectada", "Não analisado"],
+                                                 key=f"tox_cr_{i}", index=["Não detectada", "Detectada", "Não analisado"].index(
+                                                     st.session_state.analises_avancadas_temp[i].get("toxicidade_cronica", "Não analisado")))
+            
+            st.markdown("---")
+            st.markdown("### 🧪 Ânions e Parâmetros Inorgânicos")
+            col3, col4 = st.columns(2)
+            
+            with col3:
+                sulfatos = st.number_input(f"Sulfatos (mg/L SO₄)", key=f"sulf_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("sulfatos", 50.0)), step=10.0)
+                fluoreto = st.number_input(f"Fluoreto (mg/L F)", key=f"fluor_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("fluoreto", 0.5)), step=0.1)
+                cianeto = st.number_input(f"Cianeto (mg/L CN)", key=f"cn_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("cianeto", 0.0)), step=0.01)
+                sulfeto = st.number_input(f"Sulfeto (mg/L S²⁻)", key=f"sulfeto_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("sulfeto", 0.0)), step=0.01)
+            
+            with col4:
+                cloro_residual = st.number_input(f"Cloro Residual Livre (mg/L Cl)", key=f"cloro_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("cloro_residual", 0.0)), step=0.1)
+                orp = st.number_input(f"Potencial de Oxirredução - ORP (mV)", key=f"orp_{i}", value=int(st.session_state.analises_avancadas_temp[i].get("orp", 0)), step=10)
+                salinidade = st.number_input(f"Salinidade (PSU)", key=f"salin_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("salinidade", 0.0)), step=0.1)
+            
+            st.markdown("---")
+            st.markdown("### 💧 Cátions e Metais")
+            col5, col6 = st.columns(2)
+            
+            with col5:
+                st.markdown("**Metais Alcalinos e Alcalinos Terrosos**")
+                sodio = st.number_input(f"Sódio (mg/L Na)", key=f"na_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("sodio", 20.0)), step=5.0)
+                potassio = st.number_input(f"Potássio (mg/L K)", key=f"k_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("potassio", 10.0)), step=5.0)
+                calcio = st.number_input(f"Cálcio (mg/L Ca)", key=f"ca_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("calcio", 30.0)), step=10.0)
+                magnesio = st.number_input(f"Magnésio (mg/L Mg)", key=f"mg_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("magnesio", 15.0)), step=5.0)
+                bario = st.number_input(f"Bário (mg/L Ba)", key=f"ba_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("bario", 0.1)), step=0.05)
+                boro = st.number_input(f"Boro (mg/L B)", key=f"b_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("boro", 0.1)), step=0.05)
+            
+            with col6:
+                st.markdown("**Metais Pesados e Tóxicos**")
+                ferro = st.number_input(f"Ferro Total (mg/L Fe)", key=f"fe_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("ferro", 0.3)), step=0.1)
+                manganes = st.number_input(f"Manganês (mg/L Mn)", key=f"mn_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("manganes", 0.1)), step=0.05)
+                aluminio = st.number_input(f"Alumínio (mg/L Al)", key=f"al_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("aluminio", 0.1)), step=0.05)
+                zinco = st.number_input(f"Zinco (mg/L Zn)", key=f"zn_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("zinco", 0.05)), step=0.01)
+                cobre = st.number_input(f"Cobre (mg/L Cu)", key=f"cu_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("cobre", 0.01)), step=0.01)
+                chumbo = st.number_input(f"Chumbo (mg/L Pb)", key=f"pb_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("chumbo", 0.001)), step=0.001, format="%.4f")
+                cadmio = st.number_input(f"Cádmio (mg/L Cd)", key=f"cd_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("cadmio", 0.0005)), step=0.0005, format="%.4f")
+                mercurio = st.number_input(f"Mercúrio (mg/L Hg)", key=f"hg_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("mercurio", 0.0001)), step=0.0001, format="%.4f")
+                arsenio = st.number_input(f"Arsênio (mg/L As)", key=f"as_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("arsenio", 0.001)), step=0.001, format="%.4f")
+                cromo = st.number_input(f"Cromo Total (mg/L Cr)", key=f"cr_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("cromo", 0.01)), step=0.01)
+                niquel = st.number_input(f"Níquel (mg/L Ni)", key=f"ni_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("niquel", 0.005)), step=0.005, format="%.4f")
+                selenio = st.number_input(f"Selênio (mg/L Se)", key=f"se_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("selenio", 0.001)), step=0.001, format="%.4f")
+                prata = st.number_input(f"Prata (mg/L Ag)", key=f"ag_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("prata", 0.0005)), step=0.0005, format="%.4f")
+                antimonio = st.number_input(f"Antimônio (mg/L Sb)", key=f"sb_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("antimonio", 0.001)), step=0.001, format="%.4f")
+            
+            st.markdown("---")
+            st.markdown("### 🧴 Compostos Orgânicos e Microcontaminantes")
+            col7, col8 = st.columns(2)
+            
+            with col7:
+                st.markdown("**Fenóis e Surfactantes**")
+                fenomen = st.number_input(f"Fenóis Totais (mg/L)", key=f"fenol_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("fenois", 0.0)), step=0.001, format="%.4f")
+                surfactantes = st.number_input(f"Surfactantes (mg/L LAS)", key=f"surf_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("surfactantes", 0.0)), step=0.1)
+                
+                st.markdown("**Óleos e Hidrocarbonetos**")
+                oleos_graxas = st.number_input(f"Óleos e Graxas (mg/L)", key=f"oleo_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("oleos_graxas", 0.0)), step=0.5)
+                hidrocarbonetos = st.number_input(f"Hidrocarbonetos Totais (mg/L)", key=f"hc_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("hidrocarbonetos", 0.0)), step=0.1)
+                
+                st.markdown("**Solventes e Aromáticos**")
+                benzeno = st.number_input(f"Benzeno (µg/L)", key=f"benz_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("benzeno", 0.0)), step=1.0)
+                tolueno = st.number_input(f"Tolueno (µg/L)", key=f"tol_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("tolueno", 0.0)), step=1.0)
+                xileno = st.number_input(f"Xileno (µg/L)", key=f"xil_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("xileno", 0.0)), step=1.0)
+                etilbenzeno = st.number_input(f"Etilbenzeno (µg/L)", key=f"etil_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("etilbenzeno", 0.0)), step=1.0)
+            
+            with col8:
+                st.markdown("**Trihalometanos (THM)**")
+                thms = st.number_input(f"Trihalometanos Totais (µg/L)", key=f"thm_{i}", value=float(st.session_state.analises_avancadas_temp[i].get("trihalometanos", 0.0)), step=1.0)
+                
+                st.markdown("**Pesticidas e Agrotóxicos**")
+                pesticidas = st.text_input(f"Pesticidas (especificar)", key=f"pest_{i}", 
+                                          value=st.session_state.analises_avancadas_temp[i].get("pesticidas", "Não detectado"))
+                herbicidas = st.text_input(f"Herbicidas (especificar)", key=f"herb_{i}",
+                                          value=st.session_state.analises_avancadas_temp[i].get("herbicidas", "Não detectado"))
+                organofosforados = st.text_input(f"Organofosforados (especificar)", key=f"org_{i}",
+                                                value=st.session_state.analises_avancadas_temp[i].get("organofosforados", "Não detectado"))
+                carbamatos = st.text_input(f"Carbamatos (especificar)", key=f"carb_{i}",
+                                          value=st.session_state.analises_avancadas_temp[i].get("carbamatos", "Não detectado"))
+            
+            st.markdown("---")
+            st.markdown("### 📊 Índices e Parâmetros Integradores")
+            col9, col10 = st.columns(2)
+            
+            with col9:
+                cot = st.number_input(f"Carbono Orgânico Total - COT (mg/L)", key=f"cot_{i}", 
+                                     value=float(st.session_state.analises_avancadas_temp[i].get("cot", 5.0)), step=1.0)
+                iqa = st.number_input(f"Índice de Qualidade da Água - IQA (0-100)", key=f"iqa_{i}",
+                                     value=float(st.session_state.analises_avancadas_temp[i].get("iqa", 70.0)), step=1.0, min_value=0.0, max_value=100.0)
+            
+            with col10:
+                iet = st.selectbox(f"Índice de Estado Trófico - IET", ["Ultraoligotrófico", "Oligotrófico", "Mesotrófico", "Eutrófico", "Hipereutrófico", "Não calculado"],
+                                  key=f"iet_{i}", index=["Ultraoligotrófico", "Oligotrófico", "Mesotrófico", "Eutrófico", "Hipereutrófico", "Não calculado"].index(
+                                      st.session_state.analises_avancadas_temp[i].get("iet", "Não calculado")))
+                radioatividade = st.text_input(f"Radioatividade (alfa/beta total)", key=f"rad_{i}",
+                                              value=st.session_state.analises_avancadas_temp[i].get("radioatividade", "Não detectada"))
+            
+            # Salvar no dicionário temporário
+            st.session_state.analises_avancadas_temp[i] = {
+                "ponto_ref": ponto_ref,
+                "densidade_ciano": densidade_ciano, "enterococos": enterococos, "transparencia": transparencia,
+                "toxicidade_aguda": toxicidade_aguda, "toxicidade_cronica": toxicidade_cronica,
+                "sulfatos": sulfatos, "fluoreto": fluoreto, "cianeto": cianeto, "sulfeto": sulfeto,
+                "cloro_residual": cloro_residual, "orp": orp, "salinidade": salinidade,
+                "sodio": sodio, "potassio": potassio, "calcio": calcio, "magnesio": magnesio,
+                "bario": bario, "boro": boro,
+                "ferro": ferro, "manganes": manganes, "aluminio": aluminio, "zinco": zinco,
+                "cobre": cobre, "chumbo": chumbo, "cadmio": cadmio, "mercurio": mercurio,
+                "arsenio": arsenio, "cromo": cromo, "niquel": niquel, "selenio": selenio,
+                "prata": prata, "antimonio": antimonio,
+                "fenois": fenomen, "surfactantes": surfactantes, "oleos_graxas": oleos_graxas,
+                "hidrocarbonetos": hidrocarbonetos, "benzeno": benzeno, "tolueno": tolueno,
+                "xileno": xileno, "etilbenzeno": etilbenzeno, "trihalometanos": thms,
+                "pesticidas": pesticidas, "herbicidas": herbicidas, "organofosforados": organofosforados,
+                "carbamatos": carbamatos, "cot": cot, "iqa": iqa, "iet": iet, "radioatividade": radioatividade
+            }
+    
+    # Botões para adicionar/remover pontos
+    col_b1, col_b2 = st.columns([1, 1])
+    with col_b1:
+        if len(st.session_state.analises_avancadas_temp) < 10 and st.button("➕ Adicionar outro ponto (avançado)"):
+            st.session_state.analises_avancadas_temp.append({})
+            st.rerun()
+    with col_b2:
+        if len(st.session_state.analises_avancadas_temp) > 1 and st.button("➖ Remover último ponto (avançado)"):
+            st.session_state.analises_avancadas_temp.pop()
+            st.rerun()
+    
+    st.divider()
+    if st.button("💾 Salvar todas as análises avançadas", type="primary"):
+        st.session_state.dados_app["analises_avancadas"] = st.session_state.analises_avancadas_temp
+        salvar_dados(st.session_state.dados_app)
+        st.success(f"{len(st.session_state.analises_avancadas_temp)} ponto(s) de análise avançada salvo(s) com sucesso!")
+
+
+#Bloco 8 - Aba 4: Levantamento Ambiental
 def aba_levantamento():
-    st.header("🌍 3. Levantamento de Causas Ambientais")
+    st.header("🌍 4. Levantamento de Causas Ambientais")
     
     # Carregar dados existentes
     lev = st.session_state.dados_app.get("levantamento", {})
@@ -451,8 +652,8 @@ def aba_levantamento():
     
     st.subheader("Informações Complementares")
     eventos_extremos = st.selectbox("Ocorrência de eventos extremos recentes",
-                                   ["Não","Altas Preciptações", "Secas prolongadas", "Queimadas", "Ventos fortes"],
-                                   index=["Não", "Altas Preciptações", "Secas prolongadas", "Queimadas", "Ventos fortes"].index(lev.get("eventos_extremos", "Não")))
+                                   ["Não", "Enxurradas", "Secas prolongadas", "Queimadas", "Ventos fortes"],
+                                   index=["Não", "Enxurradas", "Secas prolongadas", "Queimadas", "Ventos fortes"].index(lev.get("eventos_extremos", "Não")))
     
     observacoes = st.text_area("Observações adicionais (ex: afloramento rochoso com metais, histórico de contaminação)", 
                                value=lev.get("observacoes", ""))
@@ -467,173 +668,6 @@ def aba_levantamento():
         }
         salvar_dados(st.session_state.dados_app)
         st.success("Levantamento salvo com sucesso!")
-
-
-#Bloco 8 - Aba 4: Mapa de Localização
-def aba_mapa():
-    st.header("🗺️ 4. Mapa de Localização")
-    
-    # ============================================================
-    # INSTRUÇÕES PARA INSERIR A CHAVE DA API DO GOOGLE MAPS
-    # ============================================================
-    
-    
-    # COLE SUA CHAVE DE API DO GOOGLE MAPS ENTRE AS ASPAS ABAIXO
-    # EXEMPLO: CHAVE_API_GOOGLE = "AIzaSyD_1234567890abcdefghijklmnopqrs"
-    CHAVE_API_GOOGLE = "AIzaSyCbBzrvMUD8EZLO7v9EoYM9jiTmDDvDs9I"  # <--- INSIRA SUA CHAVE AQUI (dentro das aspas)
-    # ============================================================
-    
-    st.markdown("""
-    **📌 Sobre o Mapa:**
-    - O mapa abaixo usa **OpenStreetMap** como padrão (gratuito, sem necessidade de chave)
-    - Para usar **Google Maps**, insira sua chave de API na variável `CHAVE_API_GOOGLE` no código
-    - Os pontos de coleta cadastrados na aba "Análises" aparecerão automaticamente no mapa
-    - As cores dos pontos indicam a classificação da água:
-      - 🟢 Verde escuro: Classe 1 (Excelente)
-      - 🟠 Laranja: Classe 2 (Boa)
-      - 🔴 Vermelho: Classe 3 ou 4 (Regular/Ruim)
-    """)
-    
-    # Coletar coordenadas do cadastro e pontos
-    cad = st.session_state.dados_app.get("cadastro", {})
-    fazenda_coords = (cad.get("fazenda_lat", -15.0), cad.get("fazenda_lon", -45.0))
-    fazenda_nome = cad.get("fazenda_nome", "Fazenda")
-    corpo_nome = cad.get("corpo_nome", "Corpo hídrico")
-    
-    analises = st.session_state.dados_app.get("analises", [])
-    
-    # Verificar se há pontos de coleta
-    if not analises:
-        st.warning("⚠️ Nenhum ponto de coleta cadastrado. Vá para a aba 'Análises' para adicionar pontos.")
-    
-    # Criar mapa centralizado na fazenda
-    m = folium.Map(location=[fazenda_coords[0], fazenda_coords[1]], zoom_start=13, 
-                   control_scale=True)
-    
-    # Adicionar marcador da fazenda
-    folium.Marker(
-        location=[fazenda_coords[0], fazenda_coords[1]],
-        popup=f"🏠 **{fazenda_nome}**<br>📍 Fazenda/Local de referência",
-        icon=folium.Icon(color="green", icon="home", prefix='fa'),
-        tooltip="Clique para ver detalhes da fazenda"
-    ).add_to(m)
-    
-    # Adicionar marcador do corpo hídrico
-    folium.Marker(
-        location=[fazenda_coords[0]+0.002, fazenda_coords[1]+0.003],
-        popup=f"💧 **{corpo_nome}**<br>🌊 Corpo hídrico monitorado",
-        icon=folium.Icon(color="blue", icon="tint", prefix='fa'),
-        tooltip="Clique para ver detalhes do corpo hídrico"
-    ).add_to(m)
-    
-    # Adicionar pontos de coleta
-    pontos_adicionados = 0
-    for i, ponto in enumerate(analises):
-        lat = ponto.get("lat")
-        lon = ponto.get("lon")
-        if lat and lon:
-            classe, cor_classe, usos, motivos = classificar_ponto(ponto)
-            cor_icon = "darkgreen" if "Classe 1" in classe else "orange" if "Classe 2" in classe else "red"
-            
-            # Construir popup com informações detalhadas
-            popup_text = f"""
-            <div style="min-width: 200px;">
-                <b>📌 {ponto.get('nome', f'Ponto {i+1}')}</b><br>
-                📅 Data: {ponto.get('data', 'N/A')}<br>
-                🏷️ Classe: {classe} {cor_classe}<br>
-                ━━━━━━━━━━━━━━━━━━━━━<br>
-                📊 Parâmetros:<br>
-                • OD: {ponto.get('od', 'N/A')} mg/L<br>
-                • pH: {ponto.get('ph', 'N/A')}<br>
-                • DBO: {ponto.get('dbo', 'N/A')} mg/L<br>
-                • Turbidez: {ponto.get('turbidez', 'N/A')} NTU<br>
-                • E. coli: {ponto.get('coliformes', 'N/A')} NMP/100mL<br>
-                • Fósforo: {ponto.get('fosforo', 'N/A')} mg/L<br>
-                • Nitrogênio: {ponto.get('nitrogenio', 'N/A')} mg/L
-            </div>
-            """
-            
-            folium.Marker(
-                location=[lat, lon],
-                popup=folium.Popup(popup_text, max_width=300),
-                icon=folium.Icon(color=cor_icon, icon="water", prefix='fa'),
-                tooltip=f"{ponto.get('nome', f'Ponto {i+1}')} - {classe}"
-            ).add_to(m)
-            pontos_adicionados += 1
-        else:
-            st.warning(f"⚠️ Ponto '{ponto.get('nome', f'Ponto {i+1}')}' não possui coordenadas válidas. Ele não aparecerá no mapa.")
-    
-    # Se houver chave do Google Maps configurada no código, adicionar camada
-    # CHAVE_API_GOOGLE - Insira sua chave nas aspas na variável definida no início da função
-    if CHAVE_API_GOOGLE and CHAVE_API_GOOGLE.strip():
-        try:
-            folium.TileLayer(
-                tiles=f"https://mt1.google.com/vt/lyrs=m&x={{x}}&y={{y}}&z={{z}}&key={CHAVE_API_GOOGLE}",
-                attr="Google Maps",
-                name="Google Maps - Mapa",
-                overlay=False,
-                control=True
-            ).add_to(m)
-            
-            # Adicionar camada de satélite do Google
-            folium.TileLayer(
-                tiles=f"https://mt1.google.com/vt/lyrs=s&x={{x}}&y={{y}}&z={{z}}&key={CHAVE_API_GOOGLE}",
-                attr="Google Maps Satellite",
-                name="Google Maps - Satélite",
-                overlay=False,
-                control=True
-            ).add_to(m)
-            
-            st.success("✅ Camadas do Google Maps adicionadas com sucesso!")
-        except Exception as e:
-            st.warning(f"⚠️ Não foi possível adicionar o Google Maps: {e}")
-    else:
-        st.info("ℹ️ Usando OpenStreetMap como padrão. Para usar Google Maps, insira sua chave de API na variável 'CHAVE_API_GOOGLE' no código.")
-    
-    # Adicionar controle de camadas
-    folium.LayerControl().add_to(m)
-    
-    # Exibir o mapa
-    st_folium(m, width=900, height=600)
-    
-    # Exibir informações sobre os pontos exibidos
-    col_info1, col_info2, col_info3 = st.columns(3)
-    with col_info1:
-        st.metric("📍 Pontos de Coleta Cadastrados", len(analises))
-    with col_info2:
-        st.metric("🗺️ Pontos Exibidos no Mapa", pontos_adicionados)
-    with col_info3:
-        st.metric("🏷️ Classe predominante", "Ver relatório completo")
-    
-    # Tabela de coordenadas dos pontos
-    if analises:
-        st.subheader("📋 Coordenadas dos pontos de coleta (SIRGAS 2000 - graus decimais)")
-        
-        # Preparar dados com classificação para a tabela
-        dados_tabela = []
-        for i, p in enumerate(analises):
-            classe, _, _, _ = classificar_ponto(p)
-            dados_tabela.append({
-                "Ponto": p.get("nome", f"Ponto {i+1}"),
-                "Latitude": p.get("lat", "N/A"),
-                "Longitude": p.get("lon", "N/A"),
-                "Data da Coleta": p.get("data", "N/A"),
-                "Classificação": classe
-            })
-        
-        df_pontos = pd.DataFrame(dados_tabela)
-        st.dataframe(df_pontos, use_container_width=True)
-        
-        # Botão para exportar coordenadas
-        csv = df_pontos.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="📥 Exportar coordenadas (CSV)",
-            data=csv,
-            file_name="coordenadas_pontos_coleta.csv",
-            mime="text/csv",
-        )
-    else:
-        st.info("ℹ️ Nenhum ponto de coleta cadastrado ainda. Vá para a aba 'Análises' e cadastre os pontos.")
 #Bloco 9 - Aba 5: Relatório de Classificação
 def aba_relatorio():
     st.header("📊 5. Relatório de Classificação da Qualidade da Água")
