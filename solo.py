@@ -821,9 +821,9 @@ elif menu == "🌱 2. Classificação":
             st.markdown("---")
             
             # TABS CORRIGIDAS (CALAGEM, ADUBAÇÃO, MANEJO FUNCIONANDO)
-            tab1, tab2, tab3 = st.tabs(["🧪 Calagem", "🌱 Adubação", "📝 Manejo Geral"])
+            aba1, aba2, aba3 = st.tabs(["🧪 Calagem", "🌱 Adubação", "📝 Manejo Geral"])
             
-            with tab1:
+            with aba1:
                 st.markdown("#### 🧪 Recomendação de Calagem")
                 
                 ctc = dados.get('ctc', 0)
@@ -849,7 +849,6 @@ elif menu == "🌱 2. Classificação":
                 if nc > 0:
                     st.success(f"### {rec_calagem}")
                     
-                    # Detalhamento da Calagem em container separado
                     st.markdown("**📋 Detalhamento da Calagem:**")
                     col_det1, col_det2, col_det3 = st.columns(3)
                     with col_det1:
@@ -859,7 +858,6 @@ elif menu == "🌱 2. Classificação":
                     with col_det3:
                         st.metric("Tempo de espera mínimo", f"{tempo_espera} dias")
                     
-                    # Tabela de tempo de espera em expander separado, sem elementos conflitantes
                     st.markdown("---")
                     with st.expander("⏰ Ver tabela de tempo de espera por dose"):
                         st.markdown("""
@@ -873,7 +871,7 @@ elif menu == "🌱 2. Classificação":
                 else:
                     st.success(rec_calagem)
             
-            with tab2:
+            with aba2:
                 st.markdown("#### 🌱 Recomendação de Adubação")
                 
                 with st.container(border=True):
@@ -891,7 +889,7 @@ elif menu == "🌱 2. Classificação":
                     k_atual = dados.get('potassium', 0)
                     st.info(recomendar_adubacao_potassio(cultura, k_atual, req['k_min']))
             
-            with tab3:
+            with aba3:
                 st.markdown("#### 📝 Manejo Geral Recomendado")
                 
                 with st.container(border=True):
