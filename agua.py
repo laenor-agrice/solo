@@ -472,14 +472,27 @@ def aba_levantamento():
 #Bloco 8 - Aba 4: Mapa de Localização
 def aba_mapa():
     st.header("🗺️ 4. Mapa de Localização")
-    #st.markdown("""
-   # **Instruções para Google Maps**:  
-   # - O mapa abaixo usa OpenStreetMap por padrão (sem necessidade de chave).  
-    #- Para usar Google Maps como base, obtenha uma chave de API em [Google Cloud Console](https://console.cloud.google.com/), ative a Maps JavaScript API e insira a chave abaixo.
-    """)#
     
-    chave_gmaps = st.text_input("AIzaSyCbBzrvMUD8EZLO7v9EoYM9jiTmDDvDs9I", type="password", 
-                                help="Se não informar, será usado OpenStreetMap.")
+    # ============================================================
+    # INSTRUÇÕES PARA INSERIR A CHAVE DA API DO GOOGLE MAPS
+    # ============================================================
+    
+    
+    # COLE SUA CHAVE DE API DO GOOGLE MAPS ENTRE AS ASPAS ABAIXO
+    # EXEMPLO: CHAVE_API_GOOGLE = "AIzaSyD_1234567890abcdefghijklmnopqrs"
+    CHAVE_API_GOOGLE = "AIzaSyCbBzrvMUD8EZLO7v9EoYM9jiTmDDvDs9I"  # <--- INSIRA SUA CHAVE AQUI (dentro das aspas)
+    # ============================================================
+    
+    st.markdown("""
+    **📌 Sobre o Mapa:**
+    - O mapa abaixo usa **OpenStreetMap** como padrão (gratuito, sem necessidade de chave)
+    - Para usar **Google Maps**, insira sua chave de API na variável `CHAVE_API_GOOGLE` no código
+    - Os pontos de coleta cadastrados na aba "Análises" aparecerão automaticamente no mapa
+    - As cores dos pontos indicam a classificação da água:
+      - 🟢 Verde escuro: Classe 1 (Excelente)
+      - 🟠 Laranja: Classe 2 (Boa)
+      - 🔴 Vermelho: Classe 3 ou 4 (Regular/Ruim)
+    """)
     
     # Coletar coordenadas do cadastro e pontos
     cad = st.session_state.dados_app.get("cadastro", {})
@@ -489,6 +502,10 @@ def aba_mapa():
     
     analises = st.session_state.dados_app.get("analises", [])
     
+    # Verificar se há pontos de coleta
+    if not analises:
+        st.warning("⚠️ Nenhum ponto de coleta cadastrado. Vá para a aba 'Análises' para adicionar pontos.")
+    
     # Criar mapa centralizado na fazenda
     m = folium.Map(location=[fazenda_coords[0], fazenda_coords[1]], zoom_start=13, 
                    control_scale=True)
@@ -496,66 +513,127 @@ def aba_mapa():
     # Adicionar marcador da fazenda
     folium.Marker(
         location=[fazenda_coords[0], fazenda_coords[1]],
-        popup=f"🏠 {fazenda_nome}",
+        popup=f"🏠 **{fazenda_nome}**<br>📍 Fazenda/Local de referência",
         icon=folium.Icon(color="green", icon="home", prefix='fa'),
-        tooltip="Fazenda"
+        tooltip="Clique para ver detalhes da fazenda"
     ).add_to(m)
     
-    # Adicionar marcador do corpo hídrico (aproximado - mesmo ponto ou poderia ser outro)
+    # Adicionar marcador do corpo hídrico
     folium.Marker(
         location=[fazenda_coords[0]+0.002, fazenda_coords[1]+0.003],
-        popup=f"💧 {corpo_nome}",
+        popup=f"💧 **{corpo_nome}**<br>🌊 Corpo hídrico monitorado",
         icon=folium.Icon(color="blue", icon="tint", prefix='fa'),
-        tooltip="Corpo hídrico"
+        tooltip="Clique para ver detalhes do corpo hídrico"
     ).add_to(m)
     
     # Adicionar pontos de coleta
+    pontos_adicionados = 0
     for i, ponto in enumerate(analises):
         lat = ponto.get("lat")
         lon = ponto.get("lon")
         if lat and lon:
-            classe, cor, _, _ = classificar_ponto(ponto)
+            classe, cor_classe, usos, motivos = classificar_ponto(ponto)
             cor_icon = "darkgreen" if "Classe 1" in classe else "orange" if "Classe 2" in classe else "red"
-            popup_text = f"📌 {ponto.get('nome', f'Ponto {i+1}')}<br>Data: {ponto.get('data', 'N/A')}<br>Classe: {classe}<br>OD: {ponto.get('od', 'N/A')} mg/L<br>pH: {ponto.get('ph', 'N/A')}"
+            
+            # Construir popup com informações detalhadas
+            popup_text = f"""
+            <div style="min-width: 200px;">
+                <b>📌 {ponto.get('nome', f'Ponto {i+1}')}</b><br>
+                📅 Data: {ponto.get('data', 'N/A')}<br>
+                🏷️ Classe: {classe} {cor_classe}<br>
+                ━━━━━━━━━━━━━━━━━━━━━<br>
+                📊 Parâmetros:<br>
+                • OD: {ponto.get('od', 'N/A')} mg/L<br>
+                • pH: {ponto.get('ph', 'N/A')}<br>
+                • DBO: {ponto.get('dbo', 'N/A')} mg/L<br>
+                • Turbidez: {ponto.get('turbidez', 'N/A')} NTU<br>
+                • E. coli: {ponto.get('coliformes', 'N/A')} NMP/100mL<br>
+                • Fósforo: {ponto.get('fosforo', 'N/A')} mg/L<br>
+                • Nitrogênio: {ponto.get('nitrogenio', 'N/A')} mg/L
+            </div>
+            """
+            
             folium.Marker(
                 location=[lat, lon],
-                popup=popup_text,
+                popup=folium.Popup(popup_text, max_width=300),
                 icon=folium.Icon(color=cor_icon, icon="water", prefix='fa'),
-                tooltip=ponto.get('nome', f'Ponto {i+1}')
+                tooltip=f"{ponto.get('nome', f'Ponto {i+1}')} - {classe}"
             ).add_to(m)
+            pontos_adicionados += 1
+        else:
+            st.warning(f"⚠️ Ponto '{ponto.get('nome', f'Ponto {i+1}')}' não possui coordenadas válidas. Ele não aparecerá no mapa.")
     
-    # Se houver chave do Google Maps, tentar adicionar tile layer (requer chave)
-    if chave_gmaps and chave_gmaps.strip():
+    # Se houver chave do Google Maps configurada no código, adicionar camada
+    # CHAVE_API_GOOGLE - Insira sua chave nas aspas na variável definida no início da função
+    if CHAVE_API_GOOGLE and CHAVE_API_GOOGLE.strip():
         try:
             folium.TileLayer(
-                tiles=f"https://mt1.google.com/vt/lyrs=m&x={{x}}&y={{y}}&z={{z}}&key={chave_gmaps}",
+                tiles=f"https://mt1.google.com/vt/lyrs=m&x={{x}}&y={{y}}&z={{z}}&key={CHAVE_API_GOOGLE}",
                 attr="Google Maps",
-                name="Google Maps",
+                name="Google Maps - Mapa",
                 overlay=False,
                 control=True
             ).add_to(m)
-            st.success("Camada do Google Maps adicionada (requer chave válida).")
+            
+            # Adicionar camada de satélite do Google
+            folium.TileLayer(
+                tiles=f"https://mt1.google.com/vt/lyrs=s&x={{x}}&y={{y}}&z={{z}}&key={CHAVE_API_GOOGLE}",
+                attr="Google Maps Satellite",
+                name="Google Maps - Satélite",
+                overlay=False,
+                control=True
+            ).add_to(m)
+            
+            st.success("✅ Camadas do Google Maps adicionadas com sucesso!")
         except Exception as e:
-            st.warning(f"Não foi possível adicionar o Google Maps: {e}")
+            st.warning(f"⚠️ Não foi possível adicionar o Google Maps: {e}")
+    else:
+        st.info("ℹ️ Usando OpenStreetMap como padrão. Para usar Google Maps, insira sua chave de API na variável 'CHAVE_API_GOOGLE' no código.")
     
+    # Adicionar controle de camadas
     folium.LayerControl().add_to(m)
     
+    # Exibir o mapa
     st_folium(m, width=900, height=600)
+    
+    # Exibir informações sobre os pontos exibidos
+    col_info1, col_info2, col_info3 = st.columns(3)
+    with col_info1:
+        st.metric("📍 Pontos de Coleta Cadastrados", len(analises))
+    with col_info2:
+        st.metric("🗺️ Pontos Exibidos no Mapa", pontos_adicionados)
+    with col_info3:
+        st.metric("🏷️ Classe predominante", "Ver relatório completo")
     
     # Tabela de coordenadas dos pontos
     if analises:
-        st.subheader("Coordenadas dos pontos de coleta (SIRGAS 2000 - graus decimais)")
-        df_pontos = pd.DataFrame([{
-            "Ponto": p.get("nome", f"Ponto {i+1}"),
-            "Latitude": p.get("lat", "N/A"),
-            "Longitude": p.get("lon", "N/A"),
-            "Data": p.get("data", "N/A")
-        } for i, p in enumerate(analises)])
+        st.subheader("📋 Coordenadas dos pontos de coleta (SIRGAS 2000 - graus decimais)")
+        
+        # Preparar dados com classificação para a tabela
+        dados_tabela = []
+        for i, p in enumerate(analises):
+            classe, _, _, _ = classificar_ponto(p)
+            dados_tabela.append({
+                "Ponto": p.get("nome", f"Ponto {i+1}"),
+                "Latitude": p.get("lat", "N/A"),
+                "Longitude": p.get("lon", "N/A"),
+                "Data da Coleta": p.get("data", "N/A"),
+                "Classificação": classe
+            })
+        
+        df_pontos = pd.DataFrame(dados_tabela)
         st.dataframe(df_pontos, use_container_width=True)
+        
+        # Botão para exportar coordenadas
+        csv = df_pontos.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Exportar coordenadas (CSV)",
+            data=csv,
+            file_name="coordenadas_pontos_coleta.csv",
+            mime="text/csv",
+        )
     else:
-        st.info("Nenhum ponto de coleta cadastrado ainda. Vá para a aba 'Análises'.")
-
-
+        st.info("ℹ️ Nenhum ponto de coleta cadastrado ainda. Vá para a aba 'Análises' e cadastre os pontos.")
 #Bloco 9 - Aba 5: Relatório de Classificação
 def aba_relatorio():
     st.header("📊 5. Relatório de Classificação da Qualidade da Água")
