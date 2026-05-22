@@ -219,32 +219,48 @@ st.markdown("""
         color: #666 !important;
     }
     
-    /* Selectbox corrigido */
+        /* Selectbox corrigido - FUNDO ESCURO COM TEXTO BRANCO */
     .stSelectbox > div > div {
-        background: rgba(255,255,255,0.9) !important;
+        background: rgba(20, 20, 40, 0.95) !important;
         border: 1px solid rgba(46,204,113,0.4) !important;
         border-radius: 12px !important;
-        color: #1a1a2e !important;
+        color: white !important;
+    }
+    
+    .stSelectbox > div > div > div {
+        color: white !important;
+    }
+    
+    .stSelectbox > div > div > div[role="combobox"] {
+        color: white !important;
+    }
+    
+    /* Opções do dropdown (lista suspensa) */
+    div[data-baseweb="select"] > div {
+        background: rgba(20, 20, 40, 0.98) !important;
+        backdrop-filter: blur(10px);
+    }
+    
+    div[data-baseweb="select"] ul {
+        background: rgba(15, 15, 30, 0.98) !important;
+    }
+    
+    div[data-baseweb="select"] li {
+        color: white !important;
+        background: transparent !important;
+    }
+    
+    div[data-baseweb="select"] li:hover {
+        background: rgba(46,204,113,0.2) !important;
+    }
+    
+    div[data-baseweb="select"] li[aria-selected="true"] {
+        background: rgba(46,204,113,0.3) !important;
+        color: #2ecc71 !important;
     }
     
     .stSelectbox label {
         color: #e2e8f0 !important;
-    }
-    
-    /* Textarea corrigido */
-    textarea {
-        background: rgba(255,255,255,0.9) !important;
-        border: 1px solid rgba(46,204,113,0.4) !important;
-        border-radius: 12px !important;
-        color: #1a1a2e !important;
-        font-size: 14px !important;
-    }
-    
-    /* Labels com cor clara */
-    label {
-        color: #e2e8f0 !important;
-        font-weight: 500 !important;
-        margin-bottom: 4px !important;
     }
     
     /* ========== BOTÕES COM ANIMAÇÃO E TEXTO CLARO ========== */
