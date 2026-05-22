@@ -823,7 +823,7 @@ elif menu == "🌱 2. Classificação":
             # TABS CORRIGIDAS (CALAGEM, ADUBAÇÃO, MANEJO FUNCIONANDO)
             tab1, tab2, tab3 = st.tabs(["🧪 Calagem", "🌱 Adubação", "📝 Manejo Geral"])
             
-                        with tab1:
+            with tab1:
                 st.markdown("#### 🧪 Recomendação de Calagem")
                 
                 ctc = dados.get('ctc', 0)
