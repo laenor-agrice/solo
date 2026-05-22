@@ -2,8 +2,8 @@
 # IMPORTAÇÕES
 # ============================================================================
 
-imp/ort streamlit as st
-imp/ort pandas as pd
+import streamlit as st
+import pandas as pd
 import requests
 import json
 
