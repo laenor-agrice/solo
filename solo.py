@@ -531,6 +531,10 @@ def classificar_fertilidade(v_porcentagem):
     else:
         return "Fertilidade muito boa (V% > 85)"
 
+# ============================================================================
+# FUNÇÃO PARA GERAR DIAGNÓSTICO AMIGÁVEL
+# ============================================================================
+
 def gerar_diagnostico(dados, cultura_req):
     """Gera um diagnóstico amigável para o usuário"""
     diagnostico = []
