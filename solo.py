@@ -823,7 +823,7 @@ elif menu == "🌱 2. Classificação":
             # TABS CORRIGIDAS (CALAGEM, ADUBAÇÃO, MANEJO FUNCIONANDO)
             tab1, tab2, tab3 = st.tabs(["🧪 Calagem", "🌱 Adubação", "📝 Manejo Geral"])
             
-            with tab1:
+                        with tab1:
                 st.markdown("#### 🧪 Recomendação de Calagem")
                 
                 ctc = dados.get('ctc', 0)
@@ -848,23 +848,28 @@ elif menu == "🌱 2. Classificação":
                 
                 if nc > 0:
                     st.success(f"### {rec_calagem}")
-                    with st.container(border=True):
-                        st.markdown(f"""
-                        **📋 Detalhamento da Calagem:**
-                        - Necessidade: **{nc:.1f} t/ha** de calcário
-                        - PRNT considerado: **{prnt_calcario}%**
-                        - **Tempo de espera mínimo:** **{tempo_espera} dias** antes do plantio
+                    
+                    # Detalhamento da Calagem em container separado
+                    st.markdown("**📋 Detalhamento da Calagem:**")
+                    col_det1, col_det2, col_det3 = st.columns(3)
+                    with col_det1:
+                        st.metric("Necessidade", f"{nc:.1f} t/ha de calcário")
+                    with col_det2:
+                        st.metric("PRNT considerado", f"{prnt_calcario}%")
+                    with col_det3:
+                        st.metric("Tempo de espera mínimo", f"{tempo_espera} dias")
+                    
+                    # Tabela de tempo de espera em expander separado, sem elementos conflitantes
+                    st.markdown("---")
+                    with st.expander("⏰ Ver tabela de tempo de espera por dose"):
+                        st.markdown("""
+                        | Dose de calcário (t/ha) | Tempo de espera mínimo |
+                        |------------------------|----------------------|
+                        | Até 1.0 t/ha | 30 dias |
+                        | 1.1 - 2.0 t/ha | 45 dias |
+                        | 2.1 - 4.0 t/ha | 60 dias |
+                        | Acima de 4.0 t/ha | 90 dias (parcelar) |
                         """)
-                        
-                        with st.expander("⏰ Tabela de tempo de espera por dose"):
-                            st.markdown("""
-                            | Dose de calcário (t/ha) | Tempo de espera mínimo |
-                            |------------------------|----------------------|
-                            | Até 1.0 t/ha | 30 dias |
-                            | 1.1 - 2.0 t/ha | 45 dias |
-                            | 2.1 - 4.0 t/ha | 60 dias |
-                            | Acima de 4.0 t/ha | 90 dias (parcelar) |
-                            """)
                 else:
                     st.success(rec_calagem)
             
