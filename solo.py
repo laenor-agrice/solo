@@ -6,6 +6,7 @@ import streamlit as st
 import pandas as pd
 import requests
 import json
+import time
 
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA
@@ -22,7 +23,7 @@ st.set_page_config(
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "AIzaSyCbBzrvMUD8EZLO7v9EoYM9jiTmDDvDs9I"  # ← USE ESTA!
+GEMINI_API_KEY = "AIzaSyCbBzrvMUD8EZLO7v9EoYM9jiTmDDvDs9I"  # ← INSIRA SUA CHAVE AQUI!
 
 # ============================================================================
 # FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
@@ -56,7 +57,6 @@ def listar_modelos_disponiveis():
 def gerar_resposta_ia(pergunta, dados_solo=None):
     """Função com detecção automática do modelo"""
     
-    # VERIFICAÇÃO CORRIGIDA
     if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
         return "⚠️ **API Key não configurada!** Configure sua chave no código."
     
@@ -138,8 +138,9 @@ RESPOSTA:"""
     
     except Exception as erro:
         return f"❌ **Erro:** {str(erro)}"
+
 # ============================================================================
-# CSS PERSONALIZADO - DESIGN PREMIUM (MODERNO E DINÂMICO)
+# CSS PERSONALIZADO - CORRIGIDO (INPUTS COM TEXTO VISÍVEL)
 # ============================================================================
 
 st.markdown("""
@@ -157,16 +158,13 @@ st.markdown("""
         color: #ffffff;
     }
     
-    /* ========== SIDEBAR PREMIUM ========== */
+    /* ========== SIDEBAR MAIS COMPACTA ========== */
     section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, rgba(10,15,30,0.98) 0%, rgba(5,7,15,0.98) 100%);
         backdrop-filter: blur(10px);
         border-right: 1px solid rgba(46,204,113,0.2);
         box-shadow: 4px 0 30px rgba(0,0,0,0.3);
-    }
-    
-    section[data-testid="stSidebar"] .sidebar-content {
-        padding: 1.5rem 0.5rem;
+        min-width: 280px;
     }
     
     /* ========== TÍTULOS ========== */
@@ -180,13 +178,13 @@ st.markdown("""
     }
     
     h1 {
-        font-size: 2.8rem !important;
-        margin-bottom: 1rem !important;
+        font-size: 2.2rem !important;
+        margin-bottom: 0.5rem !important;
     }
     
     h2 {
-        font-size: 1.8rem !important;
-        margin-top: 1rem !important;
+        font-size: 1.5rem !important;
+        margin-top: 0.5rem !important;
     }
     
     /* ========== TEXTO GERAL ========== */
@@ -195,44 +193,61 @@ st.markdown("""
         line-height: 1.5;
     }
     
-    /* ========== INPUTS MODERNOS ========== */
+    /* ========== INPUTS CORRIGIDOS - TEXTO PRETO VISÍVEL ========== */
     .stTextInput > div > div > input,
     .stNumberInput > div > div > input,
     .stDateInput > div > div > input {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(46,204,113,0.3) !important;
-        border-radius: 16px !important;
-        padding: 12px 16px !important;
-        color: white !important;
+        background: rgba(255,255,255,0.9) !important;
+        border: 1px solid rgba(46,204,113,0.4) !important;
+        border-radius: 12px !important;
+        padding: 10px 14px !important;
+        color: #1a1a2e !important;
         font-size: 14px !important;
+        font-weight: 500 !important;
         transition: all 0.3s ease !important;
     }
     
     .stTextInput > div > div > input:focus,
     .stNumberInput > div > div > input:focus {
         border-color: #2ecc71 !important;
-        box-shadow: 0 0 0 2px rgba(46,204,113,0.2) !important;
+        box-shadow: 0 0 0 2px rgba(46,204,113,0.3) !important;
         outline: none !important;
     }
     
-    /* Selectbox */
-    .stSelectbox > div > div {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(46,204,113,0.3) !important;
-        border-radius: 16px !important;
-        color: white !important;
+    /* Placeholder mais claro */
+    .stTextInput > div > div > input::placeholder {
+        color: #666 !important;
     }
     
-    /* Textarea */
+    /* Selectbox corrigido */
+    .stSelectbox > div > div {
+        background: rgba(255,255,255,0.9) !important;
+        border: 1px solid rgba(46,204,113,0.4) !important;
+        border-radius: 12px !important;
+        color: #1a1a2e !important;
+    }
+    
+    .stSelectbox label {
+        color: #e2e8f0 !important;
+    }
+    
+    /* Textarea corrigido */
     textarea {
-        background: rgba(255,255,255,0.05) !important;
-        border: 1px solid rgba(46,204,113,0.3) !important;
-        border-radius: 16px !important;
-        color: white !important;
+        background: rgba(255,255,255,0.9) !important;
+        border: 1px solid rgba(46,204,113,0.4) !important;
+        border-radius: 12px !important;
+        color: #1a1a2e !important;
         font-size: 14px !important;
     }
     
-    /* ========== BOTÕES 3D COM ANIMAÇÃO ========== */
+    /* Labels com cor clara */
+    label {
+        color: #e2e8f0 !important;
+        font-weight: 500 !important;
+        margin-bottom: 4px !important;
+    }
+    
+    /* ========== BOTÕES COM ANIMAÇÃO E TEXTO CLARO ========== */
     .stButton button {
         background: linear-gradient(135deg, #1e8f4a, #2ecc71);
         border: none;
@@ -240,7 +255,7 @@ st.markdown("""
         padding: 12px 24px;
         font-weight: 600;
         font-size: 15px;
-        color: white;
+        color: white !important;
         transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         cursor: pointer;
         box-shadow: 0 4px 15px rgba(46,204,113,0.3);
@@ -257,229 +272,93 @@ st.markdown("""
         transform: translateY(2px);
     }
     
-    /* Botão secundário */
-    button[kind="secondary"] {
-        background: rgba(255,255,255,0.1) !important;
-        box-shadow: none !important;
-        border: 1px solid rgba(255,255,255,0.2) !important;
-    }
-    
-    button[kind="secondary"]:hover {
-        background: rgba(255,255,255,0.2) !important;
-        transform: translateY(-2px);
-    }
-    
-    /* ========== CARDS GLASSMORPHISM ========== */
+    /* ========== CARDS MAIS COMPACTOS ========== */
     .stContainer, .element-container:has(.stExpander), div[data-testid="stExpander"] {
-        background: rgba(255,255,255,0.03);
-        backdrop-filter: blur(12px);
-        border-radius: 24px;
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
         border: 1px solid rgba(255,255,255,0.08);
-        padding: 0rem;
-        margin-bottom: 1rem;
+        margin-bottom: 0.8rem;
         transition: all 0.3s ease;
-    }
-    
-    div[data-testid="stExpander"]:hover {
-        border-color: rgba(46,204,113,0.4);
-        transform: translateY(-2px);
     }
     
     /* Expander header */
     .streamlit-expanderHeader {
         background: linear-gradient(135deg, rgba(46,204,113,0.15), rgba(46,204,113,0.05));
-        border-radius: 24px;
+        border-radius: 20px;
         font-weight: 600;
         color: #2ecc71 !important;
-        padding: 16px 20px;
-    }
-    
-    .streamlit-expanderContent {
-        padding: 20px;
-        border-top: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    /* ========== HERO BANNER ========== */
-    .hero-banner {
-        background: linear-gradient(135deg, rgba(46,204,113,0.15), rgba(46,204,113,0.05));
-        border: 1px solid rgba(46,204,113,0.3);
-        border-radius: 32px;
-        padding: 2rem;
-        text-align: center;
-        margin-bottom: 2rem;
-        backdrop-filter: blur(12px);
-        animation: fadeInUp 0.6s ease;
-    }
-    
-    .hero-banner h1 {
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-        background: linear-gradient(135deg, #ffffff, #2ecc71);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent !important;
-    }
-    
-    .hero-banner p {
-        font-size: 1.1rem;
-        opacity: 0.9;
+        padding: 12px 16px;
     }
     
     /* ========== MÉTRICAS BONITAS ========== */
     .metric-card {
-        background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-        border-radius: 24px;
-        padding: 1.2rem;
+        background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+        border-radius: 16px;
+        padding: 0.8rem;
         text-align: center;
-        border: 1px solid rgba(46,204,113,0.25);
+        border: 1px solid rgba(46,204,113,0.3);
         transition: all 0.3s ease;
     }
     
     .metric-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-3px);
         border-color: rgba(46,204,113,0.6);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    
-    .metric-card .metric-value {
-        font-size: 2.2rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #2ecc71, #ffffff);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-    }
-    
-    .metric-card .metric-label {
-        font-size: 0.85rem;
-        color: #94a3b8;
-        margin-top: 0.5rem;
     }
     
     /* ========== TABS MODERNAS ========== */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 12px;
+        gap: 8px;
         background: rgba(255,255,255,0.03);
-        padding: 6px;
-        border-radius: 60px;
-        backdrop-filter: blur(8px);
+        padding: 4px;
+        border-radius: 50px;
     }
     
     .stTabs [data-baseweb="tab"] {
         background: transparent;
         border-radius: 40px;
-        padding: 10px 20px;
+        padding: 8px 16px;
         font-weight: 500;
         transition: all 0.3s ease;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover {
-        background: rgba(46,204,113,0.15);
     }
     
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, #1e8f4a, #2ecc71);
         color: white !important;
-        box-shadow: 0 2px 10px rgba(46,204,113,0.3);
     }
     
-    /* ========== ALERTAS E NOTIFICAÇÕES ========== */
-    .stAlert {
+    /* ========== RESULT CARD ========== */
+    .result-card {
+        background: linear-gradient(145deg, rgba(46,204,113,0.12), rgba(255,255,255,0.04));
+        border: 1px solid rgba(46,204,113,0.4);
         border-radius: 20px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    /* ========== DIAGNÓSTICO CARD ========== */
+    .diagnostico-card {
+        background: linear-gradient(135deg, rgba(46,204,113,0.1), rgba(46,204,113,0.05));
         border-left: 4px solid #2ecc71;
-        background: rgba(46,204,113,0.1);
-    }
-    
-    /* ========== DATA FRAME ========== */
-    .stDataFrame, .stTable {
-        background: rgba(255,255,255,0.03);
-        border-radius: 20px;
-        overflow: hidden;
-    }
-    
-    /* ========== DIVIDERS ========== */
-    hr {
-        margin: 2rem 0;
-        border: none;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(46,204,113,0.5), transparent);
+        border-radius: 16px;
+        padding: 1rem;
+        margin: 1rem 0;
     }
     
     /* ========== ANIMAÇÕES ========== */
     @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     
     .fade-in {
-        animation: fadeInUp 0.5s ease;
+        animation: fadeInUp 0.4s ease;
     }
     
-    /* ========== CHECKBOX E RADIO ========== */
-    .stCheckbox label span {
-        color: #e2e8f0 !important;
-    }
-    
-    .stRadio label span {
-        color: #e2e8f0 !important;
-    }
-    
-    /* ========== FILE UPLOADER ========== */
-    .stFileUploader > div {
-        background: rgba(255,255,255,0.03);
-        border: 2px dashed rgba(46,204,113,0.4);
-        border-radius: 20px;
-        padding: 20px;
-    }
-    
-    /* ========== SIDEBAR MENU ITEMS ========== */
-    .stRadio > div {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .stRadio label {
-        background: rgba(255,255,255,0.03);
-        border-radius: 40px;
-        padding: 10px 16px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-    
-    .stRadio label:hover {
-        background: rgba(46,204,113,0.15);
-        transform: translateX(5px);
-    }
-    
-    /* ========== SELECT SLIDER ========== */
-    .stSlider > div {
-        color: #2ecc71 !important;
-    }
-    
-    /* ========== CÓDIGO E JSON ========== */
-    code, pre {
-        background: rgba(0,0,0,0.3);
-        border-radius: 12px;
-        padding: 2px 6px;
-        font-family: monospace;
-    }
-    
-    /* ========== SCROLLBAR CUSTOM ========== */
+    /* ========== SCROLLBAR ========== */
     ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
     }
     
     ::-webkit-scrollbar-track {
@@ -492,65 +371,71 @@ st.markdown("""
         border-radius: 10px;
     }
     
-    ::-webkit-scrollbar-thumb:hover {
-        background: #2ecc71;
+    /* ========== DATA FRAME ========== */
+    .stDataFrame, .stTable {
+        background: rgba(255,255,255,0.03);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    
+    /* ========== ALERTAS ========== */
+    .stAlert {
+        border-radius: 16px;
+        border-left: 4px solid #2ecc71;
+        background: rgba(46,204,113,0.1);
+    }
+    
+    /* ========== HERO BANNER MAIS COMPACTO ========== */
+    .hero-banner {
+        background: linear-gradient(135deg, rgba(46,204,113,0.12), rgba(46,204,113,0.04));
+        border: 1px solid rgba(46,204,113,0.3);
+        border-radius: 24px;
+        padding: 1rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .hero-banner h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .hero-banner p {
+        font-size: 0.9rem;
+        opacity: 0.8;
     }
 </style>
-
-<script>
-    // Pequeno script para adicionar animações
-    document.addEventListener('DOMContentLoaded', function() {
-        // Adiciona classe fade-in aos containers principais
-        const containers = document.querySelectorAll('.stApp > section');
-        containers.forEach(container => {
-            container.classList.add('fade-in');
-        });
-    });
-</script>
 """, unsafe_allow_html=True)
-# ============================================================================
-# CABEÇALHO HERO
-# ============================================================================
-
-# SUBSTITUA O BLOCO DO CABEÇALHO POR ESTE:
-
-st.markdown("<h1 style='text-align: center; font-size: 3.2rem;'>🌾 Classificador Inteligente de Fertilidade do Solo</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; font-size: 1.3rem; color: #cccccc;'>Sistema baseado no SiBCS - Embrapa e Integração da I.A Gemini</p>", unsafe_allow_html=True)
-
-# OU com uma imagem de solo/plantação (se quiser manter):
-# CAPA - ALTURA MÉDIA (METADE DO BANNER PADRÃO)
-with st.container(border=True):
-    st.markdown(
-        """
-        <div style="text-align: center;">
-            <img src="https://rehagro.com.br/blog/wp-content/uploads/2025/02/capa-adubacao-base.jpg" 
-                 style="width: 100%; max-height: 580px; object-fit: cover; border-radius: 8px;">
-            <p style="margin-top: 8px; font-size: 43px; color: #aaa;">🌱 Análise Inteligente do Solo</p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    st.markdown("### Sistema baseado no SiBCS - Embrapa")
-    
-st.write("")  # Espaçamento
 
 # ============================================================================
-# SIDEBAR
+# CABEÇALHO HERO - MAIS COMPACTO
+# ============================================================================
+
+st.markdown("""
+<div class="hero-banner">
+    <h1>🌾 Classificador Inteligente de Fertilidade do Solo</h1>
+    <p>Sistema baseado no SiBCS - Embrapa e Integração com IA Gemini</p>
+</div>
+""", unsafe_allow_html=True)
+
+# ============================================================================
+# SIDEBAR - MENU MAIS LIMPO
 # ============================================================================
 
 with st.sidebar:
     st.image(
         "https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
-        width=90
+        width=70
     )
     
-    st.markdown("## 🌱 Sistema Inteligente")
+    st.markdown("### 🌱 Sistema Inteligente")
     st.markdown("""
-    ✅ Avaliação da fertilidade  
-    ✅ Cálculo de V% e m%  
-    ✅ Classificação SiBCS  
-    ✅ Relatório técnico  
-    ✅ IA Gemini integrada  
+    • Avaliação da fertilidade  
+    • Cálculo de V% e m%  
+    • Classificação SiBCS  
+    • Relatório técnico  
+    • IA Gemini integrada  
     """)
     
     st.markdown("---")
@@ -559,7 +444,7 @@ with st.sidebar:
         with st.spinner("Testando..."):
             modelos = listar_modelos_disponiveis()
             if modelos:
-                st.success(f"✅ API conectada! Modelo: {modelos[0]}")
+                st.success(f"✅ API conectada!")
             else:
                 st.error("❌ Falha na conexão. Verifique sua API Key.")
 
@@ -574,7 +459,7 @@ if "dados_calculados" not in st.session_state:
     st.session_state.dados_calculados = {}
 
 # ============================================================================
-# MENU
+# MENU HORIZONTAL MAIS COMPACTO
 # ============================================================================
 
 menu = st.radio(
@@ -646,6 +531,44 @@ def classificar_fertilidade(v_porcentagem):
     else:
         return "Fertilidade muito boa (V% > 85)"
 
+def gerar_diagnostico(dados, cultura_req):
+    """Gera um diagnóstico amigável para o usuário"""
+    diagnostico = []
+    
+    ph_atual = dados.get('ph', 0)
+    if ph_atual < cultura_req['ph_min']:
+        diagnostico.append(f"🔴 **pH ácido:** {ph_atual:.1f} (ideal: {cultura_req['ph_min']}-{cultura_req['ph_max']}). A calagem ajudará a corrigir.")
+    elif ph_atual > cultura_req['ph_max']:
+        diagnostico.append(f"🟡 **pH alcalino:** {ph_atual:.1f} (ideal: {cultura_req['ph_min']}-{cultura_req['ph_max']}). Pode afetar disponibilidade de nutrientes.")
+    else:
+        diagnostico.append(f"🟢 **pH adequado:** {ph_atual:.1f} dentro da faixa ideal.")
+    
+    v_atual = dados.get('v_porcentagem', 0)
+    if v_atual < cultura_req['v_desejado']:
+        diagnostico.append(f"🔴 **Saturação por bases baixa:** {v_atual:.1f}% (ideal: ≥{cultura_req['v_desejado']}%). Solo precisa de calagem.")
+    else:
+        diagnostico.append(f"🟢 **Saturação por bases adequada:** {v_atual:.1f}% (ideal: ≥{cultura_req['v_desejado']}%).")
+    
+    n_atual = dados.get('nitrogen', 0)
+    if n_atual < cultura_req['n_min']:
+        diagnostico.append(f"🔴 **Nitrogênio baixo:** {n_atual} mg/dm³ (mínimo: {cultura_req['n_min']}). Adubação nitrogenada necessária.")
+    else:
+        diagnostico.append(f"🟢 **Nitrogênio adequado:** {n_atual} mg/dm³.")
+    
+    p_atual = dados.get('phosphorus', 0)
+    if p_atual < cultura_req['p_min']:
+        diagnostico.append(f"🔴 **Fósforo baixo:** {p_atual} mg/dm³ (mínimo: {cultura_req['p_min']}). Adubação fosfatada necessária.")
+    else:
+        diagnostico.append(f"🟢 **Fósforo adequado:** {p_atual} mg/dm³.")
+    
+    k_atual = dados.get('potassium', 0)
+    if k_atual < cultura_req['k_min']:
+        diagnostico.append(f"🔴 **Potássio baixo:** {k_atual:.2f} cmolc/dm³ (mínimo: {cultura_req['k_min']}). Adubação potássica necessária.")
+    else:
+        diagnostico.append(f"🟢 **Potássio adequado:** {k_atual:.2f} cmolc/dm³.")
+    
+    return diagnostico
+
 # ============================================================================
 # FUNÇÕES DE RECOMENDAÇÃO DE ADUBAÇÃO E CALAGEM
 # ============================================================================
@@ -655,12 +578,10 @@ def calcular_necessidade_calagem(v_atual, v_desejado, ctc, prnt=85):
     if v_atual >= v_desejado:
         return 0, "✅ Solo já atingiu V% desejado. Não necessita calagem.", 0
     
-    # Fator de correção do PRNT (quanto menor o PRNT, mais calcário necessário)
     f = 100 / prnt
     nc = (ctc * (v_desejado - v_atual) / 100) * f
-    nc = round(nc * 2) / 2  # Arredondar para 0.5 t/ha
+    nc = round(nc * 2) / 2
     
-    # Calcular tempo de espera baseado na dose
     if nc <= 1.0:
         tempo_espera = 30
     elif nc <= 2.0:
@@ -679,74 +600,72 @@ def calcular_necessidade_calagem(v_atual, v_desejado, ctc, prnt=85):
         return 0, "Calagem não necessária", 0
 
 def recomendar_adubacao_nitrogenio(cultura, n_atual, n_min):
-    """Recomenda adubação nitrogenada (N) em kg/ha e t/ha"""
     if n_atual >= n_min:
-        return "✅ N adequado. Adubação de manutenção: 30-50 kg/ha de N (0,03-0,05 t/ha)"
+        return "✅ N adequado. Adubação de manutenção: 30-50 kg/ha de N"
     
     deficiencia = n_min - n_atual
     
     if cultura in ["Tomate", "Alface", "Batata", "Milho Semente"]:
         kg_ha = deficiencia + 60
-        recomendacao = f"Alta demanda. Aplicar {kg_ha:.0f} kg/ha de N ({kg_ha/1000:.3f} t/ha) (parcelado)"
+        recomendacao = f"Alta demanda. Aplicar {kg_ha:.0f} kg/ha de N"
     elif cultura in ["Café", "Cana-de-açúcar", "Milho Grão"]:
         kg_ha = deficiencia + 40
-        recomendacao = f"Média demanda. Aplicar {kg_ha:.0f} kg/ha de N ({kg_ha/1000:.3f} t/ha)"
+        recomendacao = f"Média demanda. Aplicar {kg_ha:.0f} kg/ha de N"
     else:
         kg_ha = deficiencia + 20
-        recomendacao = f"Baixa demanda. Aplicar {kg_ha:.0f} kg/ha de N ({kg_ha/1000:.3f} t/ha)"
+        recomendacao = f"Baixa demanda. Aplicar {kg_ha:.0f} kg/ha de N"
     
     return f"❌ N baixo ({n_atual} < {n_min}). {recomendacao}"
 
 def recomendar_adubacao_fosforo(cultura, p_atual, p_min):
-    """Recomenda adubação fosfatada (P2O5) em kg/ha e t/ha"""
     if p_atual >= p_min:
-        return "✅ P adequado. Adubação de manutenção: 40-80 kg/ha de P2O5 (0,04-0,08 t/ha)"
+        return "✅ P adequado. Adubação de manutenção: 40-80 kg/ha de P2O5"
     
     deficiencia = p_min - p_atual
     
     if cultura in ["Tomate", "Batata", "Soja"]:
         kg_ha = deficiencia + 80
-        recomendacao = f"Alta demanda. Aplicar {kg_ha:.0f} kg/ha de P2O5 ({kg_ha/1000:.3f} t/ha)"
+        recomendacao = f"Alta demanda. Aplicar {kg_ha:.0f} kg/ha de P2O5"
     elif cultura in ["Café", "Cana-de-açúcar"]:
         kg_ha = deficiencia + 60
-        recomendacao = f"Média demanda. Aplicar {kg_ha:.0f} kg/ha de P2O5 ({kg_ha/1000:.3f} t/ha)"
+        recomendacao = f"Média demanda. Aplicar {kg_ha:.0f} kg/ha de P2O5"
     else:
         kg_ha = deficiencia + 40
-        recomendacao = f"Baixa demanda. Aplicar {kg_ha:.0f} kg/ha de P2O5 ({kg_ha/1000:.3f} t/ha)"
+        recomendacao = f"Baixa demanda. Aplicar {kg_ha:.0f} kg/ha de P2O5"
     
     return f"❌ P baixo ({p_atual} < {p_min}). {recomendacao}"
 
 def recomendar_adubacao_potassio(cultura, k_atual, k_min):
-    """Recomenda adubação potássica (K2O) em kg/ha e t/ha"""
     if k_atual >= k_min:
-        return "✅ K adequado. Adubação de manutenção: 40-60 kg/ha de K2O (0,04-0,06 t/ha)"
+        return "✅ K adequado. Adubação de manutenção: 40-60 kg/ha de K2O"
     
     deficiencia = k_min - k_atual
     
     if cultura in ["Tomate", "Batata", "Café", "Cana-de-açúcar"]:
         kg_ha = deficiencia + 60
-        recomendacao = f"Alta demanda. Aplicar {kg_ha:.0f} kg/ha de K2O ({kg_ha/1000:.3f} t/ha)"
+        recomendacao = f"Alta demanda. Aplicar {kg_ha:.0f} kg/ha de K2O"
     elif cultura in ["Soja", "Milho Grão", "Algodão"]:
         kg_ha = deficiencia + 40
-        recomendacao = f"Média demanda. Aplicar {kg_ha:.0f} kg/ha de K2O ({kg_ha/1000:.3f} t/ha)"
+        recomendacao = f"Média demanda. Aplicar {kg_ha:.0f} kg/ha de K2O"
     else:
         kg_ha = deficiencia + 30
-        recomendacao = f"Baixa demanda. Aplicar {kg_ha:.0f} kg/ha de K2O ({kg_ha/1000:.3f} t/ha)"
+        recomendacao = f"Baixa demanda. Aplicar {kg_ha:.0f} kg/ha de K2O"
     
     return f"❌ K baixo ({k_atual:.2f} < {k_min:.2f}). {recomendacao}"
 
 # ============================================================================
-# ABA 1 - DADOS DO SOLO
+# ABA 1 - DADOS DO SOLO (CAMPOS MAIS COMPACTOS)
 # ============================================================================
 
 if menu == "📊 1. Dados do Solo":
-    st.markdown("## 📋 Dados Básicos do Solo")
+    st.markdown("### 📋 Dados Básicos do Solo")
+    st.caption("Preencha os campos abaixo com os resultados da análise de solo")
 
     col1, col2 = st.columns(2)
 
     with col1:
         with st.container(border=True):
-            st.subheader("📊 Parâmetros Químicos")
+            st.markdown("**📊 Parâmetros Químicos**")
             nitrogen = st.text_input("🌱 Nitrogênio (mg/dm³)", value="30")
             phosphorus = st.text_input("🔴 Fósforo (mg/dm³)", value="20")
             potassium = st.text_input("🟡 Potássio (cmolc/dm³)", value="0.25")
@@ -754,14 +673,14 @@ if menu == "📊 1. Dados do Solo":
 
     with col2:
         with st.container(border=True):
-            st.subheader("⚗️ Cátions e Acidez")
+            st.markdown("**⚗️ Cátions e Acidez**")
             aluminum = st.text_input("⚠️ Alumínio (cmolc/dm³)", value="0.5")
             calcium = st.text_input("🥛 Cálcio (cmolc/dm³)", value="3.0")
             magnesium = st.text_input("🧂 Magnésio (cmolc/dm³)", value="1.5")
             h_al = st.text_input("📊 H + Al (cmolc/dm³)", value="3.5")
 
     with st.container(border=True):
-        st.subheader("🏞️ Textura do Solo")
+        st.markdown("**🏞️ Textura do Solo**")
         col3, col4, col5 = st.columns(3)
         with col3:
             sand = st.text_input("🏖️ Areia (g/kg)", value="350")
@@ -769,66 +688,69 @@ if menu == "📊 1. Dados do Solo":
             silt = st.text_input("🏞️ Silte (g/kg)", value="300")
         with col5:
             clay = st.text_input("🧱 Argila (g/kg)", value="350")
+    
+    st.caption("💡 Após salvar os dados, vá para a aba 'Classificação' para ver as recomendações.")
 
     if st.button("✅ SALVAR DADOS", use_container_width=True):
-        try:
-            dados = {
-                "nitrogen": float(nitrogen),
-                "phosphorus": float(phosphorus),
-                "potassium": float(potassium),
-                "ph": float(ph),
-                "aluminum": float(aluminum),
-                "calcium": float(calcium),
-                "magnesium": float(magnesium),
-                "h_al": float(h_al),
-                "sand": float(sand),
-                "silt": float(silt),
-                "clay": float(clay)
-            }
-            
-            sb = calcular_sb(dados["calcium"], dados["magnesium"], dados["potassium"])
-            ctc = calcular_tct_potencial(sb, dados["h_al"])
-            v = calcular_v_porcentagem(sb, ctc)
-            m = calcular_m_porcentagem(dados["aluminum"], sb)
-            
-            dados["sb"] = sb
-            dados["ctc"] = ctc
-            dados["v_porcentagem"] = v
-            dados["m_porcentagem"] = m
-            
-            st.session_state.dados_basicos = dados
-            
-            st.success("✅ Dados salvos com sucesso!")
-            
-            st.markdown("### 📊 Resumo dos Cálculos")
-            col_a, col_b, col_c, col_d = st.columns(4)
-            with col_a:
-                st.metric("SB (Soma de Bases)", f"{sb:.2f} cmolc/dm³")
-            with col_b:
-                st.metric("CTC (Potencial)", f"{ctc:.2f} cmolc/dm³")
-            with col_c:
-                st.metric("V% (Saturação)", f"{v:.1f}%")
-            with col_d:
-                st.metric("m% (Alumínio)", f"{m:.1f}%")
+        with st.spinner("💾 Salvando e processando dados..."):
+            time.sleep(0.5)
+            try:
+                dados = {
+                    "nitrogen": float(nitrogen),
+                    "phosphorus": float(phosphorus),
+                    "potassium": float(potassium),
+                    "ph": float(ph),
+                    "aluminum": float(aluminum),
+                    "calcium": float(calcium),
+                    "magnesium": float(magnesium),
+                    "h_al": float(h_al),
+                    "sand": float(sand),
+                    "silt": float(silt),
+                    "clay": float(clay)
+                }
                 
-        except ValueError:
-            st.error("❌ Erro: Verifique se todos os valores são números válidos!")
+                sb = calcular_sb(dados["calcium"], dados["magnesium"], dados["potassium"])
+                ctc = calcular_tct_potencial(sb, dados["h_al"])
+                v = calcular_v_porcentagem(sb, ctc)
+                m = calcular_m_porcentagem(dados["aluminum"], sb)
+                
+                dados["sb"] = sb
+                dados["ctc"] = ctc
+                dados["v_porcentagem"] = v
+                dados["m_porcentagem"] = m
+                
+                st.session_state.dados_basicos = dados
+                
+                st.success("✅ Dados salvos com sucesso! Vá para a aba **Classificação**.")
+                
+                st.markdown("### 📊 Resumo dos Cálculos")
+                col_a, col_b, col_c, col_d = st.columns(4)
+                with col_a:
+                    st.metric("SB (Soma de Bases)", f"{sb:.2f} cmolc/dm³")
+                with col_b:
+                    st.metric("CTC (Potencial)", f"{ctc:.2f} cmolc/dm³")
+                with col_c:
+                    st.metric("V% (Saturação)", f"{v:.1f}%")
+                with col_d:
+                    st.metric("m% (Alumínio)", f"{m:.1f}%")
+                    
+            except ValueError:
+                st.error("❌ Erro: Verifique se todos os valores são números válidos!")
 
 # ============================================================================
-# ABA 2 - CLASSIFICAÇÃO
+# ABA 2 - CLASSIFICAÇÃO (CORRIGIDA - COM INTERAÇÃO E DIAGNÓSTICO)
 # ============================================================================
 
 elif menu == "🌱 2. Classificação":
-    st.markdown("## 🌱 Classificação e Recomendações")
+    st.markdown("### 🌱 Classificação e Recomendações")
     
     if not st.session_state.dados_basicos:
         st.warning("⚠️ Por favor, vá até a aba 'Dados do Solo' e insira as informações primeiro!")
     else:
         dados = st.session_state.dados_basicos
         
-        st.markdown("### 📊 Dados Atuais do Solo")
-        
-        col_metric1, col_metric2, col_metric3, col_metric4, col_metric5, col_metric6 = st.columns(6)
+        # Métricas principais
+        col_metric1, col_metric2, col_metric3, col_metric4, col_metric5 = st.columns(5)
         with col_metric1:
             st.metric("pH", f"{dados.get('ph', 'N/A')}")
         with col_metric2:
@@ -839,12 +761,10 @@ elif menu == "🌱 2. Classificação":
             st.metric("N", f"{dados.get('nitrogen', 'N/A')} mg/dm³")
         with col_metric5:
             st.metric("P", f"{dados.get('phosphorus', 'N/A')} mg/dm³")
-        with col_metric6:
-            st.metric("K", f"{dados.get('potassium', 'N/A')} cmolc/dm³")
         
         v = dados.get('v_porcentagem', 0)
         classificacao = classificar_fertilidade(v)
-        st.info(f"📌 **Classificação:** {classificacao}")
+        st.info(f"📌 **Classificação geral do solo:** {classificacao}")
         
         st.markdown("---")
         
@@ -854,49 +774,25 @@ elif menu == "🌱 2. Classificação":
         if cultura:
             req = necessidades_culturas[cultura]
             
-            tab1, tab2, tab3, tab4 = st.tabs([
-                "📋 Análise do Solo", 
-                "🧪 Calagem", 
-                "🌱 Adubação", 
-                "📝 Manejo Geral"
-            ])
+            # ========== DIAGNÓSTICO AMIGÁVEL ==========
+            st.markdown("### 📋 Diagnóstico do Solo para a Cultura Selecionada")
+            diagnostico = gerar_diagnostico(dados, req)
+            
+            with st.container(border=True):
+                for diag in diagnostico:
+                    st.markdown(diag)
+            
+            st.markdown("---")
+            
+            # TABS CORRIGIDAS (CALAGEM, ADUBAÇÃO, MANEJO FUNCIONANDO)
+            tab1, tab2, tab3 = st.tabs(["🧪 Calagem", "🌱 Adubação", "📝 Manejo Geral"])
             
             with tab1:
-                st.markdown("#### ✅ Condições do Solo para a Cultura")
+                st.markdown("#### 🧪 Recomendação de Calagem")
                 
-                ph_atual = dados.get('ph', 0)
-                ph_ok = req['ph_min'] <= ph_atual <= req['ph_max']
-                v_atual = dados.get('v_porcentagem', 0)
-                v_ok = v_atual >= req['v_desejado']
-                n_atual = dados.get('nitrogen', 0)
-                n_ok = n_atual >= req['n_min']
-                p_atual = dados.get('phosphorus', 0)
-                p_ok = p_atual >= req['p_min']
-                k_atual = dados.get('potassium', 0)
-                k_ok = k_atual >= req['k_min']
-                
-                col_a, col_b = st.columns(2)
-                
-                with col_a:
-                    with st.container(border=True):
-                        st.markdown("**Parâmetros Químicos:**")
-                        st.markdown(f"- **pH:** {ph_atual:.1f} (Ideal: {req['ph_min']}-{req['ph_max']}) → {'✅ OK' if ph_ok else '❌ Ajustar'}")
-                        st.markdown(f"- **V%:** {v_atual:.1f}% (Desejado: ≥{req['v_desejado']}%) → {'✅ OK' if v_ok else '❌ Baixo'}")
-                        st.markdown(f"- **m%:** {dados.get('m_porcentagem', 0):.1f}% → {'✅ OK' if dados.get('m_porcentagem', 0) < 15 else '⚠️ Atenção'}")
-                
-                with col_b:
-                    with st.container(border=True):
-                        st.markdown("**Nutrientes:**")
-                        st.markdown(f"- **N:** {n_atual} mg/dm³ (Mínimo: {req['n_min']}) → {'✅ OK' if n_ok else '❌ Baixo'}")
-                        st.markdown(f"- **P:** {p_atual} mg/dm³ (Mínimo: {req['p_min']}) → {'✅ OK' if p_ok else '❌ Baixo'}")
-                        st.markdown(f"- **K:** {k_atual:.2f} cmolc/dm³ (Mínimo: {req['k_min']}) → {'✅ OK' if k_ok else '❌ Baixo'}")
-            
-                        with tab2:
-                            st.markdown("#### 🧪 Recomendação de Calagem")
                 ctc = dados.get('ctc', 0)
                 v_atual = dados.get('v_porcentagem', 0)
                 
-                # Opção para o usuário informar o PRNT do calcário
                 col_prnt1, col_prnt2 = st.columns([2, 1])
                 with col_prnt1:
                     prnt_calcario = st.slider(
@@ -910,7 +806,6 @@ elif menu == "🌱 2. Classificação":
                 with col_prnt2:
                     st.metric("Fator de correção", f"{100/prnt_calcario:.2f}")
                 
-                # Calcular necessidade com PRNT personalizado
                 nc, rec_calagem, tempo_espera = calcular_necessidade_calagem(v_atual, req['v_desejado'], ctc, prnt_calcario)
                 
                 st.info(f"**V% atual:** {v_atual:.1f}% | **V% desejado:** {req['v_desejado']}% | **CTC:** {ctc:.2f} cmolc/dm³")
@@ -925,7 +820,6 @@ elif menu == "🌱 2. Classificação":
                         - **Tempo de espera mínimo:** **{tempo_espera} dias** antes do plantio
                         """)
                         
-                        # Tabela de referência de tempo de espera
                         with st.expander("⏰ Tabela de tempo de espera por dose"):
                             st.markdown("""
                             | Dose de calcário (t/ha) | Tempo de espera mínimo |
@@ -937,20 +831,65 @@ elif menu == "🌱 2. Classificação":
                             """)
                 else:
                     st.success(rec_calagem)
+            
+            with tab2:
+                st.markdown("#### 🌱 Recomendação de Adubação")
+                
+                with st.container(border=True):
+                    st.markdown("**Nitrogênio (N)**")
+                    n_atual = dados.get('nitrogen', 0)
+                    st.info(recomendar_adubacao_nitrogenio(cultura, n_atual, req['n_min']))
+                
+                with st.container(border=True):
+                    st.markdown("**Fósforo (P)**")
+                    p_atual = dados.get('phosphorus', 0)
+                    st.info(recomendar_adubacao_fosforo(cultura, p_atual, req['p_min']))
+                
+                with st.container(border=True):
+                    st.markdown("**Potássio (K)**")
+                    k_atual = dados.get('potassium', 0)
+                    st.info(recomendar_adubacao_potassio(cultura, k_atual, req['k_min']))
+            
+            with tab3:
+                st.markdown("#### 📝 Manejo Geral Recomendado")
+                
+                with st.container(border=True):
+                    st.markdown("**🔧 Práticas de manejo sugeridas:**")
+                    
+                    if v_atual < req['v_desejado']:
+                        st.markdown("- ✅ Realizar calagem conforme recomendação acima")
+                    
+                    if dados.get('ph', 0) < 5.5:
+                        st.markdown("- ✅ Corrigir acidez do solo com calcário")
+                    
+                    if dados.get('m_porcentagem', 0) > 15:
+                        st.markdown("- ✅ Atenção à toxicidade por alumínio")
+                    
+                    st.markdown("- ✅ Realizar análise de solo anualmente")
+                    st.markdown("- ✅ Manter cobertura morta para conservação da umidade")
+                    st.markdown("- ✅ Rotacionar culturas para evitar exaustão do solo")
+                    st.markdown("- ✅ Utilizar adubos verdes (crotalária, mucuna) para recuperação")
+                
+                with st.container(border=True):
+                    st.markdown("**📅 Época de aplicação:**")
+                    st.markdown("- Calcário: Aplicar 60-90 dias antes do plantio")
+                    st.markdown("- Adubo orgânico: Aplicar 30 dias antes do plantio")
+                    st.markdown("- Adubo químico: Aplicar no plantio e em cobertura conforme cultura")
 
 # ============================================================================
 # ABA 3 - IA
 # ============================================================================
 
 elif menu == "🤖 3. Assistente IA":
-    st.markdown("## 🤖 Assistente IA Gemini")
+    st.markdown("### 🤖 Assistente IA Gemini")
+    st.caption("Faça perguntas sobre fertilidade do solo, manejo, culturas e práticas agrícolas")
 
     if not st.session_state.dados_basicos:
         st.info("ℹ️ Para melhores respostas, preencha os dados do solo na aba 'Dados do Solo' primeiro!")
 
     pergunta = st.text_area(
         "💬 Faça sua pergunta sobre fertilidade do solo, manejo ou culturas:",
-        height=150,
+        height=100,
         placeholder="Exemplo: Qual a recomendação de calagem para um solo com pH 5.0? Como interpretar o V%?"
     )
 
@@ -958,7 +897,7 @@ elif menu == "🤖 3. Assistente IA":
         if not pergunta:
             st.warning("⚠️ Por favor, digite uma pergunta!")
         else:
-            with st.spinner("🤖 Consultando IA Gemini..."):
+            with st.spinner("🤖 Consultando IA Gemini. Analisando seus dados..."):
                 resposta = gerar_resposta_ia(
                     pergunta,
                     st.session_state.dados_basicos if st.session_state.dados_basicos else None
@@ -966,8 +905,8 @@ elif menu == "🤖 3. Assistente IA":
                 
                 st.markdown(f"""
                 <div class="result-card">
-                    <h2 style="text-align: center;">🤖 Resposta da IA</h2>
-                    <div style="margin-top: 20px;">
+                    <h3 style="text-align: center; margin-bottom: 1rem;">🤖 Resposta da IA</h3>
+                    <div style="margin-top: 10px;">
                         {resposta}
                     </div>
                 </div>
@@ -978,7 +917,7 @@ elif menu == "🤖 3. Assistente IA":
 # ============================================================================
 
 elif menu == "📈 4. Relatório":
-    st.markdown("## 📈 Relatório Técnico")
+    st.markdown("### 📈 Relatório Técnico")
 
     if st.session_state.dados_basicos:
         dados = st.session_state.dados_basicos
@@ -1028,7 +967,7 @@ elif menu == "📈 4. Relatório":
 # ============================================================================
 
 elif menu == "ℹ️ 5. Métodos":
-    st.markdown("## ℹ️ Métodos Utilizados")
+    st.markdown("### ℹ️ Métodos Utilizados")
     
     with st.container(border=True):
         st.markdown("""
