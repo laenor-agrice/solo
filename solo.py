@@ -685,61 +685,74 @@ if menu == "📊 1. Dados do Solo":
 
     with st.container(border=True):
         st.markdown("**🏞️ Textura do Solo**")
+        st.caption("⚠️ A soma de Areia + Silte + Argila deve ser igual a 100%")
         col3, col4, col5 = st.columns(3)
         with col3:
-            sand = st.text_input("🏖️ Areia (g/kg)", value="350")
+            sand = st.number_input("🏖️ Areia (%)", min_value=0, max_value=100, value=35, step=5)
         with col4:
-            silt = st.text_input("🏞️ Silte (g/kg)", value="300")
+            silt = st.number_input("🏞️ Silte (%)", min_value=0, max_value=100, value=30, step=5)
         with col5:
-            clay = st.text_input("🧱 Argila (g/kg)", value="350")
+            clay = st.number_input("🧱 Argila (%)", min_value=0, max_value=100, value=35, step=5)
+        
+        # Validação da soma da textura
+        soma_textura = sand + silt + clay
+        if soma_textura != 100:
+            st.warning(f"⚠️ **Atenção:** A soma das frações é {soma_textura}%. O ideal é 100%. Ajuste os valores.")
+        else:
+            st.success(f"✅ Textura válida! Areia: {sand}%, Silte: {silt}%, Argila: {clay}%")
     
     st.caption("💡 Após salvar os dados, vá para a aba 'Classificação' para ver as recomendações.")
 
     if st.button("✅ SALVAR DADOS", use_container_width=True):
-        with st.spinner("💾 Salvando e processando dados..."):
-            time.sleep(0.5)
-            try:
-                dados = {
-                    "nitrogen": float(nitrogen),
-                    "phosphorus": float(phosphorus),
-                    "potassium": float(potassium),
-                    "ph": float(ph),
-                    "aluminum": float(aluminum),
-                    "calcium": float(calcium),
-                    "magnesium": float(magnesium),
-                    "h_al": float(h_al),
-                    "sand": float(sand),
-                    "silt": float(silt),
-                    "clay": float(clay)
-                }
-                
-                sb = calcular_sb(dados["calcium"], dados["magnesium"], dados["potassium"])
-                ctc = calcular_tct_potencial(sb, dados["h_al"])
-                v = calcular_v_porcentagem(sb, ctc)
-                m = calcular_m_porcentagem(dados["aluminum"], sb)
-                
-                dados["sb"] = sb
-                dados["ctc"] = ctc
-                dados["v_porcentagem"] = v
-                dados["m_porcentagem"] = m
-                
-                st.session_state.dados_basicos = dados
-                
-                st.success("✅ Dados salvos com sucesso! Vá para a aba **Classificação**.")
-                
-                st.markdown("### 📊 Resumo dos Cálculos")
-                col_a, col_b, col_c, col_d = st.columns(4)
-                with col_a:
-                    st.metric("SB (Soma de Bases)", f"{sb:.2f} cmolc/dm³")
-                with col_b:
-                    st.metric("CTC (Potencial)", f"{ctc:.2f} cmolc/dm³")
-                with col_c:
-                    st.metric("V% (Saturação)", f"{v:.1f}%")
-                with col_d:
-                    st.metric("m% (Alumínio)", f"{m:.1f}%")
+        # Verificar textura antes de salvar
+        soma_textura = sand + silt + clay
+        if soma_textura != 100:
+            st.error(f"❌ **Erro na textura do solo:** A soma das frações é {soma_textura}%, mas deve ser exatamente 100%. Corrija os valores antes de salvar.")
+        else:
+            with st.spinner("💾 Salvando e processando dados..."):
+                time.sleep(0.5)
+                try:
+                    dados = {
+                        "nitrogen": float(nitrogen),
+                        "phosphorus": float(phosphorus),
+                        "potassium": float(potassium),
+                        "ph": float(ph),
+                        "aluminum": float(aluminum),
+                        "calcium": float(calcium),
+                        "magnesium": float(magnesium),
+                        "h_al": float(h_al),
+                        "sand": sand,
+                        "silt": silt,
+                        "clay": clay
+                    }
                     
-            except ValueError:
-                st.error("❌ Erro: Verifique se todos os valores são números válidos!")
+                    sb = calcular_sb(dados["calcium"], dados["magnesium"], dados["potassium"])
+                    ctc = calcular_tct_potencial(sb, dados["h_al"])
+                    v = calcular_v_porcentagem(sb, ctc)
+                    m = calcular_m_porcentagem(dados["aluminum"], sb)
+                    
+                    dados["sb"] = sb
+                    dados["ctc"] = ctc
+                    dados["v_porcentagem"] = v
+                    dados["m_porcentagem"] = m
+                    
+                    st.session_state.dados_basicos = dados
+                    
+                    st.success("✅ Dados salvos com sucesso! Vá para a aba **Classificação**.")
+                    
+                    st.markdown("### 📊 Resumo dos Cálculos")
+                    col_a, col_b, col_c, col_d = st.columns(4)
+                    with col_a:
+                        st.metric("SB (Soma de Bases)", f"{sb:.2f} cmolc/dm³")
+                    with col_b:
+                        st.metric("CTC (Potencial)", f"{ctc:.2f} cmolc/dm³")
+                    with col_c:
+                        st.metric("V% (Saturação)", f"{v:.1f}%")
+                    with col_d:
+                        st.metric("m% (Alumínio)", f"{m:.1f}%")
+                        
+                except ValueError:
+                    st.error("❌ Erro: Verifique se todos os valores são números válidos!")
 
 # ============================================================================
 # ABA 2 - CLASSIFICAÇÃO (CORRIGIDA - COM INTERAÇÃO E DIAGNÓSTICO)
@@ -765,6 +778,9 @@ elif menu == "🌱 2. Classificação":
             st.metric("N", f"{dados.get('nitrogen', 'N/A')} mg/dm³")
         with col_metric5:
             st.metric("P", f"{dados.get('phosphorus', 'N/A')} mg/dm³")
+        
+        # Exibir textura do solo
+        st.info(f"🏞️ **Textura do solo:** Areia: {dados.get('sand', 0)}% | Silte: {dados.get('silt', 0)}% | Argila: {dados.get('clay', 0)}%")
         
         v = dados.get('v_porcentagem', 0)
         classificacao = classificar_fertilidade(v)
@@ -930,7 +946,7 @@ elif menu == "📈 4. Relatório":
             "Parâmetro": [
                 "Nitrogênio (N)", "Fósforo (P)", "Potássio (K)",
                 "pH", "Alumínio (Al)", "Cálcio (Ca)", "Magnésio (Mg)",
-                "H + Al", "Areia", "Silte", "Argila",
+                "H + Al", "Areia (%)", "Silte (%)", "Argila (%)",
                 "Soma de Bases (SB)", "CTC Potencial", "V (%)", "m (%)"
             ],
             "Valor": [
@@ -942,9 +958,9 @@ elif menu == "📈 4. Relatório":
                 f"{dados.get('calcium', 'N/A')} cmolc/dm³",
                 f"{dados.get('magnesium', 'N/A')} cmolc/dm³",
                 f"{dados.get('h_al', 'N/A')} cmolc/dm³",
-                f"{dados.get('sand', 'N/A')} g/kg",
-                f"{dados.get('silt', 'N/A')} g/kg",
-                f"{dados.get('clay', 'N/A')} g/kg",
+                f"{dados.get('sand', 'N/A')}%",
+                f"{dados.get('silt', 'N/A')}%",
+                f"{dados.get('clay', 'N/A')}%",
                 f"{dados.get('sb', 0):.2f} cmolc/dm³",
                 f"{dados.get('ctc', 0):.2f} cmolc/dm³",
                 f"{dados.get('v_porcentagem', 0):.1f}%",
