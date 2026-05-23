@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 import json
 import time
+import re
 
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA
@@ -871,49 +872,70 @@ elif menu == "🌱 2. Classificação":
                 else:
                     st.success(rec_calagem)
             
-            with aba2:
+                        with aba2:
                 st.markdown("#### 🌱 Recomendação de Adubação")
                 
                 with st.container(border=True):
                     st.markdown("**Nitrogênio (N)**")
                     n_atual = dados.get('nitrogen', 0)
-                    st.info(recomendar_adubacao_nitrogenio(cultura, n_atual, req['n_min']))
+                    n_recomendacao = recomendar_adubacao_nitrogenio(cultura, n_atual, req['n_min'])
+                    
+                    if "✅" in n_recomendacao:
+                        st.success(n_recomendacao)
+                    else:
+                        st.warning(n_recomendacao)
+                        # Extrair o valor de kg/ha da recomendação
+                        import re
+                        match = re.search(r'Aplicar (\d+) kg/ha', n_recomendacao)
+                        if match:
+                            kg_n = int(match.group(1))
+                            st.info(f"**📌 Forma de aplicação do Nitrogênio (parcelamento):**")
+                            st.markdown(f"""
+                            - **Parcelamento recomendado:** Aplicar em **3 vezes**
+                            - 1ª parcela (plantio): {max(20, kg_n // 3)} kg/ha
+                            - 2ª parcela (30-40 dias após emergência): {max(20, kg_n // 3)} kg/ha  
+                            - 3ª parcela (60-70 dias após emergência): {kg_n - 2 * max(20, kg_n // 3)} kg/ha
+                            - **Evitar aplicação em superfície sem incorporação** para reduzir perdas por volatilização
+                            """)
                 
                 with st.container(border=True):
                     st.markdown("**Fósforo (P)**")
                     p_atual = dados.get('phosphorus', 0)
-                    st.info(recomendar_adubacao_fosforo(cultura, p_atual, req['p_min']))
+                    p_recomendacao = recomendar_adubacao_fosforo(cultura, p_atual, req['p_min'])
+                    
+                    if "✅" in p_recomendacao:
+                        st.success(p_recomendacao)
+                    else:
+                        st.warning(p_recomendacao)
+                        match = re.search(r'Aplicar (\d+) kg/ha', p_recomendacao)
+                        if match:
+                            kg_p = int(match.group(1))
+                            st.info(f"**📌 Forma de aplicação do Fósforo:**")
+                            st.markdown(f"""
+                            - **Aplicação:** Total na **semeadura/plantio** (100% da dose)
+                            - **Profundidade:** Aplicar a **5-10 cm de profundidade** na linha de semeadura
+                            - **Observação:** O fósforo tem baixa mobilidade no solo, por isso deve ser aplicado próximo às raízes
+                            """)
                 
                 with st.container(border=True):
                     st.markdown("**Potássio (K)**")
                     k_atual = dados.get('potassium', 0)
-                    st.info(recomendar_adubacao_potassio(cultura, k_atual, req['k_min']))
-            
-            with aba3:
-                st.markdown("#### 📝 Manejo Geral Recomendado")
-                
-                with st.container(border=True):
-                    st.markdown("**🔧 Práticas de manejo sugeridas:**")
+                    k_recomendacao = recomendar_adubacao_potassio(cultura, k_atual, req['k_min'])
                     
-                    if v_atual < req['v_desejado']:
-                        st.markdown("- ✅ Realizar calagem conforme recomendação acima")
-                    
-                    if dados.get('ph', 0) < 5.5:
-                        st.markdown("- ✅ Corrigir acidez do solo com calcário")
-                    
-                    if dados.get('m_porcentagem', 0) > 15:
-                        st.markdown("- ✅ Atenção à toxicidade por alumínio")
-                    
-                    st.markdown("- ✅ Realizar análise de solo anualmente")
-                    st.markdown("- ✅ Manter cobertura morta para conservação da umidade")
-                    st.markdown("- ✅ Rotacionar culturas para evitar exaustão do solo")
-                    st.markdown("- ✅ Utilizar adubos verdes (crotalária, mucuna) para recuperação")
-                
-                with st.container(border=True):
-                    st.markdown("**📅 Época de aplicação:**")
-                    st.markdown("- Calcário: Aplicar 60-90 dias antes do plantio")
-                    st.markdown("- Adubo orgânico: Aplicar 30 dias antes do plantio")
-                    st.markdown("- Adubo químico: Aplicar no plantio e em cobertura conforme cultura")
+                    if "✅" in k_recomendacao:
+                        st.success(k_recomendacao)
+                    else:
+                        st.warning(k_recomendacao)
+                        match = re.search(r'Aplicar (\d+) kg/ha', k_recomendacao)
+                        if match:
+                            kg_k = int(match.group(1))
+                            st.info(f"**📌 Forma de aplicação do Potássio:**")
+                            st.markdown(f"""
+                            - **Parcelamento recomendado:** Aplicar em **2 vezes**
+                            - 1ª parcela (plantio): {kg_k // 2} kg/ha
+                            - 2ª parcela (cobertura): {kg_k - kg_k // 2} kg/ha (30-40 dias após emergência)
+                            - **Evitar excesso** que pode causar salinidade e prejudicar a germinação
+                            """)
 
 # ============================================================================
 # ABA 3 - IA
