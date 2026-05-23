@@ -872,7 +872,7 @@ elif menu == "🌱 2. Classificação":
                 else:
                     st.success(rec_calagem)
             
-                        with aba2:
+            with aba2:
                 st.markdown("#### 🌱 Recomendação de Adubação")
                 
                 with st.container(border=True):
