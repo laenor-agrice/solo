@@ -1644,7 +1644,7 @@ elif menu == "📋 6. Pesquisa":
             st.markdown("---")
             
             # Campo para identificacao opcional
-            with st.expander("🔒 Identificacao (opcional)"):
+            with st.expander("🔒 IDENTIFICACAO"):
                 nome = st.text_input("Nome (opcional)")
                 email = st.text_input("E-mail (opcional - para contato)")
             
