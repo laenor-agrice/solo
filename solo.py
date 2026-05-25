@@ -1557,11 +1557,40 @@ elif menu == "ℹ️ 5. Métodos":
 
 
 # ============================================================================
-# ABA 6 - PESQUISA DE SATISFAÇÃO
+# ABA 6 - PESQUISA DE SATISFAÇÃO (APENAS PARA O ADMIN)
 # ============================================================================
 
 elif menu == "📋 6. Pesquisa":
-    st.markdown("### 📋 Pesquisa de Uso e Satisfação - Classificador de Fertilidade do Solo")
+    
+    # VERIFICA SE É O ADMIN - SÓ VOCÊ VÊ A PESQUISA
+    # Substitua "seuemail@gmail.com" pelo seu e-mail
+    USUARIO_ADMIN = "laenor.dantas@estudante.ifgoiano.edu.br"  # ← MUDE PARA SEU E-MAIL
+    
+    # Verificar se o usuário logado é você
+    # No Streamlit Cloud, você pode usar st.secrets ou apenas deixar fixo
+    # Para simplificar, vou criar uma senha simples
+    
+    senha_correta = "91959441"  # ← MUDE PARA UMA SENHA SEGURA
+    
+    if "admin_logado" not in st.session_state:
+        st.session_state.admin_logado = False
+    
+    if not st.session_state.admin_logado:
+        st.markdown("### 🔒 Área Restrita")
+        st.markdown("Esta seção é apenas para administradores da pesquisa.")
+        
+        senha = st.text_input("Digite a senha de administrador:", type="password")
+        
+        if st.button("🔓 Acessar"):
+            if senha == senha_correta:
+                st.session_state.admin_logado = True
+                st.rerun()
+            else:
+                st.error("❌ Senha incorreta! Acesso negado.")
+        st.stop()
+    
+    # SÓ CHEGA AQUI SE A SENHA ESTIVER CORRETA
+    st.markdown("### 📋 Pesquisa de Satisfação - Classificador de Fertilidade do Solo")
     st.markdown("Sua opinião é fundamental para melhorarmos a ferramenta!")
     st.markdown("---")
     
@@ -1653,12 +1682,14 @@ elif menu == "📋 6. Pesquisa":
                 nome = st.text_input("Nome (opcional)")
                 email = st.text_input("E-mail (opcional - para contato)")
             
-            # Botão de envio
+            # Botão de envio dentro do form
             submitted = st.form_submit_button("📤 ENVIAR PESQUISA", use_container_width=True)
             
             if submitted:
                 # Coletar dados
                 from datetime import datetime
+                import os
+                import pandas as pd
                 
                 resposta = {
                     "data_hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -1674,10 +1705,6 @@ elif menu == "📋 6. Pesquisa":
                     "nome": nome if nome else "Anônimo",
                     "email": email if email else "Não informado"
                 }
-                
-                # Salvar em CSV local
-                import os
-                import pandas as pd
                 
                 arquivo_csv = "pesquisas_satisfacao.csv"
                 
@@ -1697,31 +1724,18 @@ elif menu == "📋 6. Pesquisa":
                 st.session_state.ultima_pesquisa = resposta
                 
                 st.success("✅ Pesquisa enviada com sucesso! Muito obrigado pela sua contribuição!")
-                
-                # Mostrar resumo
-                st.markdown("### 📊 Resumo da sua resposta")
-                st.markdown(f"""
-                | Pergunta | Resposta |
-                |----------|----------|
-                | Nota da plataforma | {nota_plataforma}/10 |
-                | Didática da interpretação | {nota_didatica}/10 |
-                | É estudante? | {"Sim" if eh_estudante else "Não"} |
-                | Probabilidade de uso acadêmico | {nota_academico if isinstance(nota_academico, int) else nota_academico} |
-                | É produtor? | {"Sim" if eh_produtor else "Não"} |
-                | Probabilidade de uso na propriedade | {nota_produtor if isinstance(nota_produtor, int) else nota_produtor} |
-                | Classificação do uso | {classificacao_uso} |
-                """)
-                
-                st.info("💾 Os dados foram salvos localmente no arquivo 'pesquisas_satisfacao.csv'")
-                
-                # Botão para download
-                with open(arquivo_csv, "rb") as f:
-                    st.download_button(
-                        label="📥 Baixar todas as pesquisas (CSV)",
-                        data=f,
-                        file_name="pesquisas_satisfacao.csv",
-                        mime="text/csv"
-                    )
+        
+        # ========== BOTÃO DE DOWNLOAD FORA DO FORM ==========
+        # (Aqui está a correção - fora do st.form)
+        if os.path.exists("pesquisas_satisfacao.csv"):
+            st.markdown("---")
+            with open("pesquisas_satisfacao.csv", "rb") as f:
+                st.download_button(
+                    label="📥 Baixar todas as pesquisas (CSV)",
+                    data=f,
+                    file_name="pesquisas_satisfacao.csv",
+                    mime="text/csv"
+                )
     
     else:
         # Já respondeu
