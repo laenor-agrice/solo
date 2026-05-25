@@ -1557,18 +1557,18 @@ elif menu == "ℹ️ 5. Métodos":
 
 
 # ============================================================================
-# ABA 6 - PESQUISA DE SATISFAÇÃO
+# ABA 6 - PESQUISA DE SATISFACAO
 # ============================================================================
 
 elif menu == "📋 6. Pesquisa":
     import os
     from datetime import datetime
     
-    st.markdown("### 📋 Pesquisa de Satisfação - Classificador de Fertilidade do Solo")
-    st.markdown("Sua opinião é fundamental para melhorarmos a ferramenta!")
+    st.markdown("### PESQUISA DE SATISFACAO - CLASSIFICADOR DE FERTILIDADE DO SOLO")
+    st.markdown("SUA OPINIAO E FUNDAMENTAL PARA MELHORARMOS A FERRAMENTA!")
     st.markdown("---")
     
-    # ========== FORMULÁRIO PARA TODOS OS USUÁRIOS ==========
+    # ========== FORMULARIO PARA TODOS OS USUARIOS ==========
     
     if "pesquisa_respondida" not in st.session_state:
         st.session_state.pesquisa_respondida = False
@@ -1576,94 +1576,94 @@ elif menu == "📋 6. Pesquisa":
     if not st.session_state.pesquisa_respondida:
         
         with st.form("pesquisa_form"):
-            st.markdown("#### 1. Avaliação da Plataforma")
+            st.markdown("#### 1. AVALIACAO DA PLATAFORMA")
             nota_plataforma = st.slider(
-                "De 0 a 10, qual a nota pela funcionalidade da plataforma?",
+                "DE 0 A 10, QUAL A NOTA PELA FUNCIONALIDADE DA PLATAFORMA?",
                 min_value=0, max_value=10, value=5, step=1
             )
             
             st.markdown("---")
-            st.markdown("#### 2. Didática da Interpretação")
+            st.markdown("#### 2. DIDATICA DA INTERPRETACAO")
             nota_didatica = st.slider(
-                "De 0 a 10, o quão didático foi a interpretação dos dados?",
+                "DE 0 A 10, O QUAO DIDATICO FOI A INTERPRETACAO DOS DADOS?",
                 min_value=0, max_value=10, value=5, step=1
             )
             
             st.markdown("---")
-            st.markdown("#### 3. Uso Acadêmico")
+            st.markdown("#### 3. USO ACADEMICO")
             
             col_estudante, col_nota = st.columns([1, 2])
             with col_estudante:
-                eh_estudante = st.checkbox("Sou estudante/pesquisador")
+                eh_estudante = st.checkbox("SOU ESTUDANTE/PESQUISADOR")
             
             with col_nota:
                 if eh_estudante:
                     nota_academico = st.slider(
-                        "De 0 a 10, qual a probabilidade de utilizar a ferramenta para fins acadêmicos?",
+                        "DE 0 A 10, QUAL A PROBABILIDADE DE UTILIZAR A FERRAMENTA PARA FINS ACADEMICOS?",
                         min_value=0, max_value=10, value=5, step=1
                     )
                 else:
-                    nota_academico = "Não se aplica (não sou estudante)"
-                    st.info("✅ Você marcou que não é estudante. Esta pergunta não se aplica.")
+                    nota_academico = "NAO SE APLICA (NAO SOU ESTUDANTE)"
+                    st.info("VOCE MARCOU QUE NAO E ESTUDANTE. ESTA PERGUNTA NAO SE APLICA.")
             
             st.markdown("---")
-            st.markdown("#### 4. Uso em Propriedade Rural")
+            st.markdown("#### 4. USO EM PROPRIEDADE RURAL")
             
             col_produtor, col_nota2 = st.columns([1, 2])
             with col_produtor:
-                eh_produtor = st.checkbox("Sou produtor rural")
+                eh_produtor = st.checkbox("SOU PRODUTOR RURAL")
             
             with col_nota2:
                 if eh_produtor:
                     nota_produtor = st.slider(
-                        "De 0 a 10, qual a probabilidade de usar esta ferramenta em sua propriedade rural?",
+                        "DE 0 A 10, QUAL A PROBABILIDADE DE USAR ESTA FERRAMENTA EM SUA PROPRIEDADE RURAL?",
                         min_value=0, max_value=10, value=5, step=1
                     )
                 else:
-                    nota_produtor = "Não se aplica (não sou produtor)"
-                    st.info("✅ Você marcou que não é produtor. Esta pergunta não se aplica.")
+                    nota_produtor = "NAO SE APLICA (NAO SOU PRODUTOR)"
+                    st.info("VOCE MARCOU QUE NAO E PRODUTOR. ESTA PERGUNTA NAO SE APLICA.")
             
             st.markdown("---")
-            st.markdown("#### 5. Classificação do Uso")
+            st.markdown("#### 5. CLASSIFICACAO DO USO")
             
             classificacao_uso = st.radio(
-                "Como você classificaria o uso da ferramenta?",
-                ["Fácil", "Médio", "Difícil"],
+                "COMO VOCE CLASSIFICARIA O USO DA FERRAMENTA?",
+                ["FACIL", "MEDIO", "DIFICIL"],
                 horizontal=True
             )
             
             st.markdown("---")
-            st.markdown("#### 6. Elogios e Sugestões")
+            st.markdown("#### 6. SUGESTOES DE APRIMORAMENTO")
             
             sugestoes = st.text_area(
-                "Sugestões de aprimoramentos. O que falta ou pode melhorar?",
-                placeholder="Ex: Adicionar gráficos, incluir mais culturas, melhorar a explicação do V%...",
+                "SUGESTOES DE APRIMORAMENTOS. O QUE FALTA OU PODE MELHORAR?",
+                placeholder="EX: ADICIONAR GRAFICOS, INCLUIR MAIS CULTURAS, MELHORAR A EXPLICACAO DO V%...",
                 height=100
             )
             
             st.markdown("---")
             
             # Campo para identificacao opcional
-            with st.expander("Identificação"):
-                nome = st.text_input("Nome (opcional)")
-                email = st.text_input("E-mail (opcional - para contato)")
+            with st.expander("IDENTIFICACAO (OPCIONAL)"):
+                nome = st.text_input("NOME")
+                email = st.text_input("E-MAIL")
             
-            # Botão de envio
-            submitted = st.form_submit_button("📤 ENVIAR PESQUISA", use_container_width=True)
+            # Botao de envio
+            submitted = st.form_submit_button("ENVIAR PESQUISA", use_container_width=True)
             
             if submitted:
                 resposta = {
                     "data_hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "nota_plataforma": nota_plataforma,
                     "nota_didatica": nota_didatica,
-                    "eh_estudante": "Sim" if eh_estudante else "Não",
+                    "eh_estudante": "SIM" if eh_estudante else "NAO",
                     "nota_academico": nota_academico,
-                    "eh_produtor": "Sim" if eh_produtor else "Não",
+                    "eh_produtor": "SIM" if eh_produtor else "NAO",
                     "nota_produtor": nota_produtor,
                     "classificacao_uso": classificacao_uso,
                     "sugestoes": sugestoes,
-                    "nome": nome if nome else "Anônimo",
-                    "email": email if email else "Não informado"
+                    "nome": nome if nome else "ANONIMO",
+                    "email": email if email else "NAO INFORMADO"
                 }
                 
                 arquivo_txt = "pesquisas_satisfacao.txt"
@@ -1676,24 +1676,24 @@ NOVA PESQUISA - {resposta['data_hora']}
 
 1. NOTA DA PLATAFORMA: {resposta['nota_plataforma']}/10
 
-2. DIDÁTICA DA INTERPRETAÇÃO: {resposta['nota_didatica']}/10
+2. DIDATICA DA INTERPRETACAO: {resposta['nota_didatica']}/10
 
-3. USO ACADÊMICO:
-   - É estudante? {resposta['eh_estudante']}
-   - Probabilidade de uso acadêmico: {resposta['nota_academico']}
+3. USO ACADEMICO:
+   - E ESTUDANTE? {resposta['eh_estudante']}
+   - PROBABILIDADE DE USO ACADEMICO: {resposta['nota_academico']}
 
 4. USO EM PROPRIEDADE:
-   - É produtor? {resposta['eh_produtor']}
-   - Probabilidade de uso na propriedade: {resposta['nota_produtor']}
+   - E PRODUTOR? {resposta['eh_produtor']}
+   - PROBABILIDADE DE USO NA PROPRIEDADE: {resposta['nota_produtor']}
 
-5. CLASSIFICAÇÃO DO USO: {resposta['classificacao_uso']}
+5. CLASSIFICACAO DO USO: {resposta['classificacao_uso']}
 
 6. SUGESTOES DE APRIMORAMENTO:
    {resposta['sugestoes']}
 
-7. IDENTIFICAÇAO:
-   - Nome: {resposta['nome']}
-   - E-mail: {resposta['email']}
+7. IDENTIFICACAO:
+   - NOME: {resposta['nome']}
+   - E-MAIL: {resposta['email']}
 
 {'='*60}
 """
@@ -1705,46 +1705,46 @@ NOVA PESQUISA - {resposta['data_hora']}
                 st.session_state.pesquisa_respondida = True
                 st.session_state.ultima_pesquisa = resposta
                 
-                st.success("✅ Pesquisa enviada com sucesso! Muito obrigado pela sua contribuição!")
+                st.success("PESQUISA ENVIADA COM SUCESSO! MUITO OBRIGADO PELA SUA CONTRIBUICAO!")
                 
-                st.markdown("### 📊 Resumo da sua resposta")
+                st.markdown("### RESUMO DA SUA RESPOSTA")
                 st.markdown(f"""
-                | Pergunta | Resposta |
+                | PERGUNTA | RESPOSTA |
                 |----------|----------|
-                | Nota da plataforma | {nota_plataforma}/10 |
-                | Didática da interpretação | {nota_didatica}/10 |
-                | É estudante? | {"Sim" if eh_estudante else "Não"} |
-                | Probabilidade de uso acadêmico | {nota_academico} |
-                | É produtor? | {"Sim" if eh_produtor else "Não"} |
-                | Probabilidade de uso na propriedade | {nota_produtor} |
-                | Classificação do uso | {classificacao_uso} |
+                | NOTA DA PLATAFORMA | {nota_plataforma}/10 |
+                | DIDATICA DA INTERPRETACAO | {nota_didatica}/10 |
+                | E ESTUDANTE? | {"SIM" if eh_estudante else "NAO"} |
+                | PROBABILIDADE DE USO ACADEMICO | {nota_academico} |
+                | E PRODUTOR? | {"SIM" if eh_produtor else "NAO"} |
+                | PROBABILIDADE DE USO NA PROPRIEDADE | {nota_produtor} |
+                | CLASSIFICACAO DO USO | {classificacao_uso} |
                 """)
                 
-                st.info("💾 Sua resposta foi registrada. Obrigado!")
+                st.info("SUA RESPOSTA FOI REGISTRADA. OBRIGADO!")
     
     else:
-        st.success("✅ Você já respondeu à pesquisa! Muito obrigado pela sua contribuição!")
-        st.info("💡 Caso queira dar novas sugestoes, entre em contato pelo e-mail.")
+        st.success("VOCE JA RESPONDEU A PESQUISA! MUITO OBRIGADO PELA SUA CONTRIBUICAO!")
+        st.info("CASO QUEIRA DAR NOVAS SUGESTOES, ENTRE EM CONTATO PELO E-MAIL.")
     
-    # ========== RELATÓRIO PROTEGIDO POR SENHA (SÓ VOCÊ VÊ) ==========
+    # ========== RELATORIO PROTEGIDO POR SENHA (SO VOCE VE) ==========
     st.markdown("---")
-    st.markdown("### 🔒 Relatório de Pesquisas (Área Restrita)")
+    st.markdown("### RELATORIO DE PESQUISAS (AREA RESTRITA)")
     
-    senha_correta = "91959441"  # ← MUDE PARA SUA SENHA
+    senha_correta = "91959441"
     
     if "relatorio_liberado" not in st.session_state:
         st.session_state.relatorio_liberado = False
     
     if not st.session_state.relatorio_liberado:
-        senha = st.text_input("Digite a senha do administrador para acessar o relatório:", type="password")
-        if st.button("🔓 Acessar Relatório"):
+        senha = st.text_input("DIGITE A SENHA DO ADMINISTRADOR PARA ACESSAR O RELATORIO:", type="password")
+        if st.button("ACESSAR RELATORIO"):
             if senha == senha_correta:
                 st.session_state.relatorio_liberado = True
                 st.rerun()
             else:
-                st.error("❌ Senha incorreta!")
+                st.error("SENHA INCORRETA!")
     else:
-        st.success("✅ Modo administrador - Relatório liberado!")
+        st.success("MODO ADMINISTRADOR - RELATORIO LIBERADO!")
         
         arquivo_txt = "pesquisas_satisfacao.txt"
         
@@ -1752,20 +1752,20 @@ NOVA PESQUISA - {resposta['data_hora']}
             with open(arquivo_txt, "r", encoding='utf-8') as f:
                 conteudo = f.read()
             
-            st.text_area("📋 RELATÓRIO COMPLETO", conteudo, height=400)
+            st.text_area("RELATORIO COMPLETO", conteudo, height=400)
             
             # Download em TXT
             with open(arquivo_txt, "rb") as f:
                 st.download_button(
-                    label="📥 Baixar Relatório (TXT)",
+                    label="BAIXAR RELATORIO (TXT)",
                     data=f,
                     file_name="relatorio_pesquisas.txt",
                     mime="text/plain"
                 )
         else:
-            st.info("ℹ️ Ainda não há nenhuma pesquisa registrada.")
+            st.info("AINDA NAO HA NENHUMA PESQUISA REGISTRADA.")
         
-        if st.button("🔒 Sair do modo administrador"):
+        if st.button("SAIR DO MODO ADMINISTRADOR"):
             st.session_state.relatorio_liberado = False
             st.rerun()
 # ============================================================================
