@@ -1557,44 +1557,16 @@ elif menu == "ℹ️ 5. Métodos":
 
 
 # ============================================================================
-# ABA 6 - PESQUISA DE SATISFAÇÃO (APENAS PARA O ADMIN)
+# ABA 6 - PESQUISA DE SATISFAÇÃO
 # ============================================================================
 
 elif menu == "📋 6. Pesquisa":
-    
-    # VERIFICA SE É O ADMIN - SÓ VOCÊ VÊ A PESQUISA
-    # Substitua "seuemail@gmail.com" pelo seu e-mail
-    USUARIO_ADMIN = "laenor.dantas@estudante.ifgoiano.edu.br"  # ← MUDE PARA SEU E-MAIL
-    
-    # Verificar se o usuário logado é você
-    # No Streamlit Cloud, você pode usar st.secrets ou apenas deixar fixo
-    # Para simplificar, vou criar uma senha simples
-    
-    senha_correta = "91959441"  # ← MUDE PARA UMA SENHA SEGURA
-    
-    if "admin_logado" not in st.session_state:
-        st.session_state.admin_logado = False
-    
-    if not st.session_state.admin_logado:
-        st.markdown("### 🔒 Área Restrita")
-        st.markdown("Esta seção é apenas para administradores da pesquisa.")
-        
-        senha = st.text_input("Digite a senha de administrador:", type="password")
-        
-        if st.button("🔓 Acessar"):
-            if senha == senha_correta:
-                st.session_state.admin_logado = True
-                st.rerun()
-            else:
-                st.error("❌ Senha incorreta! Acesso negado.")
-        st.stop()
-    
-    # SÓ CHEGA AQUI SE A SENHA ESTIVER CORRETA
     st.markdown("### 📋 Pesquisa de Satisfação - Classificador de Fertilidade do Solo")
     st.markdown("Sua opinião é fundamental para melhorarmos a ferramenta!")
     st.markdown("---")
     
-    # Verificar se já respondeu
+    # ========== FORMULÁRIO PARA TODOS OS USUÁRIOS ==========
+    
     if "pesquisa_respondida" not in st.session_state:
         st.session_state.pesquisa_respondida = False
     
@@ -1682,23 +1654,21 @@ elif menu == "📋 6. Pesquisa":
                 nome = st.text_input("Nome (opcional)")
                 email = st.text_input("E-mail (opcional - para contato)")
             
-            # Botão de envio dentro do form
+            # Botão de envio
             submitted = st.form_submit_button("📤 ENVIAR PESQUISA", use_container_width=True)
             
             if submitted:
-                # Coletar dados
                 from datetime import datetime
                 import os
-                import pandas as pd
                 
                 resposta = {
                     "data_hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "nota_plataforma": nota_plataforma,
                     "nota_didatica": nota_didatica,
                     "eh_estudante": "Sim" if eh_estudante else "Não",
-                    "nota_academico": nota_academico if isinstance(nota_academico, int) else nota_academico,
+                    "nota_academico": nota_academico,
                     "eh_produtor": "Sim" if eh_produtor else "Não",
-                    "nota_produtor": nota_produtor if isinstance(nota_produtor, int) else nota_produtor,
+                    "nota_produtor": nota_produtor,
                     "classificacao_uso": classificacao_uso,
                     "investimento": investimento,
                     "sugestoes": sugestoes,
@@ -1706,73 +1676,111 @@ elif menu == "📋 6. Pesquisa":
                     "email": email if email else "Não informado"
                 }
                 
-                arquivo_csv = "pesquisas_satisfacao.csv"
+                arquivo_txt = "pesquisas_satisfacao.txt"
                 
-                # Criar DataFrame
-                df_novo = pd.DataFrame([resposta])
+                # Formatar resposta para TXT
+                texto_resposta = f"""
+{'='*60}
+NOVA PESQUISA - {resposta['data_hora']}
+{'='*60}
+
+1. NOTA DA PLATAFORMA: {resposta['nota_plataforma']}/10
+
+2. DIDÁTICA DA INTERPRETAÇÃO: {resposta['nota_didatica']}/10
+
+3. USO ACADÊMICO:
+   - É estudante? {resposta['eh_estudante']}
+   - Probabilidade de uso acadêmico: {resposta['nota_academico']}
+
+4. USO EM PROPRIEDADE:
+   - É produtor? {resposta['eh_produtor']}
+   - Probabilidade de uso na propriedade: {resposta['nota_produtor']}
+
+5. CLASSIFICAÇÃO DO USO: {resposta['classificacao_uso']}
+
+6. INVESTIMENTO FINANCEIRO:
+   {resposta['investimento']}
+
+7. SUGESTÕES DE APRIMORAMENTO:
+   {resposta['sugestoes']}
+
+8. IDENTIFICAÇÃO:
+   - Nome: {resposta['nome']}
+   - E-mail: {resposta['email']}
+
+{'='*60}
+"""
                 
-                # Se arquivo já existe, anexar; senão, criar novo
-                if os.path.exists(arquivo_csv):
-                    df_existente = pd.read_csv(arquivo_csv)
-                    df_final = pd.concat([df_existente, df_novo], ignore_index=True)
-                else:
-                    df_final = df_novo
-                
-                df_final.to_csv(arquivo_csv, index=False, encoding='utf-8-sig')
+                # Salvar no arquivo TXT (anexar)
+                with open(arquivo_txt, "a", encoding='utf-8') as f:
+                    f.write(texto_resposta)
                 
                 st.session_state.pesquisa_respondida = True
                 st.session_state.ultima_pesquisa = resposta
                 
                 st.success("✅ Pesquisa enviada com sucesso! Muito obrigado pela sua contribuição!")
-        
-        # ========== BOTÃO DE DOWNLOAD FORA DO FORM ==========
-        # (Aqui está a correção - fora do st.form)
-        if os.path.exists("pesquisas_satisfacao.csv"):
-            st.markdown("---")
-            with open("pesquisas_satisfacao.csv", "rb") as f:
-                st.download_button(
-                    label="📥 Baixar todas as pesquisas (CSV)",
-                    data=f,
-                    file_name="pesquisas_satisfacao.csv",
-                    mime="text/csv"
-                )
+                
+                st.markdown("### 📊 Resumo da sua resposta")
+                st.markdown(f"""
+                | Pergunta | Resposta |
+                |----------|----------|
+                | Nota da plataforma | {nota_plataforma}/10 |
+                | Didática da interpretação | {nota_didatica}/10 |
+                | É estudante? | {"Sim" if eh_estudante else "Não"} |
+                | Probabilidade de uso acadêmico | {nota_academico} |
+                | É produtor? | {"Sim" if eh_produtor else "Não"} |
+                | Probabilidade de uso na propriedade | {nota_produtor} |
+                | Classificação do uso | {classificacao_uso} |
+                """)
+                
+                st.info("💾 Sua resposta foi registrada. Obrigado!")
     
     else:
-        # Já respondeu
         st.success("✅ Você já respondeu à pesquisa! Muito obrigado pela sua contribuição!")
-        
-        if st.button("📊 Ver minha resposta anterior"):
-            resposta = st.session_state.ultima_pesquisa
-            st.markdown("### 📋 Sua resposta anterior")
-            for key, value in resposta.items():
-                st.markdown(f"**{key.replace('_', ' ').title()}:** {value}")
-        
-        st.markdown("---")
-        st.info("💡 Sua opinião é muito importante! Caso queira dar novas sugestões, entre em contato pelo e-mail.")
+        st.info("💡 Caso queira dar novas sugestões, entre em contato pelo e-mail.")
     
-    # Exibir estatísticas (apenas se houver dados)
+    # ========== RELATÓRIO PROTEGIDO POR SENHA (SÓ VOCÊ VÊ) ==========
     st.markdown("---")
-    st.markdown("### 📊 Estatísticas das Pesquisas Realizadas")
+    st.markdown("### 🔒 Relatório de Pesquisas (Área Restrita)")
     
-    if os.path.exists("pesquisas_satisfacao.csv"):
-        df_pesquisas = pd.read_csv("pesquisas_satisfacao.csv")
-        
-        col_est1, col_est2, col_est3 = st.columns(3)
-        with col_est1:
-            st.metric("Total de respostas", len(df_pesquisas))
-        with col_est2:
-            if 'nota_plataforma' in df_pesquisas.columns:
-                media_plataforma = df_pesquisas['nota_plataforma'].mean()
-                st.metric("Média da plataforma", f"{media_plataforma:.1f}/10")
-        with col_est3:
-            if 'nota_didatica' in df_pesquisas.columns:
-                media_didatica = df_pesquisas['nota_didatica'].mean()
-                st.metric("Média da didática", f"{media_didatica:.1f}/10")
-        
-        with st.expander("📋 Ver todas as respostas"):
-            st.dataframe(df_pesquisas, use_container_width=True)
+    senha_correta = "91959441"  # ← MUDE PARA SUA SENHA
+    
+    if "relatorio_liberado" not in st.session_state:
+        st.session_state.relatorio_liberado = False
+    
+    if not st.session_state.relatorio_liberado:
+        senha = st.text_input("Digite a senha do administrador para acessar o relatório:", type="password")
+        if st.button("🔓 Acessar Relatório"):
+            if senha == senha_correta:
+                st.session_state.relatorio_liberado = True
+                st.rerun()
+            else:
+                st.error("❌ Senha incorreta!")
     else:
-        st.info("ℹ️ Ainda não há pesquisas registradas. Seja o primeiro a responder!")
+        st.success("✅ Modo administrador - Relatório liberado!")
+        
+        arquivo_txt = "pesquisas_satisfacao.txt"
+        
+        if os.path.exists(arquivo_txt):
+            with open(arquivo_txt, "r", encoding='utf-8') as f:
+                conteudo = f.read()
+            
+            st.text_area("📋 RELATÓRIO COMPLETO", conteudo, height=400)
+            
+            # Download em TXT
+            with open(arquivo_txt, "rb") as f:
+                st.download_button(
+                    label="📥 Baixar Relatório (TXT)",
+                    data=f,
+                    file_name="relatorio_pesquisas.txt",
+                    mime="text/plain"
+                )
+        else:
+            st.info("ℹ️ Ainda não há nenhuma pesquisa registrada.")
+        
+        if st.button("🔒 Sair do modo administrador"):
+            st.session_state.relatorio_liberado = False
+            st.rerun()
 # ============================================================================
 # RODAPÉ
 # ============================================================================
