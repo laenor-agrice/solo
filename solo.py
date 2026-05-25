@@ -1633,10 +1633,10 @@ elif menu == "📋 6. Pesquisa":
             )
             
             st.markdown("---")
-            st.markdown("#### 6. SUGESTOES")
+            st.markdown("#### 6. Elogios e Sugestões")
             
             sugestoes = st.text_area(
-                "Sugestoes de aprimoramentos. O que falta ou pode melhorar?",
+                "Sugestões de aprimoramentos. O que falta ou pode melhorar?",
                 placeholder="Ex: Adicionar gráficos, incluir mais culturas, melhorar a explicação do V%...",
                 height=100
             )
@@ -1644,7 +1644,7 @@ elif menu == "📋 6. Pesquisa":
             st.markdown("---")
             
             # Campo para identificacao opcional
-            with st.expander("🔒 IDENTIFICACAO"):
+            with st.expander("Identificação"):
                 nome = st.text_input("Nome (opcional)")
                 email = st.text_input("E-mail (opcional - para contato)")
             
