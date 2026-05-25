@@ -1633,18 +1633,18 @@ elif menu == "📋 6. Pesquisa":
             )
             
             st.markdown("---")
-            st.markdown("#### 6. Sugestões de Aprimoramento")
+            st.markdown("#### 6. Sugestoes de Aprimoramento")
             
             sugestoes = st.text_area(
-                "Sugestões de aprimoramentos. O que falta ou pode melhorar?",
+                "Sugestoes de aprimoramentos. O que falta ou pode melhorar?",
                 placeholder="Ex: Adicionar gráficos, incluir mais culturas, melhorar a explicação do V%...",
                 height=100
             )
             
             st.markdown("---")
             
-            # Campo para identificação opcional
-            with st.expander("🔒 Identificação (opcional)"):
+            # Campo para identificaçao opcional
+            with st.expander("🔒 Identificaçao (opcional)"):
                 nome = st.text_input("Nome (opcional)")
                 email = st.text_input("E-mail (opcional - para contato)")
             
@@ -1688,10 +1688,10 @@ NOVA PESQUISA - {resposta['data_hora']}
 
 5. CLASSIFICAÇÃO DO USO: {resposta['classificacao_uso']}
 
-6. SUGESTÕES DE APRIMORAMENTO:
+6. SUGESTOES DE APRIMORAMENTO:
    {resposta['sugestoes']}
 
-7. IDENTIFICAÇÃO:
+7. IDENTIFICAÇAO:
    - Nome: {resposta['nome']}
    - E-mail: {resposta['email']}
 
@@ -1724,7 +1724,7 @@ NOVA PESQUISA - {resposta['data_hora']}
     
     else:
         st.success("✅ Você já respondeu à pesquisa! Muito obrigado pela sua contribuição!")
-        st.info("💡 Caso queira dar novas sugestões, entre em contato pelo e-mail.")
+        st.info("💡 Caso queira dar novas sugestoes, entre em contato pelo e-mail.")
     
     # ========== RELATÓRIO PROTEGIDO POR SENHA (SÓ VOCÊ VÊ) ==========
     st.markdown("---")
