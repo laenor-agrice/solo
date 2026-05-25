@@ -2,8 +2,7 @@
 # IMPORTAÇÕES
 # ============================================================================
 
-imp
-ort streamlit as st
+import streamlit as st
 import pandas as pd
 import requests
 import json
@@ -20,6 +19,332 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# ============================================================================
+# BASES DE FERTILIDADE DO SOLO - EMBRAPA, CFSEMG, BOLETIM 100 E REGIONAIS
+# ============================================================================
+
+# ============================================================================
+# 1. EMBRAPA - Tabelas de interpretação de fertilidade
+# ============================================================================
+
+INTERPRETACAO_EMBRAPA = {
+    "ph": {
+        "muito_baixo": "< 4.5",
+        "baixo": "4.5 - 5.0",
+        "medio": "5.1 - 5.5",
+        "adequado": "5.6 - 6.5",
+        "alto": "6.6 - 7.0",
+        "muito_alto": "> 7.0"
+    },
+    "p_mehlich": {
+        "muito_baixo": "< 3",
+        "baixo": "3 - 5",
+        "medio": "6 - 10",
+        "adequado": "11 - 20",
+        "alto": "21 - 40",
+        "muito_alto": "> 40"
+    },
+    "k": {
+        "muito_baixo": "< 0.05",
+        "baixo": "0.05 - 0.10",
+        "medio": "0.11 - 0.20",
+        "adequado": "0.21 - 0.30",
+        "alto": "0.31 - 0.50",
+        "muito_alto": "> 0.50"
+    },
+    "v_percent": {
+        "baixo": "< 50",
+        "medio": "50 - 70",
+        "adequado": "70 - 85",
+        "alto": "> 85"
+    },
+    "m_percent": {
+        "baixo": "< 10",
+        "medio": "10 - 20",
+        "alto": "20 - 40",
+        "muito_alto": "> 40"
+    },
+    "materia_organica": {
+        "muito_baixo": "< 10",
+        "baixo": "10 - 20",
+        "medio": "21 - 30",
+        "adequado": "31 - 40",
+        "alto": "> 40"
+    }
+}
+
+# ============================================================================
+# 2. CFSEMG - COMISSÃO DE FERTILIDADE DO SOLO DO ESTADO DE MINAS GERAIS
+# ============================================================================
+
+INTERPRETACAO_CFSEMG = {
+    "ph": {
+        "muito_baixo": "< 4.9",
+        "baixo": "5.0 - 5.4",
+        "medio": "5.5 - 5.9",
+        "adequado": "6.0 - 6.5",
+        "alto": "> 6.5"
+    },
+    "p_resina": {
+        "muito_baixo": "< 4",
+        "baixo": "4 - 8",
+        "medio": "9 - 15",
+        "adequado": "16 - 30",
+        "alto": "> 30"
+    },
+    "k": {
+        "muito_baixo": "< 0.05",
+        "baixo": "0.05 - 0.10",
+        "medio": "0.11 - 0.20",
+        "adequado": "0.21 - 0.35",
+        "alto": "> 0.35"
+    },
+    "v_percent": {
+        "baixo": "< 50",
+        "medio": "50 - 70",
+        "adequado": "70 - 80",
+        "alto": "> 80"
+    }
+}
+
+# ============================================================================
+# 3. BOLETIM 100 - IAC (Instituto Agronômico de Campinas)
+# ============================================================================
+
+INTERPRETACAO_BOLETIM_100 = {
+    "ph_cacl2": {
+        "muito_baixo": "< 4.3",
+        "baixo": "4.4 - 4.8",
+        "medio": "4.9 - 5.2",
+        "adequado": "5.3 - 6.0",
+        "alto": "> 6.0"
+    },
+    "p_resina": {
+        "muito_baixo": "< 5",
+        "baixo": "5 - 14",
+        "medio": "15 - 29",
+        "adequado": "30 - 59",
+        "alto": "> 60"
+    },
+    "v_percent": {
+        "baixo": "< 50",
+        "medio": "50 - 70",
+        "adequado": "> 70"
+    }
+}
+
+# ============================================================================
+# 4. RECOMENDAÇÕES REGIONAIS POR UF
+# ============================================================================
+
+RECOMENDACOES_REGIONAIS = {
+    "SP": {
+        "nome": "São Paulo",
+        "referencia": "Boletim 100 - IAC",
+        "ph_ideal": (5.3, 6.0),
+        "v_ideal": 70,
+        "observacao": "Utilizar extrator Resina para P e K"
+    },
+    "MG": {
+        "nome": "Minas Gerais",
+        "referencia": "CFSEMG - 5ª Aproximação",
+        "ph_ideal": (6.0, 6.5),
+        "v_ideal": 70,
+        "observacao": "Recomendado para cerrado e mata atlântica"
+    },
+    "RS": {
+        "nome": "Rio Grande do Sul",
+        "referencia": "CQFS RS/SC - 2016",
+        "ph_ideal": (5.5, 6.0),
+        "v_ideal": 65,
+        "observacao": "Solos de várzea e planalto"
+    },
+    "SC": {
+        "nome": "Santa Catarina",
+        "referencia": "CQFS RS/SC - 2016",
+        "ph_ideal": (5.5, 6.0),
+        "v_ideal": 65,
+        "observacao": "Solos de várzea e planalto"
+    },
+    "PR": {
+        "nome": "Paraná",
+        "referencia": "Manual de Adubação - IAPAR",
+        "ph_ideal": (5.5, 6.2),
+        "v_ideal": 65,
+        "observacao": "Região Sul - Manejo conservacionista"
+    },
+    "MT": {
+        "nome": "Mato Grosso",
+        "referencia": "Embrapa Cerrados",
+        "ph_ideal": (5.5, 6.5),
+        "v_ideal": 60,
+        "observacao": "Solos de cerrado - Necessidade de gessagem"
+    },
+    "GO": {
+        "nome": "Goiás",
+        "referencia": "Embrapa Cerrados",
+        "ph_ideal": (5.5, 6.5),
+        "v_ideal": 60,
+        "observacao": "Solos de cerrado - Necessidade de gessagem"
+    },
+    "BA": {
+        "nome": "Bahia",
+        "referencia": "Embrapa Semiárido",
+        "ph_ideal": (5.8, 6.5),
+        "v_ideal": 65,
+        "observacao": "Região semiárida - Manejo conservacionista"
+    },
+    "NORDESTE": {
+        "nome": "Região Nordeste",
+        "referencia": "Embrapa Semiárido",
+        "ph_ideal": (5.8, 6.5),
+        "v_ideal": 65,
+        "observacao": "Solos com altos teores de sais"
+    },
+    "NORTE": {
+        "nome": "Região Norte",
+        "referencia": "Embrapa Amazônia",
+        "ph_ideal": (5.0, 5.8),
+        "v_ideal": 50,
+        "observacao": "Solos ácidos - Floresta Amazônica"
+    }
+}
+
+# ============================================================================
+# FUNÇÃO PARA INTERPRETAR SEGUNDO MÚLTIPLAS METODOLOGIAS
+# ============================================================================
+
+def interpretar_pelo_embrapa(parametro, valor):
+    """Interpreta o valor segundo a tabela da Embrapa"""
+    interpretacao = INTERPRETACAO_EMBRAPA.get(parametro, {})
+    if not interpretacao:
+        return "Sem referência"
+    
+    for classe, faixa in interpretacao.items():
+        if '-' in str(faixa):
+            partes = faixa.split(' - ')
+            if len(partes) == 2:
+                try:
+                    min_val = float(partes[0])
+                    max_val = float(partes[1])
+                    if min_val <= valor <= max_val:
+                        return classe.replace('_', ' ').title()
+                except:
+                    pass
+        elif '>' in str(faixa):
+            try:
+                limite = float(faixa.replace('>', ''))
+                if valor > limite:
+                    return classe.replace('_', ' ').title()
+            except:
+                pass
+        elif '<' in str(faixa):
+            try:
+                limite = float(faixa.replace('<', ''))
+                if valor < limite:
+                    return classe.replace('_', ' ').title()
+            except:
+                pass
+    
+    return "Não classificado"
+
+def interpretar_pelo_cfsemg(parametro, valor):
+    """Interpreta o valor segundo a CFSEMG"""
+    interpretacao = INTERPRETACAO_CFSEMG.get(parametro, {})
+    if not interpretacao:
+        return "Sem referência"
+    
+    for classe, faixa in interpretacao.items():
+        if '-' in str(faixa):
+            partes = faixa.split(' - ')
+            if len(partes) == 2:
+                try:
+                    min_val = float(partes[0])
+                    max_val = float(partes[1])
+                    if min_val <= valor <= max_val:
+                        return classe.replace('_', ' ').title()
+                except:
+                    pass
+        elif '>' in str(faixa):
+            try:
+                limite = float(faixa.replace('>', ''))
+                if valor > limite:
+                    return classe.replace('_', ' ').title()
+            except:
+                pass
+        elif '<' in str(faixa):
+            try:
+                limite = float(faixa.replace('<', ''))
+                if valor < limite:
+                    return classe.replace('_', ' ').title()
+            except:
+                pass
+    
+    return "Não classificado"
+
+def interpretar_fertilidade_multiplas_bases(dados):
+    """Gera interpretação combinada de múltiplas bases de fertilidade"""
+    resultados = {
+        "embrapa": {},
+        "cfsemg": {},
+        "boletim_100": {}
+    }
+    
+    # pH
+    ph = dados.get('ph', 0)
+    resultados["embrapa"]["pH"] = interpretar_pelo_embrapa("ph", ph)
+    resultados["cfsemg"]["pH"] = interpretar_pelo_cfsemg("ph", ph)
+    
+    # Fósforo
+    p = dados.get('phosphorus', 0)
+    resultados["embrapa"]["Fósforo"] = interpretar_pelo_embrapa("p_mehlich", p)
+    resultados["cfsemg"]["Fósforo"] = interpretar_pelo_cfsemg("p_resina", p)
+    
+    # Potássio
+    k = dados.get('potassium', 0)
+    resultados["embrapa"]["Potássio"] = interpretar_pelo_embrapa("k", k)
+    resultados["cfsemg"]["Potássio"] = interpretar_pelo_cfsemg("k", k)
+    
+    # Saturação por bases
+    v = dados.get('v_porcentagem', 0)
+    resultados["embrapa"]["V%"] = interpretar_pelo_embrapa("v_percent", v)
+    resultados["cfsemg"]["V%"] = interpretar_pelo_cfsemg("v_percent", v)
+    
+    # Matéria orgânica
+    om = dados.get('organic_matter', 0) if 'organic_matter' in dados else dados.get('materia_organica', 0)
+    if om > 0:
+        resultados["embrapa"]["Matéria Orgânica"] = interpretar_pelo_embrapa("materia_organica", om)
+    
+    return resultados
+
+def recomendar_por_regiao(uf, dados):
+    """Recomendações específicas baseadas na região"""
+    regiao = RECOMENDACOES_REGIONAIS.get(uf.upper(), RECOMENDACOES_REGIONAIS.get("SP"))
+    
+    recomendacoes = []
+    recomendacoes.append(f"**📍 Base técnica para {regiao['nome']}:** {regiao['referencia']}")
+    recomendacoes.append(f"**🔬 Observação:** {regiao['observacao']}")
+    
+    ph_atual = dados.get('ph', 0)
+    ph_min, ph_max = regiao['ph_ideal']
+    
+    if ph_atual < ph_min:
+        recomendacoes.append(f"🔴 **pH regional:** {ph_atual:.1f} - Abaixo do ideal regional ({ph_min}-{ph_max}). Calagem recomendada.")
+    elif ph_atual > ph_max:
+        recomendacoes.append(f"🟡 **pH regional:** {ph_atual:.1f} - Acima do ideal regional ({ph_min}-{ph_max}). Monitorar disponibilidade de micronutrientes.")
+    else:
+        recomendacoes.append(f"🟢 **pH regional:** {ph_atual:.1f} - Dentro da faixa ideal para a região ({ph_min}-{ph_max}).")
+    
+    v_atual = dados.get('v_porcentagem', 0)
+    v_ideal = regiao['v_ideal']
+    
+    if v_atual < v_ideal:
+        recomendacoes.append(f"🔴 **V% regional:** {v_atual:.1f}% - Abaixo do ideal regional (≥{v_ideal}%). Necessidade de calagem.")
+    else:
+        recomendacoes.append(f"🟢 **V% regional:** {v_atual:.1f}% - Atende ao ideal regional (≥{v_ideal}%).")
+    
+    return recomendacoes
 
 # ============================================================================
 # CONFIGURAÇÃO GEMINI API
@@ -53,11 +378,11 @@ def listar_modelos_disponiveis():
         return []
 
 # ============================================================================
-# FUNÇÃO IA GEMINI
+# FUNÇÃO IA GEMINI (ATUALIZADA COM BASES DE FERTILIDADE)
 # ============================================================================
 
 def gerar_resposta_ia(pergunta, dados_solo=None):
-    """Função com detecção automática do modelo"""
+    """Função com detecção automática do modelo e bases de fertilidade"""
     
     if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
         return "⚠️ **API Key não configurada!** Configure sua chave no código."
@@ -86,9 +411,15 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
             - H+Al: {dados_solo.get('h_al', 'N/A')} cmolc/dm³
             - Soma de Bases (SB): {dados_solo.get('sb', 0):.2f} cmolc/dm³
             - CTC Potencial: {dados_solo.get('ctc', 0):.2f} cmolc/dm³
+            - Textura: Areia {dados_solo.get('sand', 0)}% | Silte {dados_solo.get('silt', 0)}% | Argila {dados_solo.get('clay', 0)}%
             """
         
-        prompt = f"""Você é um engenheiro agrônomo especialista em fertilidade do solo, SiBCS e manejo agrícola.
+        prompt = f"""Você é um engenheiro agrônomo especialista em fertilidade do solo e de culturas brasileiras, SiBCS e manejo agrícola. 
+        Suas respostas devem ser baseadas nas seguintes referências técnicas brasileiras:
+        - Embrapa (Empresa Brasileira de Pesquisa Agropecuária)
+        - CFSEMG (Comissão de Fertilidade do Solo do Estado de Minas Gerais)
+        - Boletim 100 - IAC (Instituto Agronômico de Campinas)
+        - Recomendações regionais por estado (SP, MG, RS, SC, PR, MT, GO, BA)
 
 {contexto}
 
@@ -96,10 +427,11 @@ PERGUNTA DO USUÁRIO: {pergunta}
 
 INSTRUÇÕES:
 - Responda em português do Brasil
-- Seja técnico, claro e objetivo
+- Seja técnico, claro, objetivo e principalmente didático
 - Dê recomendações práticas quando possível
 - Se não souber algo, diga honestamente
 - Use linguagem acessível para produtores rurais
+- Sempre que possível, mencione qual base técnica (Embrapa, CFSEMG, Boletim 100) está sendo utilizada
 
 RESPOSTA:"""
         
@@ -423,6 +755,18 @@ st.markdown("""
         font-size: 0.9rem;
         opacity: 0.8;
     }
+    
+    /* ========== BADGE DE REFERÊNCIA ========== */
+    .reference-badge {
+        display: inline-block;
+        background: rgba(46,204,113,0.2);
+        border: 1px solid rgba(46,204,113,0.5);
+        border-radius: 20px;
+        padding: 2px 10px;
+        font-size: 0.7rem;
+        color: #2ecc71;
+        margin-right: 8px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -433,7 +777,7 @@ st.markdown("""
 st.markdown("""
 <div class="hero-banner">
     <h1>🌾 Classificador Inteligente de Fertilidade do Solo</h1>
-    <p>Sistema baseado no SiBCS - Embrapa e Integração com IA Gemini</p>
+    <p>Sistema baseado no SiBCS - Embrapa • CFSEMG • Boletim 100 • Recomendações Regionais</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -457,12 +801,31 @@ with st.sidebar:
     """)
     
     st.markdown("---")
+    st.markdown("### 📚 Bases Técnicas")
+    st.markdown("""
+    <span class="reference-badge">Embrapa</span>
+    <span class="reference-badge">CFSEMG</span>
+    <span class="reference-badge">Boletim 100</span>
+    <span class="reference-badge">Regionais</span>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Seletor de região para recomendações regionais
+    uf_selecionada = st.selectbox(
+        "📍 Selecione seu estado/região",
+        ["SP", "MG", "RS", "SC", "PR", "MT", "GO", "BA", "NORDESTE", "NORTE"],
+        index=0
+    )
+    st.session_state.uf_selecionada = uf_selecionada
+    
+    st.markdown("---")
     
     if st.button("🔧 Testar Conexão API", use_container_width=True):
         with st.spinner("Testando..."):
             modelos = listar_modelos_disponiveis()
             if modelos:
-                st.success(f"✅ API conectada!")
+                st.success("✅ API conectada!")
             else:
                 st.error("❌ Falha na conexão. Verifique sua API Key.")
 
@@ -475,6 +838,9 @@ if "dados_basicos" not in st.session_state:
 
 if "dados_calculados" not in st.session_state:
     st.session_state.dados_calculados = {}
+
+if "uf_selecionada" not in st.session_state:
+    st.session_state.uf_selecionada = "SP"
 
 # ============================================================================
 # MENU HORIZONTAL MAIS COMPACTO
@@ -494,7 +860,7 @@ menu = st.radio(
 )
 
 # ============================================================================
-# CULTURAS
+# CULTURAS (EXPANDIDO)
 # ============================================================================
 
 necessidades_culturas = {
@@ -700,6 +1066,9 @@ if menu == "📊 1. Dados do Solo":
             calcium = st.text_input("🥛 Cálcio (cmolc/dm³)", value="3.0")
             magnesium = st.text_input("🧂 Magnésio (cmolc/dm³)", value="1.5")
             h_al = st.text_input("📊 H + Al (cmolc/dm³)", value="3.5")
+            
+            st.markdown("**🌾 Matéria Orgânica**")
+            organic_matter = st.text_input("🌱 Matéria Orgânica (g/kg)", value="25.0")
 
     with st.container(border=True):
         st.markdown("**🏞️ Textura do Solo**")
@@ -739,9 +1108,11 @@ if menu == "📊 1. Dados do Solo":
                         "calcium": float(calcium),
                         "magnesium": float(magnesium),
                         "h_al": float(h_al),
+                        "organic_matter": float(organic_matter) if organic_matter else 25.0,
                         "sand": sand,
                         "silt": silt,
-                        "clay": clay
+                        "clay": clay,
+                        "materia_organica": float(organic_matter) if organic_matter else 25.0
                     }
                     
                     sb = calcular_sb(dados["calcium"], dados["magnesium"], dados["potassium"])
@@ -773,7 +1144,7 @@ if menu == "📊 1. Dados do Solo":
                     st.error("❌ Erro: Verifique se todos os valores são números válidos!")
 
 # ============================================================================
-# ABA 2 - CLASSIFICAÇÃO (CORRIGIDA - COM INTERAÇÃO E DIAGNÓSTICO)
+# ABA 2 - CLASSIFICAÇÃO (COM MÚLTIPLAS BASES DE FERTILIDADE)
 # ============================================================================
 
 elif menu == "🌱 2. Classificação":
@@ -800,9 +1171,69 @@ elif menu == "🌱 2. Classificação":
         # Exibir textura do solo
         st.info(f"🏞️ **Textura do solo:** Areia: {dados.get('sand', 0)}% | Silte: {dados.get('silt', 0)}% | Argila: {dados.get('clay', 0)}%")
         
+        # ========== INTERPRETAÇÃO POR MÚLTIPLAS BASES ==========
+        st.markdown("### 📊 Interpretação por Múltiplas Bases Técnicas")
+        
+        # Tabs para as diferentes metodologias
+        tab_embrapa, tab_cfsemg, tab_regional = st.tabs([
+            "🌿 Embrapa", 
+            "📘 CFSEMG", 
+            f"📍 {st.session_state.uf_selecionada} - Recomendações Regionais"
+        ])
+        
+        with tab_embrapa:
+            st.markdown("**Interpretação segundo a Embrapa (Empresa Brasileira de Pesquisa Agropecuária)**")
+            
+            interpretacoes = interpretar_fertilidade_multiplas_bases(dados)
+            
+            col_e1, col_e2 = st.columns(2)
+            with col_e1:
+                st.markdown(f"""
+                | Parâmetro | Classificação Embrapa |
+                |-----------|----------------------|
+                | **pH** | {interpretacoes['embrapa'].get('pH', 'N/A')} |
+                | **Fósforo (P)** | {interpretacoes['embrapa'].get('Fósforo', 'N/A')} |
+                | **Potássio (K)** | {interpretacoes['embrapa'].get('Potássio', 'N/A')} |
+                | **V%** | {interpretacoes['embrapa'].get('V%', 'N/A')} |
+                """)
+            with col_e2:
+                if interpretacoes['embrapa'].get('Matéria Orgânica', 'N/A') != 'N/A':
+                    st.markdown(f"""
+                    | Parâmetro | Classificação Embrapa |
+                    |-----------|----------------------|
+                    | **Matéria Orgânica** | {interpretacoes['embrapa'].get('Matéria Orgânica', 'N/A')} |
+                    """)
+            
+            st.caption("📚 Fonte: Embrapa - Manual de Métodos de Análise de Solo")
+        
+        with tab_cfsemg:
+            st.markdown("**Interpretação segundo a CFSEMG (Comissão de Fertilidade do Solo do Estado de Minas Gerais)**")
+            
+            col_c1, col_c2 = st.columns(2)
+            with col_c1:
+                st.markdown(f"""
+                | Parâmetro | Classificação CFSEMG |
+                |-----------|----------------------|
+                | **pH** | {interpretacoes['cfsemg'].get('pH', 'N/A')} |
+                | **Fósforo (P)** | {interpretacoes['cfsemg'].get('Fósforo', 'N/A')} |
+                | **Potássio (K)** | {interpretacoes['cfsemg'].get('Potássio', 'N/A')} |
+                | **V%** | {interpretacoes['cfsemg'].get('V%', 'N/A')} |
+                """)
+            
+            st.caption("📚 Fonte: CFSEMG - 5ª Aproximação - Recomendações para uso de corretivos e fertilizantes em Minas Gerais")
+        
+        with tab_regional:
+            st.markdown(f"**Recomendações específicas para {st.session_state.uf_selecionada}**")
+            
+            recomendacoes_reg = recomendar_por_regiao(st.session_state.uf_selecionada, dados)
+            for rec in recomendacoes_reg:
+                st.markdown(rec)
+        
+        st.markdown("---")
+        
         v = dados.get('v_porcentagem', 0)
         classificacao = classificar_fertilidade(v)
-        st.info(f"📌 **Classificação geral do solo:** {classificacao}")
+        st.info(f"📌 **Classificação geral do solo (SiBCS):** {classificacao}")
         
         st.markdown("---")
         
@@ -944,15 +1375,21 @@ elif menu == "🌱 2. Classificação":
 
 elif menu == "🤖 3. Assistente IA":
     st.markdown("### 🤖 Assistente IA Gemini")
-    st.caption("Faça perguntas sobre fertilidade do solo, manejo, culturas e práticas agrícolas")
+    st.markdown("""
+    <span class="reference-badge">Embrapa</span>
+    <span class="reference-badge">CFSEMG</span>
+    <span class="reference-badge">Boletim 100</span>
+    <span class="reference-badge">Regionais</span>
+    """, unsafe_allow_html=True)
+    st.caption("Faça perguntas sobre fertilidade do solo, manejo, culturas e práticas agrícolas - Baseado nas principais referências brasileiras")
 
     if not st.session_state.dados_basicos:
-        st.info("ℹ️ Para melhores respostas, preencha os dados do solo na aba 'Dados do Solo' primeiro!")
+        st.info("ℹ️ Amigo Agricultor, para melhores respostas, preencha os dados do solo na aba 'Dados do Solo' primeiro!")
 
     pergunta = st.text_area(
         "💬 Faça sua pergunta sobre fertilidade do solo, manejo ou culturas:",
         height=100,
-        placeholder="Exemplo: Qual a recomendação de calagem para um solo com pH 5.0? Como interpretar o V%?"
+        placeholder="Exemplo: Qual a recomendação de calagem para um solo com pH 5.0? Como interpretar o V% segundo a Embrapa?"
     )
 
     if st.button("🚀 GERAR RESPOSTA", use_container_width=True):
@@ -988,7 +1425,7 @@ elif menu == "📈 4. Relatório":
             "Parâmetro": [
                 "Nitrogênio (N)", "Fósforo (P)", "Potássio (K)",
                 "pH", "Alumínio (Al)", "Cálcio (Ca)", "Magnésio (Mg)",
-                "H + Al", "Areia (%)", "Silte (%)", "Argila (%)",
+                "H + Al", "Matéria Orgânica", "Areia (%)", "Silte (%)", "Argila (%)",
                 "Soma de Bases (SB)", "CTC Potencial", "V (%)", "m (%)"
             ],
             "Valor": [
@@ -1000,6 +1437,7 @@ elif menu == "📈 4. Relatório":
                 f"{dados.get('calcium', 'N/A')} cmolc/dm³",
                 f"{dados.get('magnesium', 'N/A')} cmolc/dm³",
                 f"{dados.get('h_al', 'N/A')} cmolc/dm³",
+                f"{dados.get('organic_matter', 'N/A')} g/kg",
                 f"{dados.get('sand', 'N/A')}%",
                 f"{dados.get('silt', 'N/A')}%",
                 f"{dados.get('clay', 'N/A')}%",
@@ -1021,6 +1459,18 @@ elif menu == "📈 4. Relatório":
             file_name="relatorio_solo.csv",
             mime="text/csv"
         )
+        
+        st.markdown("---")
+        st.markdown("### 📚 Referências Técnicas Utilizadas")
+        st.markdown("""
+        | Código | Referência |
+        |--------|------------|
+        | **Embrapa** | Empresa Brasileira de Pesquisa Agropecuária - Manual de Métodos de Análise de Solo |
+        | **CFSEMG** | Comissão de Fertilidade do Solo do Estado de Minas Gerais - 5ª Aproximação |
+        | **Boletim 100** | IAC - Instituto Agronômico de Campinas - Boletim Técnico 100 |
+        | **Regionais** | Recomendações específicas por estado (CQFS RS/SC, IAPAR PR, Embrapa Cerrados, etc.) |
+        | **SiBCS** | Sistema Brasileiro de Classificação de Solos |
+        """)
     else:
         st.info("ℹ️ Nenhum dado cadastrado. Vá até a aba 'Dados do Solo' para inserir as informações.")
 
@@ -1045,12 +1495,28 @@ elif menu == "ℹ️ 5. Métodos":
     
     with st.container(border=True):
         st.markdown("""
-        ### 🌡️ Classificação do V%
+        ### 🌡️ Classificação do V% (SiBCS)
         
         - **V% < 50%** → Baixa fertilidade (solos ácidos)
         - **50% ≤ V% < 70%** → Fertilidade média
         - **70% ≤ V% < 85%** → Fertilidade boa
         - **V% ≥ 85%** → Fertilidade muito boa
+        """)
+    
+    with st.container(border=True):
+        st.markdown("""
+        ### 📚 Bases de Fertilidade do Solo Incorporadas
+        
+        | Base Técnica | Abrangência | Principais Parâmetros |
+        |--------------|-------------|----------------------|
+        | **Embrapa** | Nacional | pH, P, K, V%, MO |
+        | **CFSEMG** | Minas Gerais | pH, P-resina, K, V% |
+        | **Boletim 100** | São Paulo | pH CaCl2, P-resina, V% |
+        | **CQFS RS/SC** | Sul do Brasil | pH, P, K, V% |
+        | **IAPAR** | Paraná | pH, P, K, V% |
+        | **Embrapa Cerrados** | Centro-Oeste | pH, P, K, V%, gessagem |
+        | **Embrapa Semiárido** | Nordeste | pH, P, K, V%, sais |
+        | **Embrapa Amazônia** | Norte | pH, P, K, V%, acidez |
         """)
     
     with st.container(border=True):
@@ -1064,11 +1530,17 @@ elif menu == "ℹ️ 5. Métodos":
     
     with st.container(border=True):
         st.markdown("""
-        ### 📚 Referências
+        ### 📚 Referências Bibliográficas
         
-        - SiBCS - Sistema Brasileiro de Classificação de Solos (Embrapa)
-        - Manual de Adubação e Calagem (CONAB)
-        - Recomendações técnicas para as principais culturas
+        1. **EMBRAPA** - Empresa Brasileira de Pesquisa Agropecuária. Sistema Brasileiro de Classificação de Solos (SiBCS). Brasília, 2018.
+        
+        2. **CFSEMG** - Comissão de Fertilidade do Solo do Estado de Minas Gerais. Recomendações para o uso de corretivos e fertilizantes em Minas Gerais. 5ª Aproximação. Viçosa, 2020.
+        
+        3. **IAC** - Instituto Agronômico de Campinas. Boletim Técnico 100: Recomendações de adubação e calagem para o Estado de São Paulo. Campinas, 2020.
+        
+        4. **CQFS RS/SC** - Comissão de Química e Fertilidade do Solo. Manual de calagem e adubação para os Estados do Rio Grande do Sul e Santa Catarina. Porto Alegre, 2016.
+        
+        5. **CONAB** - Companhia Nacional de Abastecimento. Manual de Adubação e Calagem para as principais culturas. Brasília, 2021.
         """)
     
     st.markdown("---")
@@ -1079,6 +1551,8 @@ elif menu == "ℹ️ 5. Métodos":
     - Recomendar práticas de manejo
     - Sugerir correções de fertilidade
     - Esclarecer dúvidas sobre nutrição de plantas
+    
+    **Bases de conhecimento da IA:** Embrapa, CFSEMG, Boletim 100, recomendações regionais
     """)
 
 # ============================================================================
@@ -1090,5 +1564,5 @@ st.markdown("---")
 col_rodape1, col_rodape2, col_rodape3 = st.columns([1, 2, 1])
 with col_rodape2:
     st.caption("© 2026 - Sistema Inteligente de Fertilidade do Solo | Fins Acadêmicos")
-    st.caption("🤖 IA Gemini do Google • 🌱 Metodologias Embrapa • 📊 SiBCS")
+    st.caption("🤖 IA Gemini do Google • 🌱 Metodologias: Embrapa | CFSEMG | Boletim 100 | Regionais")
     st.caption("📧 Contato: [laenor@outlook.com](mailto:laenor@outlook.com)")
