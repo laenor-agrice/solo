@@ -8,7 +8,6 @@ import requests
 import json
 import time
 import re
-pip install gspread pandas google-auth
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA
 # ============================================================================
