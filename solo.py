@@ -1561,6 +1561,9 @@ elif menu == "ℹ️ 5. Métodos":
 # ============================================================================
 
 elif menu == "📋 6. Pesquisa":
+    import os
+    from datetime import datetime
+    
     st.markdown("### 📋 Pesquisa de Satisfação - Classificador de Fertilidade do Solo")
     st.markdown("Sua opinião é fundamental para melhorarmos a ferramenta!")
     st.markdown("---")
@@ -1630,16 +1633,7 @@ elif menu == "📋 6. Pesquisa":
             )
             
             st.markdown("---")
-            st.markdown("#### 6. Investimento Financeiro")
-            
-            investimento = st.text_area(
-                "Financeiramente, você investiria em uma ferramenta para auxiliar na gestão e tomada de decisão acerca do uso de insumos agrícolas?",
-                placeholder="Ex: Sim, pagaria até R$ 50/mês | Não, prefiro gratuito | Talvez, dependendo dos recursos...",
-                height=100
-            )
-            
-            st.markdown("---")
-            st.markdown("#### 7. Sugestões de Aprimoramento")
+            st.markdown("#### 6. Sugestões de Aprimoramento")
             
             sugestoes = st.text_area(
                 "Sugestões de aprimoramentos. O que falta ou pode melhorar?",
@@ -1658,9 +1652,6 @@ elif menu == "📋 6. Pesquisa":
             submitted = st.form_submit_button("📤 ENVIAR PESQUISA", use_container_width=True)
             
             if submitted:
-                from datetime import datetime
-                import os
-                
                 resposta = {
                     "data_hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "nota_plataforma": nota_plataforma,
@@ -1670,7 +1661,6 @@ elif menu == "📋 6. Pesquisa":
                     "eh_produtor": "Sim" if eh_produtor else "Não",
                     "nota_produtor": nota_produtor,
                     "classificacao_uso": classificacao_uso,
-                    "investimento": investimento,
                     "sugestoes": sugestoes,
                     "nome": nome if nome else "Anônimo",
                     "email": email if email else "Não informado"
@@ -1698,13 +1688,10 @@ NOVA PESQUISA - {resposta['data_hora']}
 
 5. CLASSIFICAÇÃO DO USO: {resposta['classificacao_uso']}
 
-6. INVESTIMENTO FINANCEIRO:
-   {resposta['investimento']}
-
-7. SUGESTÕES DE APRIMORAMENTO:
+6. SUGESTÕES DE APRIMORAMENTO:
    {resposta['sugestoes']}
 
-8. IDENTIFICAÇÃO:
+7. IDENTIFICAÇÃO:
    - Nome: {resposta['nome']}
    - E-mail: {resposta['email']}
 
