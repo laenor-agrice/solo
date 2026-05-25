@@ -1633,7 +1633,7 @@ elif menu == "📋 6. Pesquisa":
             )
             
             st.markdown("---")
-            st.markdown("#### 6. Sugestoes de Aprimoramento")
+            st.markdown("#### 6. SUGESTOES")
             
             sugestoes = st.text_area(
                 "Sugestoes de aprimoramentos. O que falta ou pode melhorar?",
