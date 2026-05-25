@@ -8,7 +8,7 @@ import requests
 import json
 import time
 import re
-
+pip install gspread pandas google-auth
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA
 # ============================================================================
@@ -847,13 +847,14 @@ if "uf_selecionada" not in st.session_state:
 # ============================================================================
 
 menu = st.radio(
-    "Menu",
+    "Navegação",
     [
         "📊 1. Dados do Solo",
         "🌱 2. Classificação",
         "🤖 3. Assistente IA",
         "📈 4. Relatório",
-        "ℹ️ 5. Métodos"
+        "ℹ️ 5. Métodos",
+        "📋 6. Pesquisa"
     ],
     horizontal=True,
     label_visibility="collapsed"
@@ -1555,6 +1556,210 @@ elif menu == "ℹ️ 5. Métodos":
     **Bases de conhecimento da IA:** Embrapa, CFSEMG, Boletim 100, recomendações regionais
     """)
 
+
+# ============================================================================
+# ABA 6 - PESQUISA DE SATISFAÇÃO
+# ============================================================================
+
+elif menu == "📋 6. Pesquisa":
+    st.markdown("### 📋 Pesquisa de Uso e Satisfação - Classificador de Fertilidade do Solo")
+    st.markdown("Sua opinião é fundamental para melhorarmos a ferramenta!")
+    st.markdown("---")
+    
+    # Verificar se já respondeu
+    if "pesquisa_respondida" not in st.session_state:
+        st.session_state.pesquisa_respondida = False
+    
+    if not st.session_state.pesquisa_respondida:
+        
+        with st.form("pesquisa_form"):
+            st.markdown("#### 1. Avaliação da Plataforma")
+            nota_plataforma = st.slider(
+                "De 0 a 10, qual a nota pela funcionalidade da plataforma?",
+                min_value=0, max_value=10, value=5, step=1
+            )
+            
+            st.markdown("---")
+            st.markdown("#### 2. Didática da Interpretação")
+            nota_didatica = st.slider(
+                "De 0 a 10, o quão didático foi a interpretação dos dados?",
+                min_value=0, max_value=10, value=5, step=1
+            )
+            
+            st.markdown("---")
+            st.markdown("#### 3. Uso Acadêmico")
+            
+            col_estudante, col_nota = st.columns([1, 2])
+            with col_estudante:
+                eh_estudante = st.checkbox("Sou estudante/pesquisador")
+            
+            with col_nota:
+                if eh_estudante:
+                    nota_academico = st.slider(
+                        "De 0 a 10, qual a probabilidade de utilizar a ferramenta para fins acadêmicos?",
+                        min_value=0, max_value=10, value=5, step=1
+                    )
+                else:
+                    nota_academico = "Não se aplica (não sou estudante)"
+                    st.info("✅ Você marcou que não é estudante. Esta pergunta não se aplica.")
+            
+            st.markdown("---")
+            st.markdown("#### 4. Uso em Propriedade Rural")
+            
+            col_produtor, col_nota2 = st.columns([1, 2])
+            with col_produtor:
+                eh_produtor = st.checkbox("Sou produtor rural")
+            
+            with col_nota2:
+                if eh_produtor:
+                    nota_produtor = st.slider(
+                        "De 0 a 10, qual a probabilidade de usar esta ferramenta em sua propriedade rural?",
+                        min_value=0, max_value=10, value=5, step=1
+                    )
+                else:
+                    nota_produtor = "Não se aplica (não sou produtor)"
+                    st.info("✅ Você marcou que não é produtor. Esta pergunta não se aplica.")
+            
+            st.markdown("---")
+            st.markdown("#### 5. Classificação do Uso")
+            
+            classificacao_uso = st.radio(
+                "Como você classificaria o uso da ferramenta?",
+                ["Fácil", "Médio", "Difícil"],
+                horizontal=True
+            )
+            
+            st.markdown("---")
+            st.markdown("#### 6. Investimento Financeiro")
+            
+            investimento = st.text_area(
+                "Financeiramente, você investiria em uma ferramenta para auxiliar na gestão e tomada de decisão acerca do uso de insumos agrícolas?",
+                placeholder="Ex: Sim, pagaria até R$ 50/mês | Não, prefiro gratuito | Talvez, dependendo dos recursos...",
+                height=100
+            )
+            
+            st.markdown("---")
+            st.markdown("#### 7. Sugestões de Aprimoramento")
+            
+            sugestoes = st.text_area(
+                "Sugestões de aprimoramentos. O que falta ou pode melhorar?",
+                placeholder="Ex: Adicionar gráficos, incluir mais culturas, melhorar a explicação do V%...",
+                height=100
+            )
+            
+            st.markdown("---")
+            
+            # Campo para identificação opcional
+            with st.expander("🔒 Identificação (opcional)"):
+                nome = st.text_input("Nome (opcional)")
+                email = st.text_input("E-mail (opcional - para contato)")
+            
+            # Botão de envio
+            submitted = st.form_submit_button("📤 ENVIAR PESQUISA", use_container_width=True)
+            
+            if submitted:
+                # Coletar dados
+                from datetime import datetime
+                
+                resposta = {
+                    "data_hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "nota_plataforma": nota_plataforma,
+                    "nota_didatica": nota_didatica,
+                    "eh_estudante": "Sim" if eh_estudante else "Não",
+                    "nota_academico": nota_academico if isinstance(nota_academico, int) else nota_academico,
+                    "eh_produtor": "Sim" if eh_produtor else "Não",
+                    "nota_produtor": nota_produtor if isinstance(nota_produtor, int) else nota_produtor,
+                    "classificacao_uso": classificacao_uso,
+                    "investimento": investimento,
+                    "sugestoes": sugestoes,
+                    "nome": nome if nome else "Anônimo",
+                    "email": email if email else "Não informado"
+                }
+                
+                # Salvar em CSV local
+                import os
+                import pandas as pd
+                
+                arquivo_csv = "pesquisas_satisfacao.csv"
+                
+                # Criar DataFrame
+                df_novo = pd.DataFrame([resposta])
+                
+                # Se arquivo já existe, anexar; senão, criar novo
+                if os.path.exists(arquivo_csv):
+                    df_existente = pd.read_csv(arquivo_csv)
+                    df_final = pd.concat([df_existente, df_novo], ignore_index=True)
+                else:
+                    df_final = df_novo
+                
+                df_final.to_csv(arquivo_csv, index=False, encoding='utf-8-sig')
+                
+                st.session_state.pesquisa_respondida = True
+                st.session_state.ultima_pesquisa = resposta
+                
+                st.success("✅ Pesquisa enviada com sucesso! Muito obrigado pela sua contribuição!")
+                
+                # Mostrar resumo
+                st.markdown("### 📊 Resumo da sua resposta")
+                st.markdown(f"""
+                | Pergunta | Resposta |
+                |----------|----------|
+                | Nota da plataforma | {nota_plataforma}/10 |
+                | Didática da interpretação | {nota_didatica}/10 |
+                | É estudante? | {"Sim" if eh_estudante else "Não"} |
+                | Probabilidade de uso acadêmico | {nota_academico if isinstance(nota_academico, int) else nota_academico} |
+                | É produtor? | {"Sim" if eh_produtor else "Não"} |
+                | Probabilidade de uso na propriedade | {nota_produtor if isinstance(nota_produtor, int) else nota_produtor} |
+                | Classificação do uso | {classificacao_uso} |
+                """)
+                
+                st.info("💾 Os dados foram salvos localmente no arquivo 'pesquisas_satisfacao.csv'")
+                
+                # Botão para download
+                with open(arquivo_csv, "rb") as f:
+                    st.download_button(
+                        label="📥 Baixar todas as pesquisas (CSV)",
+                        data=f,
+                        file_name="pesquisas_satisfacao.csv",
+                        mime="text/csv"
+                    )
+    
+    else:
+        # Já respondeu
+        st.success("✅ Você já respondeu à pesquisa! Muito obrigado pela sua contribuição!")
+        
+        if st.button("📊 Ver minha resposta anterior"):
+            resposta = st.session_state.ultima_pesquisa
+            st.markdown("### 📋 Sua resposta anterior")
+            for key, value in resposta.items():
+                st.markdown(f"**{key.replace('_', ' ').title()}:** {value}")
+        
+        st.markdown("---")
+        st.info("💡 Sua opinião é muito importante! Caso queira dar novas sugestões, entre em contato pelo e-mail.")
+    
+    # Exibir estatísticas (apenas se houver dados)
+    st.markdown("---")
+    st.markdown("### 📊 Estatísticas das Pesquisas Realizadas")
+    
+    if os.path.exists("pesquisas_satisfacao.csv"):
+        df_pesquisas = pd.read_csv("pesquisas_satisfacao.csv")
+        
+        col_est1, col_est2, col_est3 = st.columns(3)
+        with col_est1:
+            st.metric("Total de respostas", len(df_pesquisas))
+        with col_est2:
+            if 'nota_plataforma' in df_pesquisas.columns:
+                media_plataforma = df_pesquisas['nota_plataforma'].mean()
+                st.metric("Média da plataforma", f"{media_plataforma:.1f}/10")
+        with col_est3:
+            if 'nota_didatica' in df_pesquisas.columns:
+                media_didatica = df_pesquisas['nota_didatica'].mean()
+                st.metric("Média da didática", f"{media_didatica:.1f}/10")
+        
+        with st.expander("📋 Ver todas as respostas"):
+            st.dataframe(df_pesquisas, use_container_width=True)
+    else:
+        st.info("ℹ️ Ainda não há pesquisas registradas. Seja o primeiro a responder!")
 # ============================================================================
 # RODAPÉ
 # ============================================================================
