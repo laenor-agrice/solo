@@ -807,7 +807,7 @@ st.markdown("""
             <path d="M27 30 L33 30" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
         <h1 style="margin: 0; font-size: 3rem; letter-spacing: 2px; background: linear-gradient(135deg, #2ecc71, #1e8f4a); -webkit-background-clip: text; background-clip: text; color: transparent;">
-            TELLURI
+            TELLURIUM
         </h1>
     </div>
     <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Classificador Inteligente de Fertilidade do Solo</p>
