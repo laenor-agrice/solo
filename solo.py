@@ -790,54 +790,28 @@ st.markdown("""
 
 st.markdown("""
 <div class="hero-banner">
-    <div style="display: flex; align-items: center; justify-content: center; gap: 25px; margin-bottom: 15px;">
-        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <line x1="40" y1="15" x2="40" y2="35" stroke="#2ecc71" stroke-width="2.5" stroke-linecap="round"/>
-            <line x1="40" y1="20" x2="30" y2="12" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
-            <line x1="40" y1="20" x2="50" y2="12" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
-            <line x1="40" y1="27" x2="32" y2="22" stroke="#27ae60" stroke-width="2" stroke-linecap="round"/>
-            <line x1="40" y1="27" x2="48" y2="22" stroke="#27ae60" stroke-width="2" stroke-linecap="round"/>
-            <path d="M28 10C30 6 34 6 33 10" fill="#2ecc71" opacity="0.9"/>
-            <path d="M52 10C50 6 46 6 47 10" fill="#2ecc71" opacity="0.9"/>
-            <path d="M30 20C28 16 32 14 33 18" fill="#27ae60" opacity="0.8"/>
-            <path d="M50 20C52 16 48 14 47 18" fill="#27ae60" opacity="0.8"/>
-            <ellipse cx="35" cy="30" rx="2.5" ry="4" fill="#f1c40f" stroke="#d4ac0d" stroke-width="0.5"/>
-            <ellipse cx="45" cy="30" rx="2.5" ry="4" fill="#f1c40f" stroke="#d4ac0d" stroke-width="0.5"/>
-            <rect x="15" y="35" width="50" height="8" rx="1" fill="#5d4037" stroke="#4e342e" stroke-width="0.5"/>
-            <rect x="15" y="43" width="50" height="8" rx="1" fill="#795548" stroke="#4e342e" stroke-width="0.5"/>
-            <rect x="15" y="51" width="50" height="8" rx="1" fill="#8d6e63" stroke="#4e342e" stroke-width="0.5"/>
-            <rect x="15" y="59" width="50" height="8" rx="1" fill="#a1887f" stroke="#4e342e" stroke-width="0.5"/>
-            <circle cx="25" cy="39" r="1.5" fill="#f39c12" opacity="0.8"/>
-            <circle cx="50" cy="39" r="1.5" fill="#f39c12" opacity="0.8"/>
-            <circle cx="30" cy="47" r="1.5" fill="#e74c3c" opacity="0.8"/>
-            <circle cx="55" cy="47" r="1.5" fill="#e74c3c" opacity="0.8"/>
-            <circle cx="35" cy="55" r="1.5" fill="#3498db" opacity="0.8"/>
-            <circle cx="48" cy="55" r="1.5" fill="#3498db" opacity="0.8"/>
-            <path d="M40 35 Q38 45 39 55 Q40 62 38 68" stroke="#c79a2e" stroke-width="2" fill="none" stroke-linecap="round"/>
-            <path d="M39 42 Q32 45 28 44" stroke="#c79a2e" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-            <path d="M39 48 Q34 52 30 50" stroke="#c79a2e" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-            <path d="M39 52 Q44 55 48 53" stroke="#c79a2e" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-            <path d="M39 58 Q44 62 50 60" stroke="#c79a2e" stroke-width="1" fill="none" stroke-linecap="round"/>
-            <path d="M38 64 Q33 66 30 64" stroke="#c79a2e" stroke-width="1" fill="none" stroke-linecap="round"/>
-            <path d="M36 45 Q28 46 25 45" stroke="#d4a017" stroke-width="0.8" fill="none" stroke-linecap="round"/>
-            <path d="M41 51 Q49 52 53 51" stroke="#d4a017" stroke-width="0.8" fill="none" stroke-linecap="round"/>
-            <path d="M42 57 Q48 59 52 58" stroke="#d4a017" stroke-width="0.8" fill="none" stroke-linecap="round"/>
-            <circle cx="36" cy="38" r="1" fill="#f1c40f" opacity="0.6"/>
-            <circle cx="42" cy="44" r="1" fill="#f1c40f" opacity="0.6"/>
-            <circle cx="37" cy="50" r="1" fill="#f1c40f" opacity="0.6"/>
-            <circle cx="43" cy="56" r="1" fill="#f1c40f" opacity="0.6"/>
-            <circle cx="39" cy="62" r="0.8" fill="#f1c40f" opacity="0.5"/>
-            <text x="22" y="42" font-size="6" fill="#f39c12" opacity="0.7">N</text>
-            <text x="54" y="42" font-size="6" fill="#f39c12" opacity="0.7">P</text>
-            <text x="28" y="50" font-size="6" fill="#e74c3c" opacity="0.7">K</text>
-            <text x="52" y="58" font-size="6" fill="#3498db" opacity="0.7">Ca</text>
-            <text x="32" y="62" font-size="6" fill="#2ecc71" opacity="0.7">Mg</text>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 10px;">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="30" cy="30" r="28" stroke="#2ecc71" stroke-width="1.5" fill="none"/>
+            <circle cx="30" cy="30" r="22" stroke="#27ae60" stroke-width="1" fill="none" stroke-dasharray="4 3"/>
+            <path d="M30 8 L30 15" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
+            <path d="M30 45 L30 52" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
+            <path d="M8 30 L15 30" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
+            <path d="M45 30 L52 30" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
+            <path d="M14 14 L19 19" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M41 41 L46 46" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M46 14 L41 19" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M19 41 L14 46" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="30" cy="30" r="3" fill="#2ecc71"/>
+            <path d="M30 27 L30 33" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M27 30 L33 30" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        <div style="text-align: left;">
-            <h1 style="margin: 0; font-size: 1.8rem;">Classificador Inteligente<br>de Fertilidade do Solo</h1>
-        </div>
+        <h1 style="margin: 0; font-size: 3rem; letter-spacing: 2px; background: linear-gradient(135deg, #2ecc71, #1e8f4a); -webkit-background-clip: text; background-clip: text; color: transparent;">
+            TELLURI
+        </h1>
     </div>
-    <p style="margin-top: 10px;">🌱 Perfil do solo com raizes explorando nutrientes • SiBCS • Embrapa • CFSEMG • Boletim 100</p>
+    <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Classificador Inteligente de Fertilidade do Solo</p>
+    <p style="margin-top: 8px; font-size: 0.75rem; opacity: 0.7;">SiBCS • Embrapa • CFSEMG • Boletim 100 • Recomendações Regionais</p>
 </div>
 """, unsafe_allow_html=True)
 
