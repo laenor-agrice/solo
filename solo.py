@@ -790,7 +790,18 @@ st.markdown("""
 
 st.markdown("""
 <div class="hero-banner">
-    <h1>🌾 Classificador Inteligente de Fertilidade do Solo</h1>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 15px;">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 8C8 6 16 6 19 8" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5 13C8 11 16 11 19 13" stroke="#27ae60" stroke-width="2" stroke-linecap="round"/>
+            <path d="M5 18C8 16 16 16 19 18" stroke="#1e8f4a" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="4" r="2" fill="#2ecc71"/>
+            <path d="M12 9L12 15" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
+            <path d="M9 12L15 12" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="12" r="1.5" fill="#2ecc71"/>
+        </svg>
+        <h1 style="margin: 0; font-size: 2rem;">Classificador Inteligente de Fertilidade do Solo</h1>
+    </div>
     <p>Sistema baseado no SiBCS - Embrapa • CFSEMG • Boletim 100 • Recomendações Regionais</p>
 </div>
 """, unsafe_allow_html=True)
