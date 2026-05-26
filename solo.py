@@ -12,14 +12,24 @@ import re
 # CONFIGURAÇÃO DA PÁGINA
 # ============================================================================
 
-st.set_page_config(
-    page_title="Classificador Inteligente de Fertilidade do Solo",
-    page_icon="<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://w3.org">
+import streamlit as st
+import base64
+
+# Icone SVG convertido para Base64
+svg_icon = """
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M5 8C8 6 16 6 19 8" stroke="#8D6E63" stroke-width="2" stroke-linecap="round"/>
   <path d="M5 13C8 11 16 11 19 13" stroke="#6D4C41" stroke-width="2" stroke-linecap="round"/>
   <path d="M5 18C8 16 16 16 19 18" stroke="#4E342E" stroke-width="2" stroke-linecap="round"/>
   <circle cx="12" cy="4" r="2" fill="#4CAF50"/>
-</svg>",
+</svg>
+"""
+
+svg_base64 = base64.b64encode(svg_icon.encode()).decode()
+
+st.set_page_config(
+    page_title="Classificador Inteligente de Fertilidade do Solo",
+    page_icon=f"data:image/svg+xml;base64,{svg_base64}",
     layout="wide",
     initial_sidebar_state="expanded"
 )
