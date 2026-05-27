@@ -27,13 +27,13 @@ svg_icon = """
 
 svg_base64 = base64.b64encode(svg_icon.encode()).decode()
 
-st.set_page_config(
-    page_title="Classificador Inteligente de Fertilidade do Solo",
-    page_icon=f"data:image/svg+xml;base64,{svg_base64}",
-    layout="wide",
-    #initial_sidebar_state="auto"
-)
-
+# st.set_page_config(
+#     page_title="Classificador Inteligente de Fertilidade do Solo",
+#     page_icon=f"data:image/svg+xml;base64,{svg_base64}",
+#     layout="wide",
+#     #initial_sidebar_state="auto"
+# )
+st.set_page_config(page_title="Classificador Inteligente de Fertilidade do Solo", page_icon="💧", layout="wide")
 # ============================================================================
 # BASES DE FERTILIDADE DO SOLO - EMBRAPA, CFSEMG, BOLETIM 100 E REGIONAIS
 # ============================================================================
