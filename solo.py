@@ -1321,10 +1321,13 @@ if menu == "📊 1. Dados do Solo":
 # ============================================================================
 # ABA 2 - CLASSIFICAÇÃO (COM MÚLTIPLAS BASES DE FERTILIDADE)
 # ============================================================================
-aba1, aba2 = st.tabs([
-    "📊 Classificação",
-    "🌱 Adubação"
-])
+if menu == "🌱 2. Classificacao":
+
+    aba1, aba2 = st.tabs([
+        "📊 Classificação",
+        "🌱 Adubação"
+    ])
+
     with aba2:
 
         st.markdown("#### 🌱 Recomendação de Adubação")
