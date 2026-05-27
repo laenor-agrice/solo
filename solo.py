@@ -1544,7 +1544,7 @@ with aba2:
                         req['p_min']
                     )
 
-                    if "✅" in p_recomendacao":
+                    if "✅" in p_recomendacao:
 
                         st.success(p_recomendacao)
 
