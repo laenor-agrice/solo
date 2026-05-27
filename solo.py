@@ -818,8 +818,8 @@ st.markdown("""
 # SIDEBAR - MENU MAIS LIMPO
 # ============================================================================
 
-    st.image(
-    "https://cdn-icons-png.flaticon.com/512/18629/18629540.png"
+st.image(
+"https://cdn-icons-png.flaticon.com/512/18629/18629540.png"
 )
 
 st.markdown("### 🌱 Sistema Inteligente")
