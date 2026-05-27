@@ -820,8 +820,8 @@ st.markdown("""
 
 with st.sidebar:
     st.image(
-        "https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
-        width=70
+        "https://cdn-icons-png.flaticon.com/512/18629/18629540.png",
+        width=50
     )
     
     st.markdown("### 🌱 Sistema Inteligente")
