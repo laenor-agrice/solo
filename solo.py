@@ -820,7 +820,7 @@ st.markdown("""
 
 with st.sidebar:
     st.image(
-        "https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
+        ",https://www.flaticon.com/free-icon/flask_2729603?term=chemistry&page=1&position=3&origin=search&related_id=2729603"
         width=70)
     st.markdown("### 🌱 Sistema Inteligente")
     st.markdown("""
