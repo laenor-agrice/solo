@@ -819,9 +819,8 @@ st.markdown("""
 # ============================================================================
 
 st.image(
-    "https://cdn-icons-png.flaticon.com/512/18629/18629540.png",
-    width=120
-     )
+    "https://cdn-icons-png.flaticon.com/512/18629/18629540.png"
+    )
     st.markdown("### 🌱 Sistema Inteligente")
     st.markdown("""
     • Avaliação da fertilidade  
