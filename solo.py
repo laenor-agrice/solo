@@ -818,9 +818,12 @@ st.markdown("""
 # SIDEBAR - MENU MAIS LIMPO
 # ============================================================================
 
+with st.sidebar:
     st.image(
-    "https://cdn-icons-png.flaticon.com/512/18629/18629540.png"
+        "https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
+        width=70
     )
+    
     st.markdown("### 🌱 Sistema Inteligente")
     st.markdown("""
     • Avaliação da fertilidade  
