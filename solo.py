@@ -818,55 +818,46 @@ st.markdown("""
 # SIDEBAR - MENU MAIS LIMPO
 # ============================================================================
 
-st.image(
-"https://cdn-icons-png.flaticon.com/512/18629/18629540.png"
-)
-
-st.markdown("### 🌱 Sistema Inteligente")
-
-st.markdown("""
-• Avaliação da fertilidade  
-• Cálculo de V% e m%  
-• Classificação SiBCS  
-• Relatório técnico  
-• IA Gemini integrada  
-""")
-
-st.markdown("---")
-
-st.markdown("### 📚 Bases Técnicas")
-
-st.markdown("""
-<span class="reference-badge">Embrapa</span>
-<span class="reference-badge">CFSEMG</span>
-<span class="reference-badge">Boletim 100</span>
-<span class="reference-badge">Regionais</span>
-""", unsafe_allow_html=True)
-
-st.markdown("---")
-
-# Seletor de região para recomendações regionais
-uf_selecionada = st.selectbox(
-    "📍 Selecione seu estado/região",
-    ["SP", "MG", "RS", "SC", "PR", "MT", "GO", "BA", "NORDESTE", "NORTE"],
-    index=0
-)
-
-st.session_state.uf_selecionada = uf_selecionada
-
-st.markdown("---")
-
-if st.button("🔧 Testar Conexão API", use_container_width=True):
-
-    with st.spinner("Testando..."):
-
-        modelos = listar_modelos_disponiveis()
-
-        if modelos:
-            st.success("✅ API conectada!")
-
-        else:
-            st.error("❌ Falha na conexão. Verifique sua API Key.")
+    st.image(
+    "https://cdn-icons-png.flaticon.com/512/18629/18629540.png"
+    )
+    st.markdown("### 🌱 Sistema Inteligente")
+    st.markdown("""
+    • Avaliação da fertilidade  
+    • Cálculo de V% e m%  
+    • Classificação SiBCS  
+    • Relatório técnico  
+    • IA Gemini integrada  
+    """)
+    
+    st.markdown("---")
+    st.markdown("### 📚 Bases Técnicas")
+    st.markdown("""
+    <span class="reference-badge">Embrapa</span>
+    <span class="reference-badge">CFSEMG</span>
+    <span class="reference-badge">Boletim 100</span>
+    <span class="reference-badge">Regionais</span>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Seletor de região para recomendações regionais
+    uf_selecionada = st.selectbox(
+        "📍 Selecione seu estado/região",
+        ["SP", "MG", "RS", "SC", "PR", "MT", "GO", "BA", "NORDESTE", "NORTE"],
+        index=0
+    )
+    st.session_state.uf_selecionada = uf_selecionada
+    
+    st.markdown("---")
+    
+    if st.button("🔧 Testar Conexão API", use_container_width=True):
+        with st.spinner("Testando..."):
+            modelos = listar_modelos_disponiveis()
+            if modelos:
+                st.success("✅ API conectada!")
+            else:
+                st.error("❌ Falha na conexão. Verifique sua API Key.")
 # ============================================================================
 # SESSION STATE
 # ============================================================================
