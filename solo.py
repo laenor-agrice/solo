@@ -821,10 +821,10 @@ st.markdown("""
 with st.sidebar:
     st.image(
         "https://cdn-icons-png.flaticon.com/512/18629/18629540.png",
-        width=50
+        width=80
     )
     
-    st.markdown("### 🌱 Sistema Inteligente")
+    st.markdown("### Sistema Inteligente")
     st.markdown("""
     • Avaliação da fertilidade  
     • Cálculo de V% e m%  
