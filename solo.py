@@ -14,6 +14,7 @@ import re
 
 import streamlit as st
 import base64
+st.set_page_config(page_title="Classificador Inteligente de Fertilidade do Solo", page_icon="💧", layout="wide")
 
 # Icone SVG convertido para Base64
 svg_icon = """
@@ -33,7 +34,7 @@ svg_base64 = base64.b64encode(svg_icon.encode()).decode()
 #     layout="wide",
 #     #initial_sidebar_state="auto"
 # )
-st.set_page_config(page_title="Classificador Inteligente de Fertilidade do Solo", page_icon="💧", layout="wide")
+#st.set_page_config(page_title="Classificador Inteligente de Fertilidade do Solo", page_icon="💧", layout="wide")
 # ============================================================================
 # BASES DE FERTILIDADE DO SOLO - EMBRAPA, CFSEMG, BOLETIM 100 E REGIONAIS
 # ============================================================================
