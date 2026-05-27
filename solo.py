@@ -29,7 +29,7 @@ svg_base64 = base64.b64encode(svg_icon.encode()).decode()
 
 st.set_page_config(
     page_title="Classificador Inteligente de Fertilidade do Solo",
-    #age_icon=f"data:image/svg+xml;base64,{svg_base64}",
+    page_icon=f"data:image/svg+xml;base64,{svg_base64}",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -820,10 +820,10 @@ st.markdown("""
 # ============================================================================
 
 with st.sidebar:
-    #st.image(
-        #"https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
-       # width=70
-    #)
+    st.image(
+        "https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
+        width=70
+    )
     
     st.markdown("### 🌱 Sistema Inteligente")
     st.markdown("""
