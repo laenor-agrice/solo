@@ -31,7 +31,7 @@ st.set_page_config(
     page_title="Classificador Inteligente de Fertilidade do Solo",
     page_icon=f"data:image/svg+xml;base64,{svg_base64}",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="auto"
 )
 
 # ============================================================================
