@@ -31,7 +31,7 @@ st.set_page_config(
     page_title="Classificador Inteligente de Fertilidade do Solo",
     page_icon=f"data:image/svg+xml;base64,{svg_base64}",
     layout="wide",
-    initial_sidebar_state="auto"
+    initial_sidebar_state="auto", menu_items=None
 )
 # ============================================================================
 # BASES DE FERTILIDADE DO SOLO - EMBRAPA, CFSEMG, BOLETIM 100 E REGIONAIS
@@ -821,9 +821,9 @@ st.markdown("""
 with st.sidebar:
     st.image(
         "https://cdn-icons-png.flaticon.com/512/2909/2909763.png",
-        width=70
+        width=70//
     )
-    st.sidebar.icon(:smile:)
+  
     st.markdown("### 🌱 Sistema Inteligente")
     st.markdown("""
     • Avaliação da fertilidade  
