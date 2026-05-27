@@ -363,7 +363,7 @@ def recomendar_por_regiao(uf, dados):
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "AIzaSyAkj0m6HFJxX9hGNopoUiUxWDgPJrMkQww"  # ← INSIRA SUA CHAVE AQUI!
+GEMINI_API_KEY = "AIzaSyBNuxaSeFQV6fahdEVW7CYgR6gIKyeAigI"  # ← INSIRA SUA CHAVE AQUI!
 
 # ============================================================================
 # FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
@@ -841,17 +841,7 @@ with st.sidebar:
     <span class="reference-badge">Boletim 100</span>
     <span class="reference-badge">Regionais</span>
     """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # Seletor de região para recomendações regionais
-    uf_selecionada = st.selectbox(
-        "📍 Selecione seu estado/região",
-        ["SP", "MG", "RS", "SC", "PR", "MT", "GO", "BA", "NORDESTE", "NORTE"],
-        index=0
-    )
-    st.session_state.uf_selecionada = uf_selecionada
-    
+       
     st.markdown("---")
     
     if st.button("🔧 Testar Conexão API", use_container_width=True):
