@@ -40,7 +40,7 @@ st.set_page_config(
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "AQ.Ab8RN6IQnu9oWFtBv437bN7MK_LpF-nEn3eAe95b_5IZtvty3Q"  # ← INSIRA SUA CHAVE AQUI!
+GEMINI_API_KEY = "AQ.Ab8RN6KDhETV-bQ9RBKAPsKHjFLyj28H-hsUh8Yg-uhEyU5t1A"  # ← INSIRA SUA CHAVE AQUI!
 
 
 # ============================================================================
