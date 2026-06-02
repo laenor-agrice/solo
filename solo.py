@@ -36,6 +36,12 @@ st.set_page_config(
 # ============================================================================
 # BASES DE FERTILIDADE DO SOLO - EMBRAPA, CFSEMG, BOLETIM 100 E REGIONAIS
 # ============================================================================
+# ============================================================================
+# CONFIGURAÇÃO GEMINI API
+# ============================================================================
+
+GEMINI_API_KEY = "AQ.Ab8RN6IQnu9oWFtBv437bN7MK_LpF-nEn3eAe95b_5IZtvty3Q"  # ← INSIRA SUA CHAVE AQUI!
+
 
 # ============================================================================
 # 1. EMBRAPA - Tabelas de interpretação de fertilidade
@@ -359,11 +365,6 @@ def recomendar_por_regiao(uf, dados):
     
     return recomendacoes
 
-# ============================================================================
-# CONFIGURAÇÃO GEMINI API
-# ============================================================================
-
-GEMINI_API_KEY = "AQ.Ab8RN6IQnu9oWFtBv437bN7MK_LpF-nEn3eAe95b_5IZtvty3Q"  # ← INSIRA SUA CHAVE AQUI!
 
 # ============================================================================
 # FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
