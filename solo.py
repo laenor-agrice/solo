@@ -363,7 +363,7 @@ def recomendar_por_regiao(uf, dados):
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "AIzaSyBNuxaSeFQV6fahdEVW7CYgR6gIKyeAigI"  # ← INSIRA SUA CHAVE AQUI!
+GEMINI_API_KEY = "AQ.Ab8RN6IJqcglXtynJ1Rhj4gGN8ot6r0Rb_r9083T_YmvHdUQtw"  # ← INSIRA SUA CHAVE AQUI!
 
 # ============================================================================
 # FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
