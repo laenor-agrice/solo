@@ -494,13 +494,8 @@ RESPOSTA:"""
 st.markdown("""
 <style>
     /* ========== RESET E FONTES ========== */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap');
-    
-    * {
-        font-family: 'Inter', 'Segoe UI', sans-serif !important;
-    }
-    
-    /* ========== FUNDO PRINCIPAL ========== */
+        }
+        /* ========== FUNDO PRINCIPAL ========== */
     .stApp {
         background: radial-gradient(circle at 20% 30%, #0a0f1e, #05070f);
         color: #ffffff;
