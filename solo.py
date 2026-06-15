@@ -1319,35 +1319,16 @@ if menu == "📊 1. Dados do Solo":
 # ============================================================================
 if menu == "🌱 2. Classificação":
 
-    if "dados_basicos" not in st.session_state or not st.session_state.dados_basicos:
-        st.warning("⚠️ Preencha e salve os dados na Aba 1 primeiro!")
+    if "dados_basicos" not in st.session_state:
+        st.warning("⚠️ Preencha e salve os dados na Aba 1.")
         st.stop()
 
     dados = st.session_state.dados_basicos
 
-    # ADICIONE ESTA PARTE - SELEÇÃO DA CULTURA
-    st.markdown("### 🌾 Selecione a Cultura")
-    cultura = st.selectbox(
-        "Escolha a cultura para análise:",
-        list(necessidades_culturas.keys()),
-        index=0
-    )
-    
-    # Obtém os requisitos da cultura selecionada
+    # ========== ÚNICA ADIÇÃO: SELECIONAR CULTURA ==========
+    cultura = st.selectbox("🌾 Selecione a cultura:", list(necessidades_culturas.keys()))
     req = necessidades_culturas[cultura]
-    
-    # Exibe os parâmetros da cultura selecionada
-    with st.expander(f"📋 Parâmetros de referência para {cultura}"):
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("V% desejado", f"{req['v_desejado']}%")
-        with col2:
-            st.metric("N mínimo", f"{req['n_min']} mg/dm³")
-        with col3:
-            st.metric("P mínimo", f"{req['p_min']} mg/dm³")
-        with col4:
-            st.metric("K mínimo", f"{req['k_min']} cmolc/dm³")
-        st.caption(f"Faixa de pH ideal: {req['ph_min']} - {req['ph_max']}")
+    # =====================================================
 
     aba1, aba2 = st.tabs([
         "📊 Classificação",
@@ -1356,91 +1337,30 @@ if menu == "🌱 2. Classificação":
 
     with aba1:
         st.markdown("## 📊 Classificação da Fertilidade")
-        
-        # Exibe os dados calculados
-        col_a, col_b, col_c, col_d = st.columns(4)
-        with col_a:
-            st.metric("SB (Soma de Bases)", f"{dados.get('sb', 0):.2f} cmolc/dm³")
-        with col_b:
-            st.metric("CTC (Potencial)", f"{dados.get('ctc', 0):.2f} cmolc/dm³")
-        with col_c:
-            st.metric("V% (Saturação)", f"{dados.get('v_porcentagem', 0):.1f}%")
-        with col_d:
-            st.metric("m% (Alumínio)", f"{dados.get('m_porcentagem', 0):.1f}%")
-        
-        st.markdown("---")
-        
-        # Diagnóstico baseado na cultura selecionada
-        st.markdown("### 🔍 Diagnóstico para " + cultura)
-        diagnosticos = gerar_diagnostico(dados, req)
-        for diag in diagnosticos:
-            st.markdown(f"- {diag}")
-        
-        st.markdown("---")
-        
-        # Classificação da fertilidade
-        st.markdown("### 📊 Classificação da Fertilidade (SiBCS)")
-        v_percent = dados.get('v_porcentagem', 0)
-        classe_fertilidade = classificar_fertilidade(v_percent)
-        
-        if v_percent < 50:
-            st.error(f"**{classe_fertilidade}**")
-        elif v_percent < 70:
-            st.warning(f"**{classe_fertilidade}**")
-        else:
-            st.success(f"**{classe_fertilidade}**")
-        
-        st.markdown("---")
-        
-        # Múltiplas bases de interpretação
-        st.markdown("### 📚 Interpretação por Múltiplas Bases Técnicas")
-        
-        interpretacoes = interpretar_fertilidade_multiplas_bases(dados)
-        
-        col_emb, col_cfs, col_b100 = st.columns(3)
-        
-        with col_emb:
-            st.markdown("**🌱 Embrapa**")
-            for param, valor in interpretacoes["embrapa"].items():
-                st.caption(f"• {param}: {valor}")
-        
-        with col_cfs:
-            st.markdown("**📍 CFSEMG (MG)**")
-            for param, valor in interpretacoes["cfsemg"].items():
-                if param in interpretacoes["cfsemg"]:
-                    st.caption(f"• {param}: {valor}")
-        
-        with col_b100:
-            st.markdown("**📖 Boletim 100 (SP)**")
-            st.caption("• pH: " + interpretar_pelo_boletim_100(dados.get('ph', 0)))
-            st.caption("• V%: " + interpretar_pelo_boletim_100_v(dados.get('v_porcentagem', 0)))
-        
-        st.markdown("---")
-        
-        # Recomendações regionais
-        st.markdown("### 📍 Recomendação Regional")
-        if "uf_selecionada" in st.session_state and st.session_state.uf_selecionada:
-            recomendacoes_reg = recomendar_por_regiao(st.session_state.uf_selecionada, dados)
-            for rec in recomendacoes_reg:
-                st.markdown(f"- {rec}")
+        st.write(dados)
 
     with aba2:
-        st.markdown(f"#### 🌱 Recomendação de Adubação para {cultura}")
+
+        st.markdown("#### 🌱 Recomendação de Adubação")
 
         # ============================================================================
         # NITROGÊNIO (N)
         # ============================================================================
 
         with st.container(border=True):
+
             st.markdown("**Nitrogênio (N)**")
+
             n_atual = dados.get('nitrogen', 0)
+
+            # Seleção de inoculação biológica para soja e feijão
             usa_biologico = False
 
             if cultura in ["Soja", "Feijão"]:
+
                 usa_biologico = st.toggle(
                     f"🦠 Utilizar inoculação biológica em {cultura}?",
-                    value=True,
-                    key="toggle_n"
+                    value=True
                 )
 
             n_recomendacao = recomendar_adubacao_nitrogenio(
@@ -1450,116 +1370,241 @@ if menu == "🌱 2. Classificação":
             )
 
             if "✅" in n_recomendacao:
+
                 st.success(n_recomendacao)
+
             else:
+
                 import re
-                match = re.search(r'Aplicar (\d+) kg/ha', n_recomendacao)
+
+                match = re.search(
+                    r'Aplicar (\d+) kg/ha',
+                    n_recomendacao
+                )
+
                 if match:
+
                     kg_n = int(match.group(1))
 
-                    if cultura == "Soja":
-                        if usa_biologico:
-                            kg_n = max(0, int(kg_n * 0.15))
-                            st.success("🦠 Inoculação biológica ativada: redução da necessidade de N mineral.")
-                        else:
-                            st.warning("⚠️ Sem inoculação biológica: maior demanda de N mineral.")
-                    elif cultura == "Feijão":
-                        if usa_biologico:
-                            kg_n = max(20, int(kg_n * 0.50))
-                            st.success("🦠 Coinoculação/inoculação considerada: redução parcial do N mineral.")
+                    # ============================================================
+                    # AJUSTE PARA FIXAÇÃO BIOLÓGICA
+                    # ============================================================
 
-                    st.warning(f"Aplicar {kg_n} kg/ha de Nitrogênio")
-                    st.info("**📌 Forma de aplicação do Nitrogênio:**")
-                    
-                    # Culturas fixadoras
                     if cultura == "Soja":
+
                         if usa_biologico:
+
+                            kg_n = max(0, int(kg_n * 0.15))
+
+                            st.success(
+                                "🦠 Inoculação biológica ativada: "
+                                "redução da necessidade de N mineral."
+                            )
+
+                        else:
+
+                            st.warning(
+                                "⚠️ Sem inoculação biológica: "
+                                "maior demanda de N mineral."
+                            )
+
+                    elif cultura == "Feijão":
+
+                        if usa_biologico:
+
+                            kg_n = max(20, int(kg_n * 0.50))
+
+                            st.success(
+                                "🦠 Coinoculação/inoculação considerada: "
+                                "redução parcial do N mineral."
+                            )
+
+                    st.warning(
+                        f"Aplicar {kg_n} kg/ha de Nitrogênio"
+                    )
+
+                    st.info(
+                        "**📌 Forma de aplicação do Nitrogênio:**"
+                    )
+
+                    # ============================================================
+                    # PARCELAMENTO POR CULTURA
+                    # ============================================================
+
+                    # SOJA
+                    if cultura == "Soja":
+
+                        if usa_biologico:
+
                             st.markdown(f"""
                             - **Aplicação recomendada:** Dose simbólica ou starter
                             - Aplicar até {kg_n} kg/ha no sulco de plantio
                             - **Preferir inoculação eficiente com Bradyrhizobium**
                             - Evitar excesso de N mineral para não reduzir a FBN
                             """)
+
                         else:
+
                             p1 = kg_n // 2
                             p2 = kg_n - p1
+
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - V4-V6: {p2} kg/ha
+                            - Recomenda-se inoculação biológica para maior eficiência
                             """)
+
+                    # FEIJÃO
                     elif cultura == "Feijão":
+
                         if kg_n <= 40:
-                            st.markdown(f"- Aplicar {kg_n} kg/ha no plantio")
+
+                            st.markdown(f"""
+                            - **Aplicação recomendada:** Dose única
+                            - Aplicar {kg_n} kg/ha no plantio
+                            """)
+
                         else:
+
                             p1 = kg_n // 2
                             p2 = kg_n - p1
+
                             st.markdown(f"""
+                            - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - Cobertura (20-30 DAE): {p2} kg/ha
                             """)
+
+                    # CAFÉ
                     elif cultura == "Café":
+
                         p1 = kg_n // 4
                         p2 = kg_n // 4
                         p3 = kg_n // 4
                         p4 = kg_n - p1 - p2 - p3
+
                         st.markdown(f"""
+                        - **Parcelamento recomendado:** 4 aplicações anuais
                         - 1ª aplicação: {p1} kg/ha
                         - 2ª aplicação: {p2} kg/ha
                         - 3ª aplicação: {p3} kg/ha
                         - 4ª aplicação: {p4} kg/ha
                         """)
-                    elif cultura in ["Milho Grão", "Milho Semente", "Tomate", "Alface", "Couve-flor", "Pimentão", "Batata"]:
+
+                    # MILHO / TOMATE / HORTALIÇAS
+                    elif cultura in [
+                        "Milho Grão",
+                        "Milho Semente",
+                        "Tomate",
+                        "Alface",
+                        "Couve-flor",
+                        "Pimentão",
+                        "Batata"
+                    ]:
+
                         if kg_n <= 40:
-                            st.markdown(f"- Aplicar {kg_n} kg/ha no plantio")
+
+                            st.markdown(f"""
+                            - **Aplicação recomendada:** Dose única
+                            - Aplicar {kg_n} kg/ha no plantio
+                            """)
+
                         elif kg_n <= 80:
+
                             p1 = kg_n // 2
                             p2 = kg_n - p1
+
                             st.markdown(f"""
+                            - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - Cobertura: {p2} kg/ha
                             """)
+
                         else:
+
                             p1 = kg_n // 3
                             p2 = kg_n // 3
                             p3 = kg_n - p1 - p2
+
                             st.markdown(f"""
+                            - **Parcelamento recomendado:** 3 aplicações
                             - Plantio: {p1} kg/ha
-                            - V4-V6: {p2} kg/ha
+                            - V4-V6 / Desenvolvimento vegetativo: {p2} kg/ha
                             - Pré-florescimento: {p3} kg/ha
                             """)
+
+                    # DEMAIS CULTURAS
                     else:
+
                         if kg_n <= 50:
-                            st.markdown(f"- Aplicar {kg_n} kg/ha no plantio")
+
+                            st.markdown(f"""
+                            - **Aplicação recomendada:** Dose única
+                            - Aplicar {kg_n} kg/ha no plantio
+                            """)
+
                         else:
+
                             p1 = kg_n // 2
                             p2 = kg_n - p1
+
                             st.markdown(f"""
+                            - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - Cobertura: {p2} kg/ha
                             """)
+
+                    st.markdown("""
+                    - **Evitar aplicação superficial sem incorporação**
+                    - Parcelamentos reduzem perdas por volatilização e lixiviação
+                    """)
 
         # ============================================================================
         # FÓSFORO (P)
         # ============================================================================
 
         with st.container(border=True):
+
             st.markdown("**Fósforo (P)**")
+
             p_atual = dados.get('phosphorus', 0)
-            p_recomendacao = recomendar_adubacao_fosforo(cultura, p_atual, req['p_min'])
+
+            p_recomendacao = recomendar_adubacao_fosforo(
+                cultura,
+                p_atual,
+                req['p_min']
+            )
 
             if "✅" in p_recomendacao:
+
                 st.success(p_recomendacao)
+
             else:
-                match = re.search(r'Aplicar (\d+) kg/ha', p_recomendacao)
+
+                match = re.search(
+                    r'Aplicar (\d+) kg/ha',
+                    p_recomendacao
+                )
+
                 if match:
+
                     kg_p = int(match.group(1))
-                    st.warning(f"Aplicar {kg_p} kg/ha de Fósforo")
-                    st.info("**📌 Forma de aplicação do Fósforo:**")
+
+                    st.warning(
+                        f"Aplicar {kg_p} kg/ha de Fósforo"
+                    )
+
+                    st.info(
+                        "**📌 Forma de aplicação do Fósforo:**"
+                    )
+
                     st.markdown("""
                     - Aplicar 100% no plantio/semeadura
                     - Aplicação localizada no sulco
                     - Profundidade ideal: 5–10 cm
+                    - O fósforo possui baixa mobilidade no solo
+                    - Preferir aplicação próxima ao sistema radicular
                     """)
 
         # ============================================================================
@@ -1567,76 +1612,74 @@ if menu == "🌱 2. Classificação":
         # ============================================================================
 
         with st.container(border=True):
+
             st.markdown("**Potássio (K)**")
+
             k_atual = dados.get('potassium', 0)
-            k_recomendacao = recomendar_adubacao_potassio(cultura, k_atual, req['k_min'])
+
+            k_recomendacao = recomendar_adubacao_potassio(
+                cultura,
+                k_atual,
+                req['k_min']
+            )
 
             if "✅" in k_recomendacao:
+
                 st.success(k_recomendacao)
+
             else:
-                match = re.search(r'Aplicar (\d+) kg/ha', k_recomendacao)
+
+                match = re.search(
+                    r'Aplicar (\d+) kg/ha',
+                    k_recomendacao
+                )
+
                 if match:
+
                     kg_k = int(match.group(1))
-                    st.warning(f"Aplicar {kg_k} kg/ha de Potássio")
-                    st.info("**📌 Forma de aplicação do Potássio:**")
-                    
-                    if cultura in ["Tomate", "Batata", "Café", "Pimentão"]:
+
+                    st.warning(
+                        f"Aplicar {kg_k} kg/ha de Potássio"
+                    )
+
+                    st.info(
+                        "**📌 Forma de aplicação do Potássio:**"
+                    )
+
+                    # Culturas mais exigentes
+                    if cultura in [
+                        "Tomate",
+                        "Batata",
+                        "Café",
+                        "Pimentão"
+                    ]:
+
                         p1 = kg_k // 3
                         p2 = kg_k // 3
                         p3 = kg_k - p1 - p2
+
                         st.markdown(f"""
+                        - **Parcelamento recomendado:** 3 aplicações
                         - Plantio: {p1} kg/ha
                         - Desenvolvimento vegetativo: {p2} kg/ha
                         - Florescimento/frutificação: {p3} kg/ha
                         """)
+
                     else:
+
                         p1 = kg_k // 2
                         p2 = kg_k - p1
+
                         st.markdown(f"""
+                        - **Parcelamento recomendado:** 2 aplicações
                         - Plantio: {p1} kg/ha
                         - Cobertura: {p2} kg/ha
                         """)
 
-        # ============================================================================
-        # CALAGEM
-        # ============================================================================
-
-        with st.container(border=True):
-            st.markdown("**🧪 Calagem**")
-            
-            v_atual = dados.get('v_porcentagem', 0)
-            ctc = dados.get('ctc', 0)
-            v_desejado = req['v_desejado']
-            
-            nc, rec_calagem, tempo = calcular_necessidade_calagem(v_atual, v_desejado, ctc)
-            
-            if nc > 0:
-                st.warning(rec_calagem)
-                st.info(f"⏱️ Tempo estimado para reação: {tempo} dias")
-                st.caption("💡 O calcário deve ser incorporado na camada de 0-20cm")
-            else:
-                st.success(rec_calagem)
-
-# Função auxiliar para interpretar pH pelo Boletim 100
-def interpretar_pelo_boletim_100(ph):
-    if ph < 4.3:
-        return "Muito Baixo"
-    elif 4.4 <= ph <= 4.8:
-        return "Baixo"
-    elif 4.9 <= ph <= 5.2:
-        return "Médio"
-    elif 5.3 <= ph <= 6.0:
-        return "Adequado"
-    else:
-        return "Alto"
-
-def interpretar_pelo_boletim_100_v(v_percent):
-    if v_percent < 50:
-        return "Baixo"
-    elif 50 <= v_percent <= 70:
-        return "Médio"
-    else:
-        return "Adequado"
+                    st.markdown("""
+                    - Evitar aplicação excessiva para reduzir salinização
+                    - Parcelamento melhora eficiência de uso do K
+                    """)
 # ============================================================================
 # ABA 3 - IA
 # ============================================================================
