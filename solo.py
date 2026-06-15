@@ -867,12 +867,12 @@ if "uf_selecionada" not in st.session_state:
 menu = st.radio(
     "Navegação",
     [
-        "📊 1. Dados do Solo",
-        "🌱 2. Classificação",
-        "🤖 3. Assistente IA",
-        "📈 4. Relatório",
-        "ℹ️ 5. Métodos",
-        "📋 6. Pesquisa"
+        "Dados do Solo",
+        "Classificação",
+        "Assistente IA",
+        "Relatório",
+        "Métodos",
+        "Pesquisa"
     ],
     horizontal=True,
     label_visibility="collapsed"
@@ -883,179 +883,26 @@ menu = st.radio(
 # ============================================================================
 
 necessidades_culturas = {
-
-    "Alface": {
-        "v_desejado": 80,
-        "n_min": 50,
-        "p_min": 30,
-        "k_min": 0.50,
-        "ph_min": 6.0,
-        "ph_max": 7.0
-    },
-
-    "Algodão": {
-        "v_desejado": 70,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.45,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-
-    "Arroz": {
-        "v_desejado": 60,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.30,
-        "ph_min": 5.2,
-        "ph_max": 6.2
-    },
-
-    "Batata": {
-        "v_desejado": 75,
-        "n_min": 50,
-        "p_min": 35,
-        "k_min": 0.50,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-
-    "Café": {
-        "v_desejado": 65,
-        "n_min": 40,
-        "p_min": 20,
-        "k_min": 0.50,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-
-    "Cana-de-açúcar": {
-        "v_desejado": 60,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.40,
-        "ph_min": 5.2,
-        "ph_max": 6.5
-    },
-
-    "Cebola": {
-        "v_desejado": 75,
-        "n_min": 45,
-        "p_min": 30,
-        "k_min": 0.45,
-        "ph_min": 6.0,
-        "ph_max": 7.0
-    },
-
-    "Cenoura": {
-        "v_desejado": 70,
-        "n_min": 40,
-        "p_min": 25,
-        "k_min": 0.40,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-
-    "Couve-flor": {
-        "v_desejado": 75,
-        "n_min": 50,
-        "p_min": 30,
-        "k_min": 0.50,
-        "ph_min": 6.0,
-        "ph_max": 7.0
-    },
-
-    "Feijão": {
-        "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.35,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-
-    "Mandioca": {
-        "v_desejado": 55,
-        "n_min": 25,
-        "p_min": 15,
-        "k_min": 0.30,
-        "ph_min": 5.0,
-        "ph_max": 6.2
-    },
-
-    "Milheto": {
-        "v_desejado": 55,
-        "n_min": 30,
-        "p_min": 18,
-        "k_min": 0.30,
-        "ph_min": 5.0,
-        "ph_max": 6.2
-    },
-
-    "Milho Grão": {
-        "v_desejado": 70,
-        "n_min": 45,
-        "p_min": 30,
-        "k_min": 0.45,
-        "ph_min": 5.5,
-        "ph_max": 6.8
-    },
-
-    "Milho Semente": {
-        "v_desejado": 75,
-        "n_min": 50,
-        "p_min": 35,
-        "k_min": 0.50,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-
-    "Pimentão": {
-        "v_desejado": 75,
-        "n_min": 50,
-        "p_min": 30,
-        "k_min": 0.50,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-
-    "Soja": {
-        "v_desejado": 70,
-        "n_min": 20,
-        "p_min": 25,
-        "k_min": 0.40,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    },
-
-    "Sorgo": {
-        "v_desejado": 60,
-        "n_min": 35,
-        "p_min": 20,
-        "k_min": 0.35,
-        "ph_min": 5.2,
-        "ph_max": 6.5
-    },
-
-    "Tomate": {
-        "v_desejado": 80,
-        "n_min": 50,
-        "p_min": 35,
-        "k_min": 0.55,
-        "ph_min": 5.8,
-        "ph_max": 6.8
-    },
-
-    "Trigo": {
-        "v_desejado": 65,
-        "n_min": 35,
-        "p_min": 25,
-        "k_min": 0.40,
-        "ph_min": 5.5,
-        "ph_max": 6.5
-    }
+    "Alface": {"v_desejado": 80, "n_min": 50, "p_min": 30, "k_min": 0.50, "ph_min": 6.0, "ph_max": 7.0},
+    "Algodão": {"v_desejado": 70, "n_min": 40, "p_min": 25, "k_min": 0.45, "ph_min": 5.8, "ph_max": 6.8},
+    "Arroz": {"v_desejado": 60, "n_min": 35, "p_min": 20, "k_min": 0.30, "ph_min": 5.2, "ph_max": 6.2},
+    "Batata": {"v_desejado": 75, "n_min": 50, "p_min": 35, "k_min": 0.50, "ph_min": 5.5, "ph_max": 6.5},
+    "Café": {"v_desejado": 65, "n_min": 40, "p_min": 20, "k_min": 0.50, "ph_min": 5.5, "ph_max": 6.5},
+    "Cana-de-açúcar": {"v_desejado": 60, "n_min": 35, "p_min": 20, "k_min": 0.40, "ph_min": 5.2, "ph_max": 6.5},
+    "Cebola": {"v_desejado": 75, "n_min": 45, "p_min": 30, "k_min": 0.45, "ph_min": 6.0, "ph_max": 7.0},
+    "Cenoura": {"v_desejado": 70, "n_min": 40, "p_min": 25, "k_min": 0.40, "ph_min": 5.8, "ph_max": 6.8},
+    "Couve-flor": {"v_desejado": 75, "n_min": 50, "p_min": 30, "k_min": 0.50, "ph_min": 6.0, "ph_max": 7.0},
+    "Feijão": {"v_desejado": 65, "n_min": 35, "p_min": 20, "k_min": 0.35, "ph_min": 5.5, "ph_max": 6.5},
+    "Mandioca": {"v_desejado": 55, "n_min": 25, "p_min": 15, "k_min": 0.30, "ph_min": 5.0, "ph_max": 6.2},
+    "Milheto": {"v_desejado": 55, "n_min": 30, "p_min": 18, "k_min": 0.30, "ph_min": 5.0, "ph_max": 6.2},
+    "Milho Grão": {"v_desejado": 70, "n_min": 45, "p_min": 30, "k_min": 0.45, "ph_min": 5.5, "ph_max": 6.8},
+    "Milho Semente": {"v_desejado": 75, "n_min": 50, "p_min": 35, "k_min": 0.50, "ph_min": 5.8, "ph_max": 6.8},
+    "Pimentão": {"v_desejado": 75, "n_min": 50, "p_min": 30, "k_min": 0.50, "ph_min": 5.8, "ph_max": 6.8},
+    "Soja": {"v_desejado": 70, "n_min": 20, "p_min": 25, "k_min": 0.40, "ph_min": 5.5, "ph_max": 6.5},
+    "Sorgo": {"v_desejado": 60, "n_min": 35, "p_min": 20, "k_min": 0.35, "ph_min": 5.2, "ph_max": 6.5},
+    "Tomate": {"v_desejado": 80, "n_min": 50, "p_min": 35, "k_min": 0.55, "ph_min": 5.8, "ph_max": 6.8},
+    "Trigo": {"v_desejado": 65, "n_min": 35, "p_min": 25, "k_min": 0.40, "ph_min": 5.5, "ph_max": 6.5}
 }
-
 # ============================================================================
 # FUNÇÕES DE CÁLCULO
 # ============================================================================
@@ -1213,10 +1060,10 @@ def recomendar_adubacao_potassio(cultura, k_atual, k_min):
     return f"❌ K baixo ({k_atual:.2f} < {k_min:.2f}). {recomendacao}"
 
 # ============================================================================
-# ABA 1 - DADOS DO SOLO (CAMPOS MAIS COMPACTOS)
+# ABA 1 - DADOS DO SOLO
 # ============================================================================
 
-if menu == "📊 1. Dados do Solo":
+if menu == "Dados do Solo":
     st.markdown("### 📋 Dados Básicos do Solo")
     st.caption("Preencha os campos abaixo com os resultados da análise de solo")
 
@@ -1315,52 +1162,63 @@ if menu == "📊 1. Dados do Solo":
                     st.error("❌ Erro: Verifique se todos os valores são números válidos!")
 
 # ============================================================================
-# ABA 2 - CLASSIFICAÇÃO (COM MÚLTIPLAS BASES DE FERTILIDADE)
+# ABA 2 - CLASSIFICAÇÃO
 # ============================================================================
-if menu == "🌱 2. Classificação":
+
+elif menu == "Classificação":
     
-    try:
-        # Verificação 1: Dados existem?
-        if "dados_basicos" not in st.session_state or not st.session_state.dados_basicos:
-            st.warning("⚠️ Preencha e salve os dados na Aba 1.")
-            st.stop()
+    if not st.session_state.get("dados_basicos"):
+        st.warning("⚠️ Preencha e salve os dados na aba 'Dados do Solo' primeiro!")
+        st.stop()
+    
+    dados = st.session_state.dados_basicos
+    
+    cultura = st.selectbox("🌾 Selecione a cultura:", list(necessidades_culturas.keys()))
+    req = necessidades_culturas[cultura]
+    
+    aba1, aba2 = st.tabs(["📊 Classificação", "🌱 Adubação"])
+    
+    with aba1:
+        st.markdown("## 📊 Classificação da Fertilidade")
         
-        dados = st.session_state.dados_basicos
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("pH", f"{dados.get('ph', 0):.1f}")
+        with col2:
+            st.metric("V%", f"{dados.get('v_porcentagem', 0):.1f}%")
+        with col3:
+            st.metric("m%", f"{dados.get('m_porcentagem', 0):.1f}%")
+        with col4:
+            st.metric("CTC", f"{dados.get('ctc', 0):.2f}")
         
-        # Verificação 2: Mostra que chegou aqui
-        st.success("✅ Passo 1: Dados carregados com sucesso!")
-        st.write("Dados brutos:", dados)
+        st.markdown("---")
+        st.markdown(f"### 🔍 Diagnóstico para {cultura}")
         
-        # Verificação 3: Selectbox da cultura
-        cultura = st.selectbox("🌾 Selecione a cultura:", list(necessidades_culturas.keys()))
-        st.success(f"✅ Passo 2: Cultura selecionada: {cultura}")
-        
-        req = necessidades_culturas[cultura]
-        st.write("Requisitos da cultura:", req)
-        
-        # Verificação 4: Abas
-        aba1, aba2 = st.tabs(["📊 Classificação", "🌱 Adubação"])
-        
-        with aba1:
-            st.markdown("## 📊 Classificação da Fertilidade")
-            
-            # Teste simples
-            st.metric("Teste pH", f"{dados.get('ph', 0):.1f}")
-            st.metric("Teste V%", f"{dados.get('v_porcentagem', 0):.1f}%")
-            
-            # Diagnóstico
-            st.markdown(f"### 🔍 Diagnóstico para {cultura}")
-            diagnosticos = gerar_diagnostico(dados, req)
-            for diag in diagnosticos:
-                st.markdown(f"- {diag}")
-        
-        with aba2:
-            st.markdown(f"#### 🌱 Recomendação de Adubação para {cultura}")
-            st.info("Teste - Conteúdo da aba de adubação")
-            
-    except Exception as e:
-        st.error(f"❌ ERRO DETECTADO: {str(e)}")
-        st.write("Detalhes do erro:", e)
+        for diag in gerar_diagnostico(dados, req):
+            st.markdown(f"- {diag}")
+    
+    with aba2:
+        st.markdown(f"#### 🌱 Recomendação de Adubação para {cultura}")
+        st.info("Aqui vai o conteúdo de adubação...")
+
+# ============================================================================
+# DEMAIS ABAS
+# ============================================================================
+
+elif menu == "Assistente IA":
+    st.markdown("### 🤖 Assistente IA Gemini")
+    # ... seu código
+
+elif menu == "Relatório":
+    st.markdown("### 📈 Relatório Técnico")
+    # ... seu código
+
+elif menu == "Métodos":
+    st.markdown("### ℹ️ Métodos Utilizados")
+    # ... seu código
+
+elif menu == "Pesquisa":
+    st.markdown("### 📋 Pesquisa de Satisfação")
         # ============================================================================
         # FÓSFORO (P)
         # ============================================================================
