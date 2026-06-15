@@ -1317,7 +1317,7 @@ if menu == "📊 1. Dados do Solo":
 # ============================================================================
 # ABA 2 - CLASSIFICAÇÃO (COM MÚLTIPLAS BASES DE FERTILIDADE)
 # ============================================================================
-if menu == "🌱 2. Classificacao":
+if menu == "🌱 2. Classificação":
   st.write("MENU ATUAL =", repr(menu))
 
     aba1, aba2 = st.tabs([
