@@ -30,14 +30,14 @@ svg_icon = """
 svg_base64 = base64.b64encode(svg_icon.encode()).decode()
 
 st.set_page_config(
-    page_title="🌱 SoilSense - Classificador Inteligente de Fertilidade do Solo",
+    page_title="🌱 Tellurium - Classificador Inteligente de Fertilidade do Solo",
     page_icon=f"data:image/svg+xml;base64,{svg_base64}",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
         'Get Help': 'https://github.com/laenor-agricre/Excel',
         'Report a bug': 'mailto:laenor@outlook.com',
-        'About': '### 🌱 SoilSense\nSistema Inteligente de Classificação de Fertilidade do Solo\n\nDesenvolvido com base nas metodologias:\n- Embrapa\n- CFSEMG\n- Boletim 100 IAC\n- Recomendações Regionais'
+        'About': '### 🌱 Tellurium\nSistema Inteligente de Classificação de Fertilidade do Solo\n\nDesenvolvido com base nas metodologias:\n- Embrapa\n- CFSEMG\n- Boletim 100 IAC\n- Recomendações Regionais'
     }
 )
 
@@ -429,7 +429,7 @@ st.markdown("""
             <path d="M26 30 L34 30" stroke="#6D4C41" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
         <h1 style="margin: 0; font-size: 3.2rem; letter-spacing: 2px; background: linear-gradient(135deg, #8D6E63, #4CAF50); -webkit-background-clip: text; background-clip: text; color: transparent;">
-            SOILSENSE
+            TELLURIUM
         </h1>
     </div>
     <p style="margin: 0; font-size: 1rem; opacity: 0.95;">🌱 Classificador Inteligente de Fertilidade do Solo</p>
@@ -443,7 +443,7 @@ st.markdown("""
 
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/18629/18629540.png", width=80)
-    st.markdown("### 🌱 SoilSense")
+    st.markdown("### 🌱 Tellurium")
     st.markdown("""
     <span class="reference-badge">SiBCS</span>
     <span class="reference-badge">Embrapa</span>
@@ -2223,6 +2223,6 @@ st.markdown("---")
 
 col_rodape1, col_rodape2, col_rodape3 = st.columns([1, 2, 1])
 with col_rodape2:
-    st.caption("© 2026 - SoilSense | Sistema Inteligente de Fertilidade do Solo | Fins Acadêmicos")
+    st.caption("© 2026 - Tellurium | Sistema Inteligente de Fertilidade do Solo | Fins Acadêmicos")
     st.caption("🤖 IA Gemini do Google • 🌱 Metodologias: Embrapa | CFSEMG | Boletim 100 | Regionais")
     st.caption("📧 Contato: laenor@outlook.com")
