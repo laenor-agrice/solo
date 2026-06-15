@@ -488,14 +488,19 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# CSS PERSONALIZADO - CORRIGIDO (INPUTS COM TEXTO VISÍVEL)
+# CSS PERSONALIZADO - ESTILO TELLURIUM PARA INMET SMART PROCESSOR
 # ============================================================================
 
 st.markdown("""
 <style>
     /* ========== RESET E FONTES ========== */
-        }
-        /* ========== FUNDO PRINCIPAL ========== */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    /* ========== FUNDO PRINCIPAL ========== */
     .stApp {
         background: radial-gradient(circle at 20% 30%, #0a0f1e, #05070f);
         color: #ffffff;
@@ -562,7 +567,7 @@ st.markdown("""
         color: #666 !important;
     }
     
-        /* Selectbox corrigido - FUNDO ESCURO COM TEXTO BRANCO */
+    /* ========== SELECTBOX CORRIGIDO ========== */
     .stSelectbox > div > div {
         background: rgba(20, 20, 40, 0.95) !important;
         border: 1px solid rgba(46,204,113,0.4) !important;
@@ -776,38 +781,55 @@ st.markdown("""
         color: #2ecc71;
         margin-right: 8px;
     }
+    
+    /* ========== FILE UPLOADER ESTILIZADO ========== */
+    .stFileUploader > div > div {
+        background: rgba(255,255,255,0.05);
+        border: 1px dashed rgba(46,204,113,0.4);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .stFileUploader > div > div:hover {
+        border-color: #2ecc71;
+        background: rgba(46,204,113,0.05);
+    }
+    
+    /* ========== METRIC CUSTOMIZADO ========== */
+    [data-testid="stMetricValue"] {
+        font-size: 1.8rem !important;
+        font-weight: 700 !important;
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent !important;
+    }
+    
+    [data-testid="stMetricLabel"] {
+        color: #a0aec0 !important;
+        font-size: 0.8rem !important;
+    }
+    
+    /* ========== STATUS DO PROCESSAMENTO ========== */
+    [data-testid="stStatus"] {
+        background: rgba(0,0,0,0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        border: 1px solid rgba(46,204,113,0.3);
+    }
+    
+    /* ========== EXPANDER TITULO ========== */
+    .streamlit-expanderHeader {
+        font-size: 1rem !important;
+    }
+    
+    /* ========== CODE BLOCK ========== */
+    .stCodeBlock {
+        background: rgba(0,0,0,0.5);
+        border-radius: 12px;
+        border: 1px solid rgba(46,204,113,0.2);
+    }
 </style>
-""", unsafe_allow_html=True)
-
-# ============================================================================
-# CABEÇALHO HERO - MAIS COMPACTO
-# ============================================================================
-
-st.markdown("""
-<div class="hero-banner">
-    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 10px;">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="30" cy="30" r="28" stroke="#2ecc71" stroke-width="1.5" fill="none"/>
-            <circle cx="30" cy="30" r="22" stroke="#27ae60" stroke-width="1" fill="none" stroke-dasharray="4 3"/>
-            <path d="M30 8 L30 15" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
-            <path d="M30 45 L30 52" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
-            <path d="M8 30 L15 30" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
-            <path d="M45 30 L52 30" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
-            <path d="M14 14 L19 19" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M41 41 L46 46" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M46 14 L41 19" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M19 41 L14 46" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
-            <circle cx="30" cy="30" r="3" fill="#2ecc71"/>
-            <path d="M30 27 L30 33" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M27 30 L33 30" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <h1 style="margin: 0; font-size: 3rem; letter-spacing: 2px; background: linear-gradient(135deg, #2ecc71, #1e8f4a); -webkit-background-clip: text; background-clip: text; color: transparent;">
-            TELLURIUM
-        </h1>
-    </div>
-    <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Classificador Inteligente de Fertilidade do Solo</p>
-    <p style="margin-top: 8px; font-size: 0.75rem; opacity: 0.7;">SiBCS • Embrapa • CFSEMG • Boletim 100 • Recomendações Regionais</p>
-</div>
 """, unsafe_allow_html=True)
 
 # ============================================================================
