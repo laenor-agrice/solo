@@ -13,85 +13,134 @@ import os
 from datetime import datetime
 
 # ============================================================================
-# CONFIGURAÇÃO DA PÁGINA
+# CONFIGURAÇÃO DA PÁGINA - DESIGN PREMIUM
 # ============================================================================
 
-# Icone SVG convertido para Base64
+# Icone SVG moderno para fertilidade do solo
 svg_icon = """
 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M5 8C8 6 16 6 19 8" stroke="#8D6E63" stroke-width="2" stroke-linecap="round"/>
-  <path d="M5 13C8 11 16 11 19 13" stroke="#6D4C41" stroke-width="2" stroke-linecap="round"/>
-  <path d="M5 18C8 16 16 16 19 18" stroke="#4E342E" stroke-width="2" stroke-linecap="round"/>
-  <circle cx="12" cy="4" r="2" fill="#4CAF50"/>
+  <path d="M5 8C8 6 16 6 19 8" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
+  <path d="M5 13C8 11 16 11 19 13" stroke="#27ae60" stroke-width="2" stroke-linecap="round"/>
+  <path d="M5 18C8 16 16 16 19 18" stroke="#1e8f4a" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="12" cy="4" r="2" fill="#2ecc71"/>
+  <path d="M12 4 L12 10" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M8 8 L12 12 L16 8" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
 </svg>
 """
 
 svg_base64 = base64.b64encode(svg_icon.encode()).decode()
 
 st.set_page_config(
-    page_title="Classificador Inteligente de Fertilidade do Solo",
+    page_title="🌱 SoilSense - Classificador Inteligente de Fertilidade do Solo",
     page_icon=f"data:image/svg+xml;base64,{svg_base64}",
     layout="wide",
-    initial_sidebar_state="collapsed",
-    menu_items=None
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://github.com/laenor-agricre/Excel',
+        'Report a bug': 'mailto:laenor@outlook.com',
+        'About': '### 🌱 SoilSense\nSistema Inteligente de Classificação de Fertilidade do Solo\n\nDesenvolvido com base nas metodologias:\n- Embrapa\n- CFSEMG\n- Boletim 100 IAC\n- Recomendações Regionais'
+    }
 )
 
 # ============================================================================
-# CSS PERSONALIZADO - EXATAMENTE O MESMO DO SEU APP TELLURIUM
+# CSS DESIGN PREMIUM - MODERNO, DINÂMICO E BONITO
 # ============================================================================
 
 st.markdown("""
 <style>
-    /* ========== RESET E FONTES ========== */
-    /* ========== FUNDO PRINCIPAL ========== */
-    .stApp {
-        background: radial-gradient(circle at 20% 30%, #0a0f1e, #05070f);
-        color: #ffffff;
+    /* ========== IMPORTAÇÃO DE FONTES ========== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+        font-family: 'Inter', sans-serif;
     }
     
-    /* ========== SIDEBAR MAIS COMPACTA ========== */
+    /* ========== FUNDO PRINCIPAL COM EFEITO GLASSMORPHISM ========== */
+    .stApp {
+        background: linear-gradient(135deg, #0a0f1e 0%, #0d1525 25%, #0a0f1e 50%, #0d1525 75%, #0a0f1e 100%);
+        background-attachment: fixed;
+    }
+    
+    /* ========== PARTICULAS DE FUNDO (EFEITO DINÂMICO) ========== */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(rgba(46,204,113,0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+        z-index: 0;
+    }
+    
+    /* ========== SIDEBAR PREMIUM ========== */
     section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, rgba(10,15,30,0.98) 0%, rgba(5,7,15,0.98) 100%);
-        backdrop-filter: blur(10px);
-        border-right: 1px solid rgba(46,204,113,0.2);
-        box-shadow: 4px 0 30px rgba(0,0,0,0.3);
-        min-width: 280px;
+        backdrop-filter: blur(12px);
+        border-right: 1px solid rgba(46,204,113,0.25);
+        box-shadow: 4px 0 40px rgba(0,0,0,0.3);
     }
     
-    /* ========== TÍTULOS ========== */
+    /* ========== TÍTULOS COM EFEITO GLOW ========== */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        background: linear-gradient(135deg, #2ecc71, #27ae60, #1e8f4a);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent !important;
         font-weight: 700 !important;
         letter-spacing: -0.02em;
+        text-shadow: 0 2px 10px rgba(46,204,113,0.2);
     }
     
     h1 {
-        font-size: 2.2rem !important;
+        font-size: 2.5rem !important;
         margin-bottom: 0.5rem !important;
     }
     
     h2 {
-        font-size: 1.5rem !important;
+        font-size: 1.6rem !important;
         margin-top: 0.5rem !important;
+        border-left: 4px solid #2ecc71;
+        padding-left: 15px;
+    }
+    
+    h3 {
+        font-size: 1.2rem !important;
     }
     
     /* ========== TEXTO GERAL ========== */
     p, span, div, label, .stMarkdown, .stText, .stCaption {
         color: #e2e8f0 !important;
-        line-height: 1.5;
+        line-height: 1.6;
     }
     
-    /* ========== INPUTS CORRIGIDOS - TEXTO PRETO VISÍVEL ========== */
+    /* ========== CARDS GLASSMORPHISM ========== */
+    .stContainer, .element-container:has(.stExpander), div[data-testid="stExpander"] {
+        background: rgba(255,255,255,0.03);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255,255,255,0.08);
+        margin-bottom: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .stContainer:hover, div[data-testid="stExpander"]:hover {
+        border-color: rgba(46,204,113,0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    /* ========== INPUTS MODERNOS ========== */
     .stTextInput > div > div > input,
     .stNumberInput > div > div > input,
-    .stDateInput > div > div > input {
-        background: rgba(255,255,255,0.9) !important;
-        border: 1px solid rgba(46,204,113,0.4) !important;
-        border-radius: 12px !important;
-        padding: 10px 14px !important;
+    .stDateInput > div > div > input,
+    .stTextArea > div > div > textarea {
+        background: rgba(255,255,255,0.95) !important;
+        border: 1px solid rgba(46,204,113,0.3) !important;
+        border-radius: 14px !important;
+        padding: 12px 16px !important;
         color: #1a1a2e !important;
         font-size: 14px !important;
         font-weight: 500 !important;
@@ -99,46 +148,39 @@ st.markdown("""
     }
     
     .stTextInput > div > div > input:focus,
-    .stNumberInput > div > div > input:focus {
+    .stNumberInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {
         border-color: #2ecc71 !important;
-        box-shadow: 0 0 0 2px rgba(46,204,113,0.3) !important;
-        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(46,204,113,0.25) !important;
+        transform: scale(1.01);
     }
     
-    /* Placeholder mais claro */
-    .stTextInput > div > div > input::placeholder {
-        color: #666 !important;
-    }
-    
-    /* Selectbox corrigido - FUNDO ESCURO COM TEXTO BRANCO */
+    /* ========== SELECTBOX ESTILIZADO ========== */
     .stSelectbox > div > div {
         background: rgba(20, 20, 40, 0.95) !important;
-        border: 1px solid rgba(46,204,113,0.4) !important;
-        border-radius: 12px !important;
-        color: white !important;
+        border: 1px solid rgba(46,204,113,0.35) !important;
+        border-radius: 14px !important;
+        transition: all 0.3s ease;
     }
     
-    .stSelectbox > div > div > div {
-        color: white !important;
+    .stSelectbox > div > div:hover {
+        border-color: #2ecc71 !important;
     }
     
-    .stSelectbox > div > div > div[role="combobox"] {
-        color: white !important;
-    }
-    
-    /* Opções do dropdown (lista suspensa) */
     div[data-baseweb="select"] > div {
         background: rgba(20, 20, 40, 0.98) !important;
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(12px);
     }
     
     div[data-baseweb="select"] ul {
         background: rgba(15, 15, 30, 0.98) !important;
+        border: 1px solid rgba(46,204,113,0.3);
+        border-radius: 12px;
     }
     
     div[data-baseweb="select"] li {
         color: white !important;
-        background: transparent !important;
+        transition: all 0.2s ease;
     }
     
     div[data-baseweb="select"] li:hover {
@@ -150,16 +192,12 @@ st.markdown("""
         color: #2ecc71 !important;
     }
     
-    .stSelectbox label {
-        color: #e2e8f0 !important;
-    }
-    
-    /* ========== BOTÕES COM ANIMAÇÃO E TEXTO CLARO ========== */
+    /* ========== BOTÕES COM EFEITO 3D ========== */
     .stButton button {
         background: linear-gradient(135deg, #1e8f4a, #2ecc71);
         border: none;
         border-radius: 40px;
-        padding: 12px 24px;
+        padding: 12px 28px;
         font-weight: 600;
         font-size: 15px;
         color: white !important;
@@ -167,105 +205,161 @@ st.markdown("""
         cursor: pointer;
         box-shadow: 0 4px 15px rgba(46,204,113,0.3);
         width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stButton button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+    
+    .stButton button:hover::before {
+        width: 300px;
+        height: 300px;
     }
     
     .stButton button:hover {
         transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(46,204,113,0.4);
+        box-shadow: 0 8px 25px rgba(46,204,113,0.5);
         background: linear-gradient(135deg, #2ecc71, #27ae60);
     }
     
-    .stButton button:active {
-        transform: translateY(2px);
-    }
-    
-    /* ========== CARDS MAIS COMPACTOS ========== */
-    .stContainer, .element-container:has(.stExpander), div[data-testid="stExpander"] {
-        background: rgba(255,255,255,0.05);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        border: 1px solid rgba(255,255,255,0.08);
-        margin-bottom: 0.8rem;
-        transition: all 0.3s ease;
-    }
-    
-    /* Expander header */
+    /* ========== EXPANDER MODERNO ========== */
     .streamlit-expanderHeader {
-        background: linear-gradient(135deg, rgba(46,204,113,0.15), rgba(46,204,113,0.05));
-        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(46,204,113,0.12), rgba(46,204,113,0.05));
+        border-radius: 16px;
         font-weight: 600;
         color: #2ecc71 !important;
-        padding: 12px 16px;
-    }
-    
-    /* ========== MÉTRICAS BONITAS ========== */
-    .metric-card {
-        background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
-        border-radius: 16px;
-        padding: 0.8rem;
-        text-align: center;
-        border: 1px solid rgba(46,204,113,0.3);
+        padding: 12px 20px;
         transition: all 0.3s ease;
     }
     
-    .metric-card:hover {
-        transform: translateY(-3px);
-        border-color: rgba(46,204,113,0.6);
+    .streamlit-expanderHeader:hover {
+        background: linear-gradient(135deg, rgba(46,204,113,0.2), rgba(46,204,113,0.1));
     }
     
-    /* ========== TABS MODERNAS ========== */
+    /* ========== MÉTRICAS PREMIUM ========== */
+    [data-testid="stMetricValue"] {
+        font-size: 2rem !important;
+        font-weight: 800 !important;
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent !important;
+    }
+    
+    [data-testid="stMetricLabel"] {
+        color: #a0aec0 !important;
+        font-size: 0.85rem !important;
+        font-weight: 500;
+    }
+    
+    /* ========== TABS PREMIUM ========== */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background: rgba(255,255,255,0.03);
-        padding: 4px;
-        border-radius: 50px;
+        background: rgba(255,255,255,0.05);
+        padding: 6px;
+        border-radius: 60px;
     }
     
     .stTabs [data-baseweb="tab"] {
         background: transparent;
         border-radius: 40px;
-        padding: 8px 16px;
-        font-weight: 500;
-        transition: all 0.3s ease;
+        padding: 10px 24px;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, #1e8f4a, #2ecc71);
         color: white !important;
+        box-shadow: 0 2px 15px rgba(46,204,113,0.3);
+        transform: scale(1.02);
+    }
+    
+    /* ========== HERO BANNER PREMIUM ========== */
+    .hero-banner {
+        background: linear-gradient(135deg, rgba(46,204,113,0.1), rgba(46,204,113,0.03));
+        border: 1px solid rgba(46,204,113,0.25);
+        border-radius: 32px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(12px);
+        animation: fadeInDown 0.8s ease;
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .hero-banner h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* ========== BADGES ========== */
+    .reference-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, rgba(46,204,113,0.2), rgba(46,204,113,0.1));
+        border: 1px solid rgba(46,204,113,0.4);
+        border-radius: 30px;
+        padding: 4px 14px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        color: #2ecc71;
+        margin-right: 8px;
+        margin-bottom: 6px;
+        transition: all 0.2s ease;
+    }
+    
+    .reference-badge:hover {
+        background: rgba(46,204,113,0.3);
+        transform: translateY(-1px);
     }
     
     /* ========== RESULT CARD ========== */
     .result-card {
-        background: linear-gradient(145deg, rgba(46,204,113,0.12), rgba(255,255,255,0.04));
-        border: 1px solid rgba(46,204,113,0.4);
-        border-radius: 20px;
+        background: linear-gradient(145deg, rgba(46,204,113,0.1), rgba(255,255,255,0.03));
+        border: 1px solid rgba(46,204,113,0.35);
+        border-radius: 24px;
         padding: 1.5rem;
         margin-top: 1rem;
+        backdrop-filter: blur(8px);
+        animation: fadeInUp 0.5s ease;
     }
     
-    /* ========== DIAGNÓSTICO CARD ========== */
-    .diagnostico-card {
-        background: linear-gradient(135deg, rgba(46,204,113,0.1), rgba(46,204,113,0.05));
-        border-left: 4px solid #2ecc71;
-        border-radius: 16px;
-        padding: 1rem;
-        margin: 1rem 0;
-    }
-    
-    /* ========== ANIMAÇÕES ========== */
     @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
-    .fade-in {
-        animation: fadeInUp 0.4s ease;
-    }
-    
-    /* ========== SCROLLBAR ========== */
+    /* ========== SCROLLBAR PERSONALIZADA ========== */
     ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+        width: 8px;
+        height: 8px;
     }
     
     ::-webkit-scrollbar-track {
@@ -278,63 +372,74 @@ st.markdown("""
         border-radius: 10px;
     }
     
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #27ae60, #1e8f4a);
+    }
+    
     /* ========== DATA FRAME ========== */
     .stDataFrame, .stTable {
         background: rgba(255,255,255,0.03);
-        border-radius: 16px;
+        border-radius: 20px;
         overflow: hidden;
     }
     
-    /* ========== ALERTAS ========== */
+    /* ========== ALERTAS ESTILIZADAS ========== */
     .stAlert {
         border-radius: 16px;
         border-left: 4px solid #2ecc71;
-        background: rgba(46,204,113,0.1);
+        background: rgba(46,204,113,0.08);
+        backdrop-filter: blur(4px);
     }
     
-    /* ========== HERO BANNER MAIS COMPACTO ========== */
-    .hero-banner {
-        background: linear-gradient(135deg, rgba(46,204,113,0.12), rgba(46,204,113,0.04));
-        border: 1px solid rgba(46,204,113,0.3);
-        border-radius: 24px;
-        padding: 1rem;
-        text-align: center;
-        margin-bottom: 1rem;
-        backdrop-filter: blur(10px);
+    /* ========== MENU HORIZONTAL ========== */
+    .stRadio > div {
+        gap: 8px;
+        background: rgba(255,255,255,0.04);
+        padding: 8px;
+        border-radius: 60px;
+        backdrop-filter: blur(8px);
     }
     
-    .hero-banner h1 {
-        font-size: 1.8rem;
-        margin-bottom: 0.25rem;
+    .stRadio > div > label {
+        background: transparent;
+        border-radius: 40px;
+        padding: 8px 24px;
+        font-weight: 500;
+        transition: all 0.3s ease;
     }
     
-    .hero-banner p {
-        font-size: 0.9rem;
-        opacity: 0.8;
+    .stRadio > div > label > div > p {
+        color: #e2e8f0 !important;
     }
     
-    /* ========== BADGE DE REFERÊNCIA ========== */
-    .reference-badge {
-        display: inline-block;
-        background: rgba(46,204,113,0.2);
-        border: 1px solid rgba(46,204,113,0.5);
+    .stRadio > div > label[data-baseweb="radio"]:has(input:checked) {
+        background: linear-gradient(135deg, #1e8f4a, #2ecc71);
+        box-shadow: 0 2px 10px rgba(46,204,113,0.3);
+    }
+    
+    /* ========== FILE UPLOADER ========== */
+    .stFileUploader > div > div {
+        background: rgba(255,255,255,0.04);
+        border: 1px dashed rgba(46,204,113,0.4);
         border-radius: 20px;
-        padding: 2px 10px;
-        font-size: 0.7rem;
-        color: #2ecc71;
-        margin-right: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .stFileUploader > div > div:hover {
+        border-color: #2ecc71;
+        background: rgba(46,204,113,0.06);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# CABEÇALHO HERO - EXATAMENTE IGUAL AO SEU TELLURIUM
+# CABEÇALHO HERO PREMIUM
 # ============================================================================
 
 st.markdown("""
 <div class="hero-banner">
-    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 10px;">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 15px;">
+        <svg width="65" height="65" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="30" cy="30" r="28" stroke="#2ecc71" stroke-width="1.5" fill="none"/>
             <circle cx="30" cy="30" r="22" stroke="#27ae60" stroke-width="1" fill="none" stroke-dasharray="4 3"/>
             <path d="M30 8 L30 15" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
@@ -345,29 +450,26 @@ st.markdown("""
             <path d="M41 41 L46 46" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
             <path d="M46 14 L41 19" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
             <path d="M19 41 L14 46" stroke="#2ecc71" stroke-width="1.5" stroke-linecap="round"/>
-            <circle cx="30" cy="30" r="3" fill="#2ecc71"/>
-            <path d="M30 27 L30 33" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M27 30 L33 30" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="30" cy="30" r="4" fill="#2ecc71"/>
+            <path d="M30 26 L30 34" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M26 30 L34 30" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        <h1 style="margin: 0; font-size: 3rem; letter-spacing: 2px; background: linear-gradient(135deg, #2ecc71, #1e8f4a); -webkit-background-clip: text; background-clip: text; color: transparent;">
-            TELLURIUM
+        <h1 style="margin: 0; font-size: 3.2rem; letter-spacing: 2px; background: linear-gradient(135deg, #2ecc71, #1e8f4a); -webkit-background-clip: text; background-clip: text; color: transparent;">
+            SOILSENSE
         </h1>
     </div>
-    <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Classificador Inteligente de Fertilidade do Solo</p>
-    <p style="margin-top: 8px; font-size: 0.75rem; opacity: 0.7;">SiBCS • Embrapa • CFSEMG • Boletim 100 • Recomendações Regionais</p>
+    <p style="margin: 0; font-size: 1rem; opacity: 0.95;">🌱 Classificador Inteligente de Fertilidade do Solo</p>
+    <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.75;">SiBCS • Embrapa • CFSEMG • Boletim 100 • Recomendações Regionais</p>
 </div>
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# CONFIGURAÇÃO GEMINI API
+# BASES DE FERTILIDADE DO SOLO (TUDO ORIGINAL PRESERVADO)
 # ============================================================================
 
 GEMINI_API_KEY = "AQ.Ab8RN6KDhETV-bQ9RBKAPsKHjFLyj28H-hsUh8Yg-uhEyU5t1A"
 
-# ============================================================================
 # 1. EMBRAPA - Tabelas de interpretação de fertilidade
-# ============================================================================
-
 INTERPRETACAO_EMBRAPA = {
     "ph": {
         "muito_baixo": "< 4.5",
@@ -414,10 +516,7 @@ INTERPRETACAO_EMBRAPA = {
     }
 }
 
-# ============================================================================
 # 2. CFSEMG - COMISSÃO DE FERTILIDADE DO SOLO DO ESTADO DE MINAS GERAIS
-# ============================================================================
-
 INTERPRETACAO_CFSEMG = {
     "ph": {
         "muito_baixo": "< 4.9",
@@ -448,10 +547,7 @@ INTERPRETACAO_CFSEMG = {
     }
 }
 
-# ============================================================================
 # 3. BOLETIM 100 - IAC (Instituto Agronômico de Campinas)
-# ============================================================================
-
 INTERPRETACAO_BOLETIM_100 = {
     "ph_cacl2": {
         "muito_baixo": "< 4.3",
@@ -474,10 +570,7 @@ INTERPRETACAO_BOLETIM_100 = {
     }
 }
 
-# ============================================================================
 # 4. RECOMENDAÇÕES REGIONAIS POR UF
-# ============================================================================
-
 RECOMENDACOES_REGIONAIS = {
     "SP": {"nome": "São Paulo", "referencia": "Boletim 100 - IAC", "ph_ideal": (5.3, 6.0), "v_ideal": 70, "observacao": "Utilizar extrator Resina para P e K"},
     "MG": {"nome": "Minas Gerais", "referencia": "CFSEMG - 5ª Aproximação", "ph_ideal": (6.0, 6.5), "v_ideal": 70, "observacao": "Recomendado para cerrado e mata atlântica"},
@@ -492,7 +585,7 @@ RECOMENDACOES_REGIONAIS = {
 }
 
 # ============================================================================
-# FUNÇÃO PARA INTERPRETAR SEGUNDO MÚLTIPLAS METODOLOGIAS
+# FUNÇÕES DE INTERPRETAÇÃO (TUDO ORIGINAL PRESERVADO)
 # ============================================================================
 
 def interpretar_pelo_embrapa(parametro, valor):
@@ -598,7 +691,7 @@ def recomendar_por_regiao(uf, dados):
     return recomendacoes
 
 # ============================================================================
-# FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
+# FUNÇÃO IA GEMINI
 # ============================================================================
 
 def listar_modelos_disponiveis():
@@ -617,10 +710,6 @@ def listar_modelos_disponiveis():
             return []
     except Exception as e:
         return []
-
-# ============================================================================
-# FUNÇÃO IA GEMINI (ATUALIZADA COM BASES DE FERTILIDADE)
-# ============================================================================
 
 def gerar_resposta_ia(pergunta, dados_solo=None):
     if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
@@ -693,12 +782,21 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# SIDEBAR - MENU MAIS LIMPO
+# SIDEBAR
 # ============================================================================
 
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/18629/18629540.png", width=80)
-    st.markdown("### 🌿 Sistema Inteligente")
+    st.markdown("### 🌱 SoilSense")
+    st.markdown("""
+    <span class="reference-badge">SiBCS</span>
+    <span class="reference-badge">Embrapa</span>
+    <span class="reference-badge">CFSEMG</span>
+    <span class="reference-badge">Boletim 100</span>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    st.markdown("### 📊 Sistema Inteligente")
     st.markdown("""
     • Avaliação da fertilidade  
     • Cálculo de V% e m%  
@@ -706,22 +804,19 @@ with st.sidebar:
     • Relatório técnico  
     • IA Gemini integrada  
     """)
+    
     st.markdown("---")
-    st.markdown("### 📚 Bases Técnicas")
-    st.markdown("""
-    <span class="reference-badge">Embrapa</span>
-    <span class="reference-badge">CFSEMG</span>
-    <span class="reference-badge">Boletim 100</span>
-    <span class="reference-badge">Regionais</span>
-    """, unsafe_allow_html=True)
+    st.markdown("### 🗺️ Base Regional")
+    uf_selecionada = st.selectbox(
+        "Selecione o estado/região:",
+        ["SP", "MG", "RS", "SC", "PR", "MT", "GO", "BA", "NORDESTE", "NORTE"],
+        index=0
+    )
+    st.session_state.uf_selecionada = uf_selecionada
+    
     st.markdown("---")
-    if st.button("🔧 Testar Conexão API", use_container_width=True):
-        with st.spinner("Testando..."):
-            modelos = listar_modelos_disponiveis()
-            if modelos:
-                st.success("✅ API conectada!")
-            else:
-                st.error("❌ Falha na conexão. Verifique sua API Key.")
+    st.caption("🔬 Metodologias: Embrapa | CFSEMG | IAC | Regionais")
+    st.caption("🤖 IA Gemini | 📊 Classificação Inteligente")
 
 # ============================================================================
 # SESSION STATE
@@ -735,7 +830,7 @@ if "uf_selecionada" not in st.session_state:
     st.session_state.uf_selecionada = "SP"
 
 # ============================================================================
-# MENU HORIZONTAL MAIS COMPACTO
+# MENU HORIZONTAL
 # ============================================================================
 
 menu = st.radio(
@@ -746,7 +841,7 @@ menu = st.radio(
 )
 
 # ============================================================================
-# CULTURAS (EXPANDIDO)
+# CULTURAS
 # ============================================================================
 
 necessidades_culturas = {
@@ -831,6 +926,10 @@ def gerar_diagnostico(dados, cultura_req):
     else:
         diagnostico.append(f"🟢 **Potássio adequado:** {k_atual:.2f} cmolc/dm³.")
     return diagnostico
+
+# ============================================================================
+# FUNÇÕES DE RECOMENDAÇÃO
+# ============================================================================
 
 def calcular_necessidade_calagem(v_atual, v_desejado, ctc, prnt=85):
     if v_atual >= v_desejado:
@@ -1224,7 +1323,7 @@ elif menu == "🌱 Classificação":
                 st.success(rec_calagem)
 
 # ============================================================================
-# ABA 3 - IA
+# ABA 3 - ASSISTENTE IA
 # ============================================================================
 
 elif menu == "🤖 Assistente IA":
@@ -1543,6 +1642,6 @@ st.markdown("---")
 
 col_rodape1, col_rodape2, col_rodape3 = st.columns([1, 2, 1])
 with col_rodape2:
-    st.caption("© 2026 - Sistema Inteligente de Fertilidade do Solo | Fins Acadêmicos")
-    st.caption("🤖 IA Gemini do Google • 🌱 Metodologias: Embrapa | CFSEMG | Boletim 100 | Regionais")
+    st.caption("© 2026 - SoilSense | Sistema Inteligente de Fertilidade do Solo")
+    st.caption("🤖 IA Gemini • 🌱 Metodologias: Embrapa | CFSEMG | Boletim 100 | Regionais")
     st.caption("📧 Contato: [laenor@outlook.com](mailto:laenor@outlook.com)")
