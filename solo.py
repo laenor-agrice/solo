@@ -1323,6 +1323,17 @@ if menu == "🌱 2. Classificacao":
         "📊 Classificação",
         "🌱 Adubação"
     ])
+  with aba1:
+
+    st.markdown("### 📊 Classificação da Fertilidade")
+
+    if "dados_basicos" not in st.session_state:
+        st.warning("⚠️ Preencha e salve os dados na Aba 1.")
+        st.stop()
+
+    dados = st.session_state.dados_basicos
+
+    st.success("✅ Dados carregados com sucesso.")
 
     with aba2:
 
