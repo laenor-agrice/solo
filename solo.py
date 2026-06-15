@@ -1318,21 +1318,13 @@ if menu == "📊 1. Dados do Solo":
 # ABA 2 - CLASSIFICAÇÃO (COM MÚLTIPLAS BASES DE FERTILIDADE)
 # ============================================================================
 if menu == "🌱 2. Classificacao":
+  st.write("MENU ATUAL =", repr(menu))
 
     aba1, aba2 = st.tabs([
         "📊 Classificação",
         "🌱 Adubação"
     ])
-  with aba1:
-
-    st.markdown("### 📊 Classificação da Fertilidade")
-
-    if "dados_basicos" not in st.session_state:
-        st.warning("⚠️ Preencha e salve os dados na Aba 1.")
-        st.stop()
-
-    dados = st.session_state.dados_basicos
-
+ 
     st.success("✅ Dados carregados com sucesso.")
 
     with aba2:
