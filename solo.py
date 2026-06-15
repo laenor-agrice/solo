@@ -37,36 +37,30 @@ st.set_page_config(
 )
 
 # ============================================================================
-# CSS PERSONALIZADO - DESIGN PREMIUM (SEM ALTERAR FUNÇÕES)
+# CSS PERSONALIZADO - EXATAMENTE O MESMO DO SEU APP TELLURIUM
 # ============================================================================
 
 st.markdown("""
 <style>
     /* ========== RESET E FONTES ========== */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    
-    /* ========== FUNDO PRINCIPAL COM GRADIENTE PREMIUM ========== */
+    /* ========== FUNDO PRINCIPAL ========== */
     .stApp {
         background: radial-gradient(circle at 20% 30%, #0a0f1e, #05070f);
         color: #ffffff;
     }
     
-    /* ========== SIDEBAR ESTILIZADA ========== */
+    /* ========== SIDEBAR MAIS COMPACTA ========== */
     section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, rgba(10,15,30,0.98) 0%, rgba(5,7,15,0.98) 100%);
         backdrop-filter: blur(10px);
-        border-right: 1px solid rgba(46,204,113,0.3);
+        border-right: 1px solid rgba(46,204,113,0.2);
         box-shadow: 4px 0 30px rgba(0,0,0,0.3);
         min-width: 280px;
     }
     
-    /* ========== TÍTULOS COM GRADIENTE ========== */
+    /* ========== TÍTULOS ========== */
     h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-        background: linear-gradient(135deg, #2ecc71, #27ae60, #1e8f4a);
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent !important;
@@ -75,17 +69,13 @@ st.markdown("""
     }
     
     h1 {
-        font-size: 2.5rem !important;
+        font-size: 2.2rem !important;
         margin-bottom: 0.5rem !important;
     }
     
     h2 {
-        font-size: 1.8rem !important;
+        font-size: 1.5rem !important;
         margin-top: 0.5rem !important;
-    }
-    
-    h3 {
-        font-size: 1.3rem !important;
     }
     
     /* ========== TEXTO GERAL ========== */
@@ -94,15 +84,14 @@ st.markdown("""
         line-height: 1.5;
     }
     
-    /* ========== INPUTS ESTILIZADOS ========== */
+    /* ========== INPUTS CORRIGIDOS - TEXTO PRETO VISÍVEL ========== */
     .stTextInput > div > div > input,
     .stNumberInput > div > div > input,
-    .stDateInput > div > div > input,
-    .stTextArea > div > div > textarea {
-        background: rgba(255,255,255,0.95) !important;
+    .stDateInput > div > div > input {
+        background: rgba(255,255,255,0.9) !important;
         border: 1px solid rgba(46,204,113,0.4) !important;
         border-radius: 12px !important;
-        padding: 12px 16px !important;
+        padding: 10px 14px !important;
         color: #1a1a2e !important;
         font-size: 14px !important;
         font-weight: 500 !important;
@@ -110,20 +99,18 @@ st.markdown("""
     }
     
     .stTextInput > div > div > input:focus,
-    .stNumberInput > div > div > input:focus,
-    .stTextArea > div > div > textarea:focus {
+    .stNumberInput > div > div > input:focus {
         border-color: #2ecc71 !important;
-        box-shadow: 0 0 0 3px rgba(46,204,113,0.2) !important;
+        box-shadow: 0 0 0 2px rgba(46,204,113,0.3) !important;
         outline: none !important;
     }
     
-    /* Placeholder */
-    .stTextInput > div > div > input::placeholder,
-    .stTextArea > div > div > textarea::placeholder {
-        color: #888 !important;
+    /* Placeholder mais claro */
+    .stTextInput > div > div > input::placeholder {
+        color: #666 !important;
     }
     
-    /* ========== SELECTBOX ESTILIZADO ========== */
+    /* Selectbox corrigido - FUNDO ESCURO COM TEXTO BRANCO */
     .stSelectbox > div > div {
         background: rgba(20, 20, 40, 0.95) !important;
         border: 1px solid rgba(46,204,113,0.4) !important;
@@ -135,6 +122,11 @@ st.markdown("""
         color: white !important;
     }
     
+    .stSelectbox > div > div > div[role="combobox"] {
+        color: white !important;
+    }
+    
+    /* Opções do dropdown (lista suspensa) */
     div[data-baseweb="select"] > div {
         background: rgba(20, 20, 40, 0.98) !important;
         backdrop-filter: blur(10px);
@@ -142,7 +134,6 @@ st.markdown("""
     
     div[data-baseweb="select"] ul {
         background: rgba(15, 15, 30, 0.98) !important;
-        border: 1px solid rgba(46,204,113,0.3);
     }
     
     div[data-baseweb="select"] li {
@@ -159,12 +150,16 @@ st.markdown("""
         color: #2ecc71 !important;
     }
     
-    /* ========== BOTÕES COM ANIMAÇÃO ========== */
+    .stSelectbox label {
+        color: #e2e8f0 !important;
+    }
+    
+    /* ========== BOTÕES COM ANIMAÇÃO E TEXTO CLARO ========== */
     .stButton button {
         background: linear-gradient(135deg, #1e8f4a, #2ecc71);
         border: none;
         border-radius: 40px;
-        padding: 12px 28px;
+        padding: 12px 24px;
         font-weight: 600;
         font-size: 15px;
         color: white !important;
@@ -176,7 +171,7 @@ st.markdown("""
     
     .stButton button:hover {
         transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(46,204,113,0.5);
+        box-shadow: 0 8px 25px rgba(46,204,113,0.4);
         background: linear-gradient(135deg, #2ecc71, #27ae60);
     }
     
@@ -184,19 +179,14 @@ st.markdown("""
         transform: translateY(2px);
     }
     
-    /* ========== CARDS E CONTAINERS ========== */
+    /* ========== CARDS MAIS COMPACTOS ========== */
     .stContainer, .element-container:has(.stExpander), div[data-testid="stExpander"] {
         background: rgba(255,255,255,0.05);
         backdrop-filter: blur(10px);
         border-radius: 20px;
-        border: 1px solid rgba(255,255,255,0.1);
-        margin-bottom: 1rem;
+        border: 1px solid rgba(255,255,255,0.08);
+        margin-bottom: 0.8rem;
         transition: all 0.3s ease;
-    }
-    
-    .stContainer:hover, div[data-testid="stExpander"]:hover {
-        border-color: rgba(46,204,113,0.3);
-        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
     }
     
     /* Expander header */
@@ -205,36 +195,36 @@ st.markdown("""
         border-radius: 20px;
         font-weight: 600;
         color: #2ecc71 !important;
-        padding: 12px 20px;
+        padding: 12px 16px;
     }
     
     /* ========== MÉTRICAS BONITAS ========== */
-    [data-testid="stMetricValue"] {
-        font-size: 2rem !important;
-        font-weight: 700 !important;
-        background: linear-gradient(135deg, #2ecc71, #27ae60);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent !important;
+    .metric-card {
+        background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+        border-radius: 16px;
+        padding: 0.8rem;
+        text-align: center;
+        border: 1px solid rgba(46,204,113,0.3);
+        transition: all 0.3s ease;
     }
     
-    [data-testid="stMetricLabel"] {
-        color: #a0aec0 !important;
-        font-size: 0.85rem !important;
+    .metric-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(46,204,113,0.6);
     }
     
     /* ========== TABS MODERNAS ========== */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
-        background: rgba(255,255,255,0.05);
-        padding: 6px;
+        background: rgba(255,255,255,0.03);
+        padding: 4px;
         border-radius: 50px;
     }
     
     .stTabs [data-baseweb="tab"] {
         background: transparent;
         border-radius: 40px;
-        padding: 10px 20px;
+        padding: 8px 16px;
         font-weight: 500;
         transition: all 0.3s ease;
     }
@@ -242,7 +232,6 @@ st.markdown("""
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, #1e8f4a, #2ecc71);
         color: white !important;
-        box-shadow: 0 2px 10px rgba(46,204,113,0.3);
     }
     
     /* ========== RESULT CARD ========== */
@@ -252,7 +241,6 @@ st.markdown("""
         border-radius: 20px;
         padding: 1.5rem;
         margin-top: 1rem;
-        backdrop-filter: blur(5px);
     }
     
     /* ========== DIAGNÓSTICO CARD ========== */
@@ -264,10 +252,20 @@ st.markdown("""
         margin: 1rem 0;
     }
     
-    /* ========== SCROLLBAR PERSONALIZADA ========== */
+    /* ========== ANIMAÇÕES ========== */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+        animation: fadeInUp 0.4s ease;
+    }
+    
+    /* ========== SCROLLBAR ========== */
     ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
     }
     
     ::-webkit-scrollbar-track {
@@ -280,10 +278,6 @@ st.markdown("""
         border-radius: 10px;
     }
     
-    ::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(135deg, #27ae60, #1e8f4a);
-    }
-    
     /* ========== DATA FRAME ========== */
     .stDataFrame, .stTable {
         background: rgba(255,255,255,0.03);
@@ -291,37 +285,32 @@ st.markdown("""
         overflow: hidden;
     }
     
-    .stDataFrame div[data-testid="stElement"] {
-        background: transparent;
-    }
-    
     /* ========== ALERTAS ========== */
     .stAlert {
         border-radius: 16px;
         border-left: 4px solid #2ecc71;
         background: rgba(46,204,113,0.1);
-        backdrop-filter: blur(5px);
     }
     
-    /* ========== HERO BANNER ========== */
+    /* ========== HERO BANNER MAIS COMPACTO ========== */
     .hero-banner {
         background: linear-gradient(135deg, rgba(46,204,113,0.12), rgba(46,204,113,0.04));
         border: 1px solid rgba(46,204,113,0.3);
-        border-radius: 28px;
-        padding: 1.5rem;
+        border-radius: 24px;
+        padding: 1rem;
         text-align: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         backdrop-filter: blur(10px);
     }
     
     .hero-banner h1 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+        margin-bottom: 0.25rem;
     }
     
     .hero-banner p {
-        font-size: 1rem;
-        opacity: 0.85;
+        font-size: 0.9rem;
+        opacity: 0.8;
     }
     
     /* ========== BADGE DE REFERÊNCIA ========== */
@@ -330,119 +319,22 @@ st.markdown("""
         background: rgba(46,204,113,0.2);
         border: 1px solid rgba(46,204,113,0.5);
         border-radius: 20px;
-        padding: 4px 12px;
-        font-size: 0.75rem;
+        padding: 2px 10px;
+        font-size: 0.7rem;
         color: #2ecc71;
         margin-right: 8px;
-        margin-bottom: 4px;
-        transition: all 0.2s ease;
-    }
-    
-    .reference-badge:hover {
-        background: rgba(46,204,113,0.3);
-        transform: translateY(-1px);
-    }
-    
-    /* ========== SUCESSO/AVISO/ERRO ========== */
-    .stSuccess {
-        background: rgba(46,204,113,0.15);
-        border-color: #2ecc71;
-    }
-    
-    .stWarning {
-        background: rgba(255,193,7,0.15);
-        border-color: #ffc107;
-    }
-    
-    .stError {
-        background: rgba(244,67,54,0.15);
-        border-color: #f44336;
-    }
-    
-    .stInfo {
-        background: rgba(33,150,243,0.15);
-        border-color: #2196f3;
-    }
-    
-    /* ========== FILE UPLOADER ========== */
-    .stFileUploader > div > div {
-        background: rgba(255,255,255,0.05);
-        border: 1px dashed rgba(46,204,113,0.4);
-        border-radius: 20px;
-        transition: all 0.3s ease;
-    }
-    
-    .stFileUploader > div > div:hover {
-        border-color: #2ecc71;
-        background: rgba(46,204,113,0.05);
-    }
-    
-    /* ========== STATUS ========== */
-    [data-testid="stStatus"] {
-        background: rgba(0,0,0,0.85);
-        backdrop-filter: blur(10px);
-        border-radius: 16px;
-        border: 1px solid rgba(46,204,113,0.3);
-    }
-    
-    /* ========== RADIO BUTTONS (MENU HORIZONTAL) ========== */
-    .stRadio > div {
-        gap: 8px;
-        background: rgba(255,255,255,0.05);
-        padding: 8px;
-        border-radius: 50px;
-    }
-    
-    .stRadio > div > label {
-        background: transparent;
-        border-radius: 40px;
-        padding: 8px 20px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .stRadio > div > label > div > p {
-        color: #e2e8f0 !important;
-    }
-    
-    .stRadio > div > label[data-baseweb="radio"]:has(input:checked) {
-        background: linear-gradient(135deg, #1e8f4a, #2ecc71);
-    }
-    
-    /* ========== ANIMAÇÕES ========== */
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .fade-in {
-        animation: fadeInUp 0.5s ease;
-    }
-    
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(46,204,113,0.4); }
-        70% { box-shadow: 0 0 0 10px rgba(46,204,113,0); }
-        100% { box-shadow: 0 0 0 0 rgba(46,204,113,0); }
-    }
-    
-    /* ========== DIVISORES ========== */
-    hr {
-        margin: 1.5rem 0;
-        border: none;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(46,204,113,0.5), transparent);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ============================================================================
-# CABEÇALHO HERO - MAIS BONITO
+# CABEÇALHO HERO - EXATAMENTE IGUAL AO SEU TELLURIUM
 # ============================================================================
 
 st.markdown("""
-<div class="hero-banner fade-in">
-    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 15px;">
-        <svg width="70" height="70" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+<div class="hero-banner">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 10px;">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="30" cy="30" r="28" stroke="#2ecc71" stroke-width="1.5" fill="none"/>
             <circle cx="30" cy="30" r="22" stroke="#27ae60" stroke-width="1" fill="none" stroke-dasharray="4 3"/>
             <path d="M30 8 L30 15" stroke="#2ecc71" stroke-width="2" stroke-linecap="round"/>
@@ -457,18 +349,14 @@ st.markdown("""
             <path d="M30 27 L30 33" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
             <path d="M27 30 L33 30" stroke="#1e8f4a" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
-        <h1 style="margin: 0; font-size: 3.5rem; letter-spacing: 2px; background: linear-gradient(135deg, #2ecc71, #1e8f4a); -webkit-background-clip: text; background-clip: text; color: transparent;">
+        <h1 style="margin: 0; font-size: 3rem; letter-spacing: 2px; background: linear-gradient(135deg, #2ecc71, #1e8f4a); -webkit-background-clip: text; background-clip: text; color: transparent;">
             TELLURIUM
         </h1>
     </div>
-    <p style="margin: 0; font-size: 1rem; opacity: 0.95;">Classificador Inteligente de Fertilidade do Solo</p>
-    <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">🌱 SiBCS • Embrapa • CFSEMG • Boletim 100 • Recomendações Regionais 🤖</p>
+    <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Classificador Inteligente de Fertilidade do Solo</p>
+    <p style="margin-top: 8px; font-size: 0.75rem; opacity: 0.7;">SiBCS • Embrapa • CFSEMG • Boletim 100 • Recomendações Regionais</p>
 </div>
 """, unsafe_allow_html=True)
-
-# ============================================================================
-# BASES DE FERTILIDADE DO SOLO - EMBRAPA, CFSEMG, BOLETIM 100 E REGIONAIS
-# ============================================================================
 
 # ============================================================================
 # CONFIGURAÇÃO GEMINI API
