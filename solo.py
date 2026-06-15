@@ -1335,9 +1335,64 @@ if menu == "🌱 2. Classificação":
         "🌱 Adubação"
     ])
 
-    with aba1:
+        with aba1:
         st.markdown("## 📊 Classificação da Fertilidade")
-        st.write(dados)
+        
+        # Métricas principais
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("pH", f"{dados.get('ph', 0):.1f}")
+        with col2:
+            st.metric("V%", f"{dados.get('v_porcentagem', 0):.1f}%")
+        with col3:
+            st.metric("m%", f"{dados.get('m_porcentagem', 0):.1f}%")
+        with col4:
+            st.metric("CTC", f"{dados.get('ctc', 0):.2f} cmolc/dm³")
+        
+        st.markdown("---")
+        
+        # Diagnóstico para a cultura
+        st.markdown(f"### 🔍 Diagnóstico para {cultura}")
+        diagnosticos = gerar_diagnostico(dados, req)
+        for diag in diagnosticos:
+            st.markdown(f"- {diag}")
+        
+        st.markdown("---")
+        
+        # Classificação SiBCS
+        st.markdown("### 📊 Classificação da Fertilidade (SiBCS)")
+        v = dados.get('v_porcentagem', 0)
+        classe = classificar_fertilidade(v)
+        if v < 50:
+            st.error(f"**{classe}**")
+        elif v < 70:
+            st.warning(f"**{classe}**")
+        else:
+            st.success(f"**{classe}**")
+        
+        st.markdown("---")
+        
+        # Múltiplas bases
+        st.markdown("### 📚 Interpretação por Múltiplas Bases")
+        interps = interpretar_fertilidade_multiplas_bases(dados)
+        
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.markdown("**🌱 Embrapa**")
+            for k, v in interps["embrapa"].items():
+                st.caption(f"• {k}: {v}")
+        with col_b:
+            st.markdown("**📍 CFSEMG (MG)**")
+            for k, v in interps["cfsemg"].items():
+                st.caption(f"• {k}: {v}")
+        
+        st.markdown("---")
+        
+        # Recomendação regional
+        if "uf_selecionada" in st.session_state:
+            st.markdown("### 📍 Recomendação Regional")
+            for rec in recomendar_por_regiao(st.session_state.uf_selecionada, dados):
+                st.markdown(f"- {rec}")
 
     with aba2:
 
