@@ -407,6 +407,39 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================================================================
+# FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
+# ============================================================================
+
+def listar_modelos_disponiveis():
+    """Lista todos os modelos Gemini disponíveis para sua chave"""
+    try:
+        # Verificar se a API Key é válida
+        if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
+            return []
+        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            modelos = response.json()
+            nomes_modelos = []
+            
+            for model in modelos.get('models', []):
+                nome = model.get('name', '').replace('models/', '')
+                if 'gemini' in nome and 'generateContent' in str(model.get('supportedGenerationMethods', [])):
+                    nomes_modelos.append(nome)
+            
+            return nomes_modelos
+        elif response.status_code == 403:
+            return []
+        elif response.status_code == 400:
+            return []
+        else:
+            return []
+    except Exception as e:
+        return []
+
+# ============================================================================
 # CABEÇALHO HERO
 # ============================================================================
 
@@ -475,7 +508,6 @@ def listar_modelos_disponiveis():
 # ============================================================================
 # SESSION STATE
 # ============================================================================
-
 if "dados_basicos" not in st.session_state:
     st.session_state.dados_basicos = {}
 if "dados_calculados" not in st.session_state:
