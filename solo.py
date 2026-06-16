@@ -406,38 +406,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ============================================================================
-# FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
-# ============================================================================
 
-def listar_modelos_disponiveis():
-    """Lista todos os modelos Gemini disponíveis para sua chave"""
-    try:
-        # Verificar se a API Key é válida
-        if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
-            return []
-        
-        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
-        response = requests.get(url, timeout=10)
-        
-        if response.status_code == 200:
-            modelos = response.json()
-            nomes_modelos = []
-            
-            for model in modelos.get('models', []):
-                nome = model.get('name', '').replace('models/', '')
-                if 'gemini' in nome and 'generateContent' in str(model.get('supportedGenerationMethods', [])):
-                    nomes_modelos.append(nome)
-            
-            return nomes_modelos
-        elif response.status_code == 403:
-            return []
-        elif response.status_code == 400:
-            return []
-        else:
-            return []
-    except Exception as e:
-        return []
 
 # ============================================================================
 # CABEÇALHO HERO
@@ -527,14 +496,42 @@ menu = st.radio(
 )
 
 # ============================================================================
-# BASES DE FERTILIDADE DO SOLO - EMBRAPA, CFSEMG, BOLETIM 100 E REGIONAIS
+# FUNÇÃO PARA LISTAR MODELOS DISPONÍVEIS
 # ============================================================================
 
+def listar_modelos_disponiveis():
+    """Lista todos os modelos Gemini disponíveis para sua chave"""
+    try:
+        # Verificar se a API Key é válida
+        if not GEMINI_API_KEY or GEMINI_API_KEY == "AQ.Ab8RN6L_Glmb7R5cTcT15ffm5ZoqxbUDWq0O_mw-zmVbAr2t_A":
+            return []
+        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            modelos = response.json()
+            nomes_modelos = []
+            
+            for model in modelos.get('models', []):
+                nome = model.get('name', '').replace('models/', '')
+                if 'gemini' in nome and 'generateContent' in str(model.get('supportedGenerationMethods', [])):
+                    nomes_modelos.append(nome)
+            
+            return nomes_modelos
+        elif response.status_code == 403:
+            return []
+        elif response.status_code == 400:
+            return []
+        else:
+            return []
+    except Exception as e:
+        return []
 # ============================================================================
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "AQ.Ab8RN6LohkAAV-ff0kC1TkM4UUOAsX4Yco426-zhLO_-6dii6Q"
+GEMINI_API_KEY = "AQ.Ab8RN6L_Glmb7R5cTcT15ffm5ZoqxbUDWq0O_mw-zmVbAr2t_A"
 
 # ============================================================================
 # 1. EMBRAPA - Tabelas de interpretação de fertilidade
@@ -916,7 +913,7 @@ def listar_modelos_disponiveis():
 def gerar_resposta_ia(pergunta, dados_solo=None):
     """Função com detecção automática do modelo e bases de fertilidade"""
     
-    if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
+    if not GEMINI_API_KEY or GEMINI_API_KEY == "AQ.Ab8RN6L_Glmb7R5cTcT15ffm5ZoqxbUDWq0O_mw-zmVbAr2t_A":
         return "⚠️ **API Key não configurada!** Configure sua chave no código."
     
     try:
