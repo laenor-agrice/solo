@@ -442,8 +442,7 @@ st.markdown("""
 def listar_modelos_disponiveis():
     """Lista todos os modelos Gemini disponíveis para sua chave"""
     try:
-        # Verificar se a API Key é válida
-        if not GEMINI_API_KEY or GEMINI_API_KEY == "AQ.Ab8RN6LohkAAV-ff0kC1TkM4UUOAsX4Yco426-zhLO_-6dii6Q":
+        if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
             return []
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
@@ -455,23 +454,14 @@ def listar_modelos_disponiveis():
             
             for model in modelos.get('models', []):
                 nome = model.get('name', '').replace('models/', '')
-                if 'gemini' in nome and 'generateContent' in str(model.get('supportedGenerationMethods', [])):
+                # Filtrar apenas modelos de texto
+                if 'gemini' in nome.lower() and 'embedding' not in nome.lower() and 'imagen' not in nome.lower():
                     nomes_modelos.append(nome)
             
             return nomes_modelos
-        elif response.status_code == 403:
-            st.error("❌ Acesso negado (403): Ative a API Gemini no Google Cloud Console")
-            return []
-        elif response.status_code == 400:
-            st.error("❌ API Key inválida (400): Verifique sua chave")
-            return []
         else:
             return []
-    except requests.exceptions.ConnectionError:
-        st.error("❌ Erro de conexão: Verifique sua internet")
-        return []
     except Exception as e:
-        st.error(f"❌ Erro inesperado: {str(e)}")
         return []
 
 # ============================================================================
@@ -503,7 +493,7 @@ def listar_modelos_disponiveis():
     """Lista todos os modelos Gemini disponíveis para sua chave"""
     try:
         # Verificar se a API Key é válida
-        if not GEMINI_API_KEY or GEMINI_API_KEY == "AQ.Ab8RN6L_Glmb7R5cTcT15ffm5ZoqxbUDWq0O_mw-zmVbAr2t_A":
+        if not GEMINI_API_KEY or GEMINI_API_KEY == "AQ.Ab8RN6J5uzUogvavjQyfFr3wGWEaJbdrW3oByqhWo2bm_mMxmQ":
             return []
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
@@ -913,7 +903,7 @@ def listar_modelos_disponiveis():
 def gerar_resposta_ia(pergunta, dados_solo=None):
     """Função com detecção automática do modelo e bases de fertilidade"""
     
-    if not GEMINI_API_KEY or GEMINI_API_KEY == "AQ.Ab8RN6L_Glmb7R5cTcT15ffm5ZoqxbUDWq0O_mw-zmVbAr2t_A":
+    if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
         return "⚠️ **API Key não configurada!** Configure sua chave no código."
     
     try:
@@ -922,7 +912,18 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
         if not modelos:
             return "❌ **Nenhum modelo Gemini disponível!** Verifique sua API Key."
         
-        modelo = modelos[0]
+        # Usar um modelo válido da lista
+        # Escolha um modelo estável que suporte generateContent
+        modelo_valido = None
+        for m in modelos:
+            if 'gemini-2.0-flash' in m or 'gemini-2.5-flash' in m or 'gemini-2.0-flash-001' in m:
+                modelo_valido = m
+                break
+        
+        if not modelo_valido:
+            modelo_valido = modelos[0]  # Pega o primeiro modelo disponível
+        
+        st.info(f"🤖 Usando modelo: {modelo_valido}")
         
         contexto = ""
         if dados_solo and len(dados_solo) > 0:
@@ -940,15 +941,14 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
             - H+Al: {dados_solo.get('h_al', 'N/A')} cmolc/dm³
             - Soma de Bases (SB): {dados_solo.get('sb', 0):.2f} cmolc/dm³
             - CTC Potencial: {dados_solo.get('ctc', 0):.2f} cmolc/dm³
-            - Textura: Areia {dados_solo.get('sand', 0)}% | Silte {dados_solo.get('silt', 0)}% | Argila {dados_solo.get('clay', 0)}%
             """
         
         prompt = f"""Você é um engenheiro agrônomo especialista em fertilidade do solo e de culturas brasileiras, SiBCS e manejo agrícola. 
         Suas respostas devem ser baseadas nas seguintes referências técnicas brasileiras:
-        - Embrapa (Empresa Brasileira de Pesquisa Agropecuária)
-        - CFSEMG (Comissão de Fertilidade do Solo do Estado de Minas Gerais)
-        - Boletim 100 - IAC (Instituto Agronômico de Campinas)
-        - Recomendações regionais por estado (SP, MG, RS, SC, PR, MT, GO, BA)
+        - Embrapa
+        - CFSEMG
+        - Boletim 100 - IAC
+        - Recomendações regionais por estado
 
 {contexto}
 
@@ -956,15 +956,14 @@ PERGUNTA DO USUÁRIO: {pergunta}
 
 INSTRUÇÕES:
 - Responda em português do Brasil
-- Seja técnico, claro, objetivo e principalmente didático
+- Seja técnico, claro, objetivo e didático
 - Dê recomendações práticas quando possível
-- Se não souber algo, diga honestamente
 - Use linguagem acessível para produtores rurais
-- Sempre que possível, mencione qual base técnica (Embrapa, CFSEMG, Boletim 100) está sendo utilizada
 
 RESPOSTA:"""
         
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent?key={GEMINI_API_KEY}"
+        # URL CORRETA para a API Gemini (versão estável)
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo_valido}:generateContent?key={GEMINI_API_KEY}"
         
         headers = {"Content-Type": "application/json"}
         
@@ -973,10 +972,16 @@ RESPOSTA:"""
                 {
                     "parts": [{"text": prompt}]
                 }
-            ]
+            ],
+            "generationConfig": {
+                "temperature": 0.7,
+                "topK": 40,
+                "topP": 0.95,
+                "maxOutputTokens": 1024,
+            }
         }
         
-        response = requests.post(url, headers=headers, json=data, timeout=30)
+        response = requests.post(url, headers=headers, json=data, timeout=60)
         
         if response.status_code == 200:
             resultado = response.json()
@@ -993,11 +998,11 @@ RESPOSTA:"""
         elif response.status_code == 401:
             return "❌ **Erro de autenticação (401):** API Key inválida."
         elif response.status_code == 403:
-            return "❌ **Acesso negado (403):** Ative a API Gemini."
+            return "❌ **Acesso negado (403):** Ative a API Gemini no Google Cloud Console."
         elif response.status_code == 429:
             return "❌ **Limite excedido (429):** Muitas requisições. Aguarde."
         else:
-            return f"❌ **Erro {response.status_code}**"
+            return f"❌ **Erro {response.status_code}:** {response.text}"
     
     except Exception as erro:
         return f"❌ **Erro:** {str(erro)}"
