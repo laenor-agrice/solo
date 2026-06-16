@@ -521,7 +521,7 @@ def listar_modelos_disponiveis():
 
 # ⚠️ INSIRA SUA CHAVE API AQUI (APENAS NESTE LOCAL)
 # Obtenha sua chave em: https://aistudio.google.com/apikey
-GEMINI_API_KEY = ""  # ← COLE SUA CHAVE AQUI DENTRO DAS ASPAS
+GEMINI_API_KEY = "AQ.Ab8RN6J5uzUogvavjQyfFr3wGWEaJbdrW3oByqhWo2bm_mMxmQ"  # ← COLE SUA CHAVE AQUI DENTRO DAS ASPAS
 
 # ============================================================================
 # 1. EMBRAPA - Tabelas de interpretação de fertilidade
