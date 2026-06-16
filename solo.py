@@ -492,8 +492,8 @@ menu = st.radio(
 def listar_modelos_disponiveis():
     """Lista todos os modelos Gemini disponíveis para sua chave"""
     try:
-        # Verificar se a API Key é válida
-        if not GEMINI_API_KEY or GEMINI_API_KEY == "AQ.Ab8RN6J5uzUogvavjQyfFr3wGWEaJbdrW3oByqhWo2bm_mMxmQ":
+        # Verificar se a API Key foi configurada
+        if not GEMINI_API_KEY or GEMINI_API_KEY == "":
             return []
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
@@ -505,14 +505,12 @@ def listar_modelos_disponiveis():
             
             for model in modelos.get('models', []):
                 nome = model.get('name', '').replace('models/', '')
-                if 'gemini' in nome and 'generateContent' in str(model.get('supportedGenerationMethods', [])):
-                    nomes_modelos.append(nome)
+                # Filtrar apenas modelos Gemini que suportam generateContent
+                if 'gemini' in nome.lower() and 'generateContent' in str(model.get('supportedGenerationMethods', [])):
+                    if 'embedding' not in nome.lower() and 'imagen' not in nome.lower():
+                        nomes_modelos.append(nome)
             
             return nomes_modelos
-        elif response.status_code == 403:
-            return []
-        elif response.status_code == 400:
-            return []
         else:
             return []
     except Exception as e:
@@ -521,7 +519,9 @@ def listar_modelos_disponiveis():
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "AQ.Ab8RN6L_Glmb7R5cTcT15ffm5ZoqxbUDWq0O_mw-zmVbAr2t_A"
+# ⚠️ INSIRA SUA CHAVE API AQUI (APENAS NESTE LOCAL)
+# Obtenha sua chave em: https://aistudio.google.com/apikey
+GEMINI_API_KEY = ""  # ← COLE SUA CHAVE AQUI DENTRO DAS ASPAS
 
 # ============================================================================
 # 1. EMBRAPA - Tabelas de interpretação de fertilidade
@@ -903,17 +903,16 @@ def listar_modelos_disponiveis():
 def gerar_resposta_ia(pergunta, dados_solo=None):
     """Função com detecção automática do modelo e bases de fertilidade"""
     
-    if not GEMINI_API_KEY or GEMINI_API_KEY == "SUA_API_KEY_AQUI":
-        return "⚠️ **API Key não configurada!** Configure sua chave no código."
+    if not GEMINI_API_KEY or GEMINI_API_KEY == "":
+        return "⚠️ **API Key não configurada!** \n\nConfigure sua chave no código (linha GEMINI_API_KEY)"
     
     try:
         modelos = listar_modelos_disponiveis()
         
         if not modelos:
-            return "❌ **Nenhum modelo Gemini disponível!** Verifique sua API Key."
+            return "❌ **Nenhum modelo Gemini disponível!** \n\nVerifique se sua chave API está correta e se a API Gemini está ativada."
         
-        # Usar um modelo válido da lista
-        # Escolha um modelo estável que suporte generateContent
+        # Seleciona um modelo válido (prioriza versões estáveis)
         modelo_valido = None
         for m in modelos:
             if 'gemini-2.0-flash' in m or 'gemini-2.5-flash' in m or 'gemini-2.0-flash-001' in m:
@@ -921,9 +920,10 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
                 break
         
         if not modelo_valido:
-            modelo_valido = modelos[0]  # Pega o primeiro modelo disponível
+            modelo_valido = modelos[0]
         
-        st.info(f"🤖 Usando modelo: {modelo_valido}")
+        # Mostra qual modelo está sendo usado (opcional, pode remover)
+        # st.info(f"🤖 Usando modelo: {modelo_valido}")
         
         contexto = ""
         if dados_solo and len(dados_solo) > 0:
@@ -962,7 +962,6 @@ INSTRUÇÕES:
 
 RESPOSTA:"""
         
-        # URL CORRETA para a API Gemini (versão estável)
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{modelo_valido}:generateContent?key={GEMINI_API_KEY}"
         
         headers = {"Content-Type": "application/json"}
@@ -996,17 +995,16 @@ RESPOSTA:"""
             return "❌ Não foi possível extrair a resposta da IA."
         
         elif response.status_code == 401:
-            return "❌ **Erro de autenticação (401):** API Key inválida."
+            return "❌ **Erro de autenticação (401):** API Key inválida. Verifique sua chave."
         elif response.status_code == 403:
             return "❌ **Acesso negado (403):** Ative a API Gemini no Google Cloud Console."
         elif response.status_code == 429:
-            return "❌ **Limite excedido (429):** Muitas requisições. Aguarde."
+            return "❌ **Limite excedido (429):** Muitas requisições. Aguarde alguns instantes."
         else:
-            return f"❌ **Erro {response.status_code}:** {response.text}"
+            return f"❌ **Erro {response.status_code}**"
     
     except Exception as erro:
         return f"❌ **Erro:** {str(erro)}"
-
 # ============================================================================
 # FUNÇÕES DE CÁLCULO
 # ============================================================================
