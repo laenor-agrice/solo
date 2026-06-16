@@ -437,53 +437,40 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ============================================================================
-# SIDEBAR
-# ============================================================================
-
-with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/18629/18629540.png", width=80)
-    st.markdown("### 🌱 Tellurium")
-    st.markdown("""
-    <span class="reference-badge">SiBCS</span>
-    <span class="reference-badge">Embrapa</span>
-    <span class="reference-badge">CFSEMG</span>
-    <span class="reference-badge">Boletim 100</span>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    st.markdown("### 📊 Sistema Inteligente")
-    st.markdown("""
-    • Avaliação da fertilidade  
-    • Cálculo de V% e m%  
-    • Classificação SiBCS  
-    • Relatório técnico  
-    • IA Gemini integrada  
-    • Adubação para vasos  
-    """)
-    
-    st.markdown("---")
-    st.markdown("### 🗺️ Base Regional")
-    uf_selecionada = st.selectbox(
-        "Selecione o estado/região:",
-        ["SP", "MG", "RS", "SC", "PR", "MT", "GO", "BA", "NORDESTE", "NORTE"],
-        index=0
-    )
-    st.session_state.uf_selecionada = uf_selecionada
-    
-    st.markdown("---")
-    
-    if st.button("🔧 Testar Conexão API", use_container_width=True):
-        with st.spinner("Testando..."):
-            modelos = listar_modelos_disponiveis()
-            if modelos:
-                st.success("✅ API conectada!")
-            else:
-                st.error("❌ Falha na conexão. Verifique sua API Key.")
-    
-    st.markdown("---")
-    st.caption("🔬 Metodologias: Embrapa | CFSEMG | IAC | Regionais")
-    st.caption("🤖 IA Gemini | 📊 Classificação Inteligente")
+def listar_modelos_disponiveis():
+    """Lista todos os modelos Gemini disponíveis para sua chave"""
+    try:
+        # Verificar se a API Key é válida
+        if not GEMINI_API_KEY or GEMINI_API_KEY == "AQ.Ab8RN6LohkAAV-ff0kC1TkM4UUOAsX4Yco426-zhLO_-6dii6Q":
+            return []
+        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            modelos = response.json()
+            nomes_modelos = []
+            
+            for model in modelos.get('models', []):
+                nome = model.get('name', '').replace('models/', '')
+                if 'gemini' in nome and 'generateContent' in str(model.get('supportedGenerationMethods', [])):
+                    nomes_modelos.append(nome)
+            
+            return nomes_modelos
+        elif response.status_code == 403:
+            st.error("❌ Acesso negado (403): Ative a API Gemini no Google Cloud Console")
+            return []
+        elif response.status_code == 400:
+            st.error("❌ API Key inválida (400): Verifique sua chave")
+            return []
+        else:
+            return []
+    except requests.exceptions.ConnectionError:
+        st.error("❌ Erro de conexão: Verifique sua internet")
+        return []
+    except Exception as e:
+        st.error(f"❌ Erro inesperado: {str(e)}")
+        return []
 
 # ============================================================================
 # SESSION STATE
@@ -515,7 +502,7 @@ menu = st.radio(
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "AQ.Ab8RN6KDhETV-bQ9RBKAPsKHjFLyj28H-hsUh8Yg-uhEyU5t1A"
+GEMINI_API_KEY = "AQ.Ab8RN6LohkAAV-ff0kC1TkM4UUOAsX4Yco426-zhLO_-6dii6Q"
 
 # ============================================================================
 # 1. EMBRAPA - Tabelas de interpretação de fertilidade
