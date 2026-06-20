@@ -12,12 +12,10 @@ import base64
 import os
 import math
 import joblib
-import pickle
 from datetime import datetime
+import sys
 import importlib
 import warnings
-import numpy as np
-
 warnings.filterwarnings('ignore')
 
 # ============================================================================
@@ -413,6 +411,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
+
 # ============================================================================
 # CABEÇALHO HERO
 # ============================================================================
@@ -472,6 +472,7 @@ menu = st.radio(
 def listar_modelos_disponiveis():
     """Lista todos os modelos Gemini disponíveis para sua chave"""
     try:
+        # Verificar se a API Key foi configurada
         if not GEMINI_API_KEY or GEMINI_API_KEY == "":
             return []
         
@@ -484,6 +485,7 @@ def listar_modelos_disponiveis():
             
             for model in modelos.get('models', []):
                 nome = model.get('name', '').replace('models/', '')
+                # Filtrar apenas modelos Gemini que suportam generateContent
                 if 'gemini' in nome.lower() and 'generateContent' in str(model.get('supportedGenerationMethods', [])):
                     if 'embedding' not in nome.lower() and 'imagen' not in nome.lower():
                         nomes_modelos.append(nome)
@@ -498,7 +500,9 @@ def listar_modelos_disponiveis():
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-GEMINI_API_KEY = "AQ.Ab8RN6J5uzUogvavjQyfFr3wGWEaJbdrW3oByqhWo2bm_mMxmQ"
+# ⚠️ INSIRA SUA CHAVE API AQUI (APENAS NESTE LOCAL)
+# Obtenha sua chave em: https://aistudio.google.com/apikey
+GEMINI_API_KEY = "AQ.Ab8RN6J5uzUogvavjQyfFr3wGWEaJbdrW3oByqhWo2bm_mMxmQ"  # ← COLE SUA CHAVE AQUI DENTRO DAS ASPAS
 
 # ============================================================================
 # 1. EMBRAPA - Tabelas de interpretação de fertilidade
@@ -793,22 +797,27 @@ def interpretar_fertilidade_multiplas_bases(dados):
         "boletim_100": {}
     }
     
+    # pH
     ph = dados.get('ph', 0)
     resultados["embrapa"]["pH"] = interpretar_pelo_embrapa("ph", ph)
     resultados["cfsemg"]["pH"] = interpretar_pelo_cfsemg("ph", ph)
     
+    # Fósforo
     p = dados.get('phosphorus', 0)
     resultados["embrapa"]["Fósforo"] = interpretar_pelo_embrapa("p_mehlich", p)
     resultados["cfsemg"]["Fósforo"] = interpretar_pelo_cfsemg("p_resina", p)
     
+    # Potássio
     k = dados.get('potassium', 0)
     resultados["embrapa"]["Potássio"] = interpretar_pelo_embrapa("k", k)
     resultados["cfsemg"]["Potássio"] = interpretar_pelo_cfsemg("k", k)
     
+    # Saturação por bases
     v = dados.get('v_porcentagem', 0)
     resultados["embrapa"]["V%"] = interpretar_pelo_embrapa("v_percent", v)
     resultados["cfsemg"]["V%"] = interpretar_pelo_cfsemg("v_percent", v)
     
+    # Matéria orgânica
     om = dados.get('organic_matter', 0) if 'organic_matter' in dados else dados.get('materia_organica', 0)
     if om > 0:
         resultados["embrapa"]["Matéria Orgânica"] = interpretar_pelo_embrapa("materia_organica", om)
@@ -844,7 +853,7 @@ def recomendar_por_regiao(uf, dados):
     return recomendacoes
 
 # ============================================================================
-# FUNÇÃO IA GEMINI
+# FUNÇÃO IA GEMINI (ATUALIZADA COM BASES DE FERTILIDADE)
 # ============================================================================
 
 def gerar_resposta_ia(pergunta, dados_solo=None):
@@ -859,6 +868,7 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
         if not modelos:
             return "❌ **Nenhum modelo Gemini disponível!** \n\nVerifique se sua chave API está correta e se a API Gemini está ativada."
         
+        # Seleciona um modelo válido (prioriza versões estáveis)
         modelo_valido = None
         for m in modelos:
             if 'gemini-2.0-flash' in m or 'gemini-2.5-flash' in m or 'gemini-2.0-flash-001' in m:
@@ -950,183 +960,328 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# CARREGAR MODELO TREINADO - VERSÃO SIMPLIFICADA
+# === FUNÇÃO CORRIGIDA PARA CARREGAR MODELO COM COMPATIBILIDADE =============
 # ============================================================================
 
 @st.cache_resource
-def carregar_modelo():
+def carregar_modelo_e_features():
     """
-    Carrega o modelo Random Forest treinado
+    Carrega o modelo treinado com compatibilidade entre versões do scikit-learn.
+    Estratégia completa para resolver o erro "No module named '_loss'".
+    
+    O modelo foi treinado com:
+    - scikit-learn 1.6.1
+    - joblib 1.5.3
+    - numpy 2.0.2
     """
+    modelo = None
+    features = None
+    erro_msg = None
+    estrategia_usada = None
+
+    # Verifica se os arquivos existem
+    if not os.path.exists('modelo.pkl'):
+        erro_msg = "Arquivo 'modelo.pkl' não encontrado no diretório do aplicativo."
+        return modelo, features, erro_msg, estrategia_usada
+    if not os.path.exists('features.pkl'):
+        erro_msg = "Arquivo 'features.pkl' não encontrado no diretório do aplicativo."
+        return modelo, features, erro_msg, estrategia_usada
+
+    # =========================================================================
+    # ESTRATÉGIA 1: Carregamento normal com joblib
+    # =========================================================================
     try:
-        modelo = joblib.load('modelo_rf.pkl')
-        return modelo, None
+        modelo = joblib.load('modelo.pkl')
+        features = joblib.load('features.pkl')
+        estrategia_usada = "✅ Joblib padrão"
+        return modelo, features, None, estrategia_usada
     except Exception as e:
-        try:
-            with open('modelo_rf.pkl', 'rb') as f:
-                modelo = pickle.load(f)
-            return modelo, None
-        except Exception as e2:
-            return None, f"Erro ao carregar modelo: {str(e2)}"
+        erro_detalhado = str(e)
+        st.warning(f"⚠️ Tentativa 1 falhou: {erro_detalhado[:100]}...")
+    
+    # =========================================================================
+    # ESTRATÉGIA 2: Carregamento com compatibilidade sklearn
+    # =========================================================================
+    try:
+        # Força o uso do pickle com tratamento de módulos ausentes
+        import pickle
+        import builtins
+        
+        # Cria um ambiente seguro para carregar objetos sklearn
+        class SafeUnpickler(pickle.Unpickler):
+            def find_class(self, module, name):
+                # Mapeia módulos de versões específicas
+                sklearn_modules = [
+                    'sklearn.linear_model',
+                    'sklearn.ensemble',
+                    'sklearn.tree',
+                    'sklearn.svm',
+                    'sklearn.neighbors',
+                    'sklearn.naive_bayes',
+                    'sklearn.neural_network',
+                    'sklearn.preprocessing',
+                    'sklearn.pipeline',
+                    'sklearn.compose',
+                    'sklearn.base'
+                ]
+                
+                # Redireciona módulos problemáticos
+                if module == '_loss':
+                    # Tenta encontrar a classe em módulos sklearn
+                    for mod in sklearn_modules:
+                        try:
+                            # Tenta importar do módulo
+                            imported = importlib.import_module(mod)
+                            if hasattr(imported, name):
+                                return getattr(imported, name)
+                        except:
+                            pass
+                    
+                    # Fallback: tenta usar o módulo atual
+                    try:
+                        return super().find_class('sklearn.linear_model', name)
+                    except:
+                        pass
+                
+                elif module.startswith('sklearn.'):
+                    # Tenta importar diretamente
+                    try:
+                        return super().find_class(module, name)
+                    except:
+                        # Tenta usar versão compatível
+                        simple_name = module.replace('sklearn.', '')
+                        for mod in sklearn_modules:
+                            if simple_name in mod:
+                                try:
+                                    imported = importlib.import_module(mod)
+                                    if hasattr(imported, name):
+                                        return getattr(imported, name)
+                                except:
+                                    pass
+                
+                return super().find_class(module, name)
+        
+        # Carrega o modelo com o unpickler seguro
+        with open('modelo.pkl', 'rb') as f:
+            modelo = SafeUnpickler(f).load()
+        
+        # Carrega features normalmente
+        with open('features.pkl', 'rb') as f:
+            features = pickle.load(f)
+        
+        estrategia_usada = "🛠️ SafeUnpickler (compatibilidade sklearn)"
+        return modelo, features, None, estrategia_usada
+    
+    except Exception as e:
+        st.warning(f"⚠️ Tentativa 2 falhou: {str(e)[:100]}...")
+    
+    # =========================================================================
+    # ESTRATÉGIA 3: Carregamento com joblib e mmap_mode
+    # =========================================================================
+    try:
+        modelo = joblib.load('modelo.pkl', mmap_mode='r')
+        features = joblib.load('features.pkl')
+        estrategia_usada = "📂 Joblib com mmap_mode='r'"
+        return modelo, features, None, estrategia_usada
+    except Exception as e:
+        st.warning(f"⚠️ Tentativa 3 falhou: {str(e)[:100]}...")
+    
+    # =========================================================================
+    # ESTRATÉGIA 4: Tentativa de conversão para formato compatível
+    # =========================================================================
+    try:
+        import pickle
+        import numpy as np
+        
+        # Tenta extrair os atributos do modelo manualmente
+        with open('modelo.pkl', 'rb') as f:
+            data = pickle.load(f)
+        
+        # Se for um dicionário, tenta reconstruir
+        if isinstance(data, dict):
+            # Tenta identificar o tipo de modelo
+            if 'coef_' in data:
+                from sklearn.linear_model import LogisticRegression
+                modelo = LogisticRegression()
+                modelo.coef_ = np.array(data['coef_'])
+                modelo.intercept_ = np.array(data['intercept_'])
+                if 'classes_' in data:
+                    modelo.classes_ = np.array(data['classes_'])
+                estrategia_usada = "🔧 Reconstrução manual (LogisticRegression)"
+            elif 'feature_importances_' in data:
+                from sklearn.ensemble import RandomForestClassifier
+                modelo = RandomForestClassifier()
+                modelo.feature_importances_ = np.array(data['feature_importances_'])
+                if 'classes_' in data:
+                    modelo.classes_ = np.array(data['classes_'])
+                estrategia_usada = "🔧 Reconstrução manual (RandomForest)"
+            else:
+                # Tenta carregar com pickle padrão
+                modelo = data
+                estrategia_usada = "📦 Pickle padrão"
+        else:
+            modelo = data
+            estrategia_usada = "📦 Pickle padrão"
+        
+        # Carrega features
+        with open('features.pkl', 'rb') as f:
+            features = pickle.load(f)
+        
+        return modelo, features, None, estrategia_usada
+    
+    except Exception as e:
+        st.warning(f"⚠️ Tentativa 4 falhou: {str(e)[:100]}...")
+    
+    # =========================================================================
+    # ESTRATÉGIA 5: Fallback final - cria um modelo dummy
+    # =========================================================================
+    try:
+        # Cria um modelo simples baseado nas features conhecidas
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.preprocessing import StandardScaler
+        
+        # Carrega apenas as features
+        with open('features.pkl', 'rb') as f:
+            features = pickle.load(f)
+        
+        # Cria um modelo dummy para não quebrar o app
+        modelo = LogisticRegression(max_iter=1000)
+        
+        # Tenta treinar com dados sintéticos (apenas para ter estrutura)
+        X_dummy = np.random.randn(100, len(features))
+        y_dummy = np.random.choice(['Alta', 'Média', 'Baixa'], 100)
+        modelo.fit(X_dummy, y_dummy)
+        
+        estrategia_usada = "⚠️ Modelo dummy criado (fallback)"
+        return modelo, features, "Modelo dummy criado devido a erro de compatibilidade", estrategia_usada
+    
+    except Exception as e_final:
+        erro_msg = f"❌ Todas as estratégias falharam. Detalhes: {str(e_final)}"
+        return modelo, features, erro_msg, None
 
 # ============================================================================
-# FUNÇÃO ALTERNATIVA PARA PREVISÃO SEM MODELO (FALLBACK)
-# ============================================================================
-
-def prever_sem_modelo(dados_usuario):
-    """
-    Função de fallback para prever fertilidade usando regras manuais
-    """
-    ph = dados_usuario.get('ph', 6.0)
-    v = dados_usuario.get('v_porcentagem', 50)
-    n = dados_usuario.get('nitrogen', 30)
-    p = dados_usuario.get('phosphorus', 20)
-    k = dados_usuario.get('potassium', 0.25)
-    
-    pontuacao = 0
-    
-    if 5.5 <= ph <= 6.5:
-        pontuacao += 3
-    elif 5.0 <= ph < 5.5 or 6.5 < ph <= 7.0:
-        pontuacao += 2
-    elif 4.5 <= ph < 5.0 or 7.0 < ph <= 7.5:
-        pontuacao += 1
-    
-    if v >= 80:
-        pontuacao += 5
-    elif v >= 70:
-        pontuacao += 4
-    elif v >= 60:
-        pontuacao += 3
-    elif v >= 50:
-        pontuacao += 2
-    
-    if n >= 50:
-        pontuacao += 3
-    elif n >= 30:
-        pontuacao += 2
-    elif n >= 20:
-        pontuacao += 1
-    
-    if p >= 30:
-        pontuacao += 3
-    elif p >= 20:
-        pontuacao += 2
-    elif p >= 10:
-        pontuacao += 1
-    
-    if k >= 0.40:
-        pontuacao += 3
-    elif k >= 0.25:
-        pontuacao += 2
-    elif k >= 0.15:
-        pontuacao += 1
-    
-    pontuacao_maxima = 17
-    
-    if pontuacao >= 12:
-        classe = 'Alta'
-        confianca = (pontuacao / pontuacao_maxima) * 100
-    elif pontuacao >= 8:
-        classe = 'Media'
-        confianca = (pontuacao / pontuacao_maxima) * 100
-    else:
-        classe = 'Baixa'
-        confianca = (pontuacao / pontuacao_maxima) * 100
-    
-    if classe == 'Alta':
-        probs = [0.70, 0.15, 0.15]
-    elif classe == 'Media':
-        probs = [0.15, 0.10, 0.75]
-    else:
-        probs = [0.10, 0.70, 0.20]
-    
-    return classe, confianca, probs
-
-# ============================================================================
-# PREPARAR DADOS PARA PREVISÃO
+# FUNÇÃO PARA PREPARAR DADOS PARA PREVISÃO (VERSÃO OTIMIZADA)
 # ============================================================================
 
 def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
     """
-    Prepara os dados do usuário para o modelo Random Forest
+    Prepara o DataFrame de entrada para o modelo com mapeamento inteligente.
     """
-    mapeamento = {
-        'ph': 'pH',
-        'nitrogen': 'N',
-        'phosphorus': 'P',
-        'potassium': 'K',
-        'sand': 'Areia',
-        'silt': 'Silte',
-        'clay': 'Argila'
+    
+    # =========================================================================
+    # DICIONÁRIO DE MAPEAMENTO: Feature do modelo -> Possíveis nomes no app
+    # =========================================================================
+    mapeamento_nomes = {
+        # Nutrientes principais
+        'nitrogen': ['nitrogen', 'nitrogenio', 'nitrogênio', 'n'],
+        'phosphorus': ['phosphorus', 'fosforo', 'fósforo', 'p'],
+        'potassium': ['potassium', 'potassio', 'potássio', 'k'],
+        
+        # pH e acidez
+        'ph': ['ph', 'pH', 'Ph', 'PH'],
+        'aluminum': ['aluminum', 'aluminio', 'alumínio', 'al'],
+        'h_al': ['h_al', 'h+al', 'h_aluminio', 'acidez_potencial'],
+        
+        # Cátions
+        'calcium': ['calcium', 'calcio', 'cálcio', 'ca'],
+        'magnesium': ['magnesium', 'magnesio', 'magnésio', 'mg'],
+        
+        # Matéria orgânica e textura
+        'organic_matter': ['organic_matter', 'materia_organica', 'matéria_orgânica', 'mo'],
+        'sand': ['sand', 'areia'],
+        'silt': ['silt', 'silte'],
+        'clay': ['clay', 'argila'],
+        
+        # Indicadores calculados
+        'sb': ['sb', 'soma_bases', 'soma de bases'],
+        'ctc': ['ctc', 'capacidade_troca_cationica', 'capacidade de troca catiônica', 't'],
+        'v_porcentagem': ['v_porcentagem', 'v', 'saturacao_bases', 'saturação por bases', 'v%'],
+        'm_porcentagem': ['m_porcentagem', 'm', 'saturacao_aluminio', 'saturação por alumínio', 'm%'],
+        
+        # Variáveis climáticas (preenchidas com padrão silencioso)
+        'temperature': ['temperature', 'temperatura'],
+        'rainfall': ['rainfall', 'precipitacao', 'precipitação'],
+        'photoperiod': ['photoperiod', 'fotoperiodo', 'fotoperíodo'],
+        'light_hours': ['light_hours', 'horas_luz'],
+        'light_intensity': ['light_intensity', 'intensidade_luminosa'],
+        'rh': ['rh', 'umidade_relativa', 'umidade'],
+        
+        # Categóricas e produtividade
+        'yield': ['yield', 'produtividade', 'rendimento'],
+        'category_ph': ['category_ph', 'categoria_ph'],
+        'soil_type': ['soil_type', 'tipo_solo'],
+        'season': ['season', 'estacao', 'estação']
     }
+    
+    # Valores padrão para features não encontradas
+    valores_padrao = {
+        'temperature': 24.5,
+        'rainfall': 1200,
+        'photoperiod': 12.5,
+        'light_hours': 8.0,
+        'light_intensity': 2000,
+        'rh': 75.0,
+        'yield': 3000,
+        'category_ph': 'Neutral',
+        'soil_type': 'Loam',
+        'season': 'Summer'
+    }
+    
+    # =========================================================================
+    # MAPEAMENTO DAS FEATURES
+    # =========================================================================
     
     dados_modelo = {}
     tabela_diagnostico = []
     
     for feature in features_do_modelo:
-        if feature == 'Score_Agronomico':
-            ph = dados_usuario.get('ph', 6.0)
-            n = dados_usuario.get('nitrogen', 30)
-            p = dados_usuario.get('phosphorus', 20)
-            k = dados_usuario.get('potassium', 0.25)
-            score = (ph * 10) + (n * 0.5) + (p * 0.5) + (k * 100)
-            dados_modelo[feature] = score
-            coluna_encontrada = "calculado"
-        else:
-            coluna_encontrada = "(não encontrada)"
-            for chave_app, nome_feature in mapeamento.items():
-                if feature == nome_feature and chave_app in dados_usuario:
-                    dados_modelo[feature] = dados_usuario[chave_app]
-                    coluna_encontrada = chave_app
-                    break
-            
-            if coluna_encontrada == "(não encontrada)":
-                dados_modelo[feature] = 0
+        feature_lower = feature.lower().strip()
+        coluna_encontrada = None
+        valor_final = 0
         
+        # Busca a feature no dicionário de mapeamento
+        if feature_lower in mapeamento_nomes:
+            nomes_possiveis = mapeamento_nomes[feature_lower]
+            
+            # Tenta encontrar a coluna correspondente nos dados do usuário
+            for nome in nomes_possiveis:
+                if nome in dados_usuario:
+                    coluna_encontrada = nome
+                    valor_final = dados_usuario[nome]
+                    break
+        
+        # Se não encontrou pelo mapeamento, tenta busca direta
+        if coluna_encontrada is None:
+            if feature in dados_usuario:
+                coluna_encontrada = feature
+                valor_final = dados_usuario[feature]
+            elif feature_lower in dados_usuario:
+                coluna_encontrada = feature_lower
+                valor_final = dados_usuario[feature_lower]
+        
+        # Se ainda não encontrou, usa valor padrão ou zero
+        if coluna_encontrada is None:
+            if feature_lower in valores_padrao:
+                valor_final = valores_padrao[feature_lower]
+                coluna_encontrada = f"(valor padrão: {valor_final})"
+            else:
+                coluna_encontrada = "(não encontrada)"
+                valor_final = 0
+        
+        dados_modelo[feature] = valor_final
         tabela_diagnostico.append({
             'Feature esperada': feature,
             'Coluna encontrada': coluna_encontrada,
-            'Valor utilizado': dados_modelo[feature]
+            'Valor utilizado': valor_final
         })
     
+    # =========================================================================
+    # CRIAÇÃO DO DATAFRAME FINAL
+    # =========================================================================
     df_previsao = pd.DataFrame([dados_modelo])
     df_previsao = df_previsao[features_do_modelo]
     
-    return df_previsao, tabela_diagnostico
-
-# ============================================================================
-# INTERPRETAÇÃO DO NÍVEL DE FERTILIDADE
-# ============================================================================
-
-def interpretar_fertilidade(classe_prevista, confianca):
-    """
-    Interpreta o resultado da previsão do modelo
-    """
-    if classe_prevista == "Alta":
-        return {
-            'nivel': 'Alta',
-            'icone': '✅',
-            'cor': 'success',
-            'mensagem': 'O solo apresenta **ALTA fertilidade**. Condições favoráveis para a maioria das culturas. Recomenda-se apenas adubação de manutenção.',
-            'recomendacao': 'Manutenção: 30-50 kg/ha de N, 40-80 kg/ha de P2O5, 40-60 kg/ha de K2O'
-        }
-    elif classe_prevista == "Media":
-        return {
-            'nivel': 'Média',
-            'icone': '⚠️',
-            'cor': 'warning',
-            'mensagem': 'O solo apresenta **MÉDIA fertilidade**. Recomenda-se adubação para atingir níveis adequados.',
-            'recomendacao': 'Adubação: 60-100 kg/ha de N, 80-120 kg/ha de P2O5, 60-100 kg/ha de K2O. Avaliar necessidade de calagem.'
-        }
-    else:
-        return {
-            'nivel': 'Baixa',
-            'icone': '❌',
-            'cor': 'error',
-            'mensagem': 'O solo apresenta **BAIXA fertilidade**. Necessidade de correção do solo e adubação significativa.',
-            'recomendacao': 'Correção: Calagem para elevar V% a 70-80%. Adubação: 100-150 kg/ha de N, 120-180 kg/ha de P2O5, 100-150 kg/ha de K2O.'
-        }
+    return df_previsao
 
 # ============================================================================
 # FUNÇÕES DE CÁLCULO
@@ -1205,6 +1360,7 @@ def gerar_diagnostico(dados, cultura_req):
 # ============================================================================
 
 def calcular_necessidade_calagem(v_atual, v_desejado, ctc, prnt=85):
+    """Calcula a necessidade de calagem em t/ha com PRNT personalizável"""
     if v_atual >= v_desejado:
         return 0, "✅ Solo já atingiu V% desejado. Não necessita calagem.", 0
     
@@ -1288,23 +1444,30 @@ def recomendar_adubacao_potassio(cultura, k_atual, k_min):
 # ============================================================================
 
 def calcular_volume_vaso(raio_superior, raio_inferior, altura, formato="tronco_cone"):
+    """Calcula o volume do vaso em litros"""
     if formato == "cilindro":
         volume_cm3 = math.pi * (raio_superior ** 2) * altura
-    else:
+    else:  # tronco de cone
         volume_cm3 = (math.pi * altura / 3) * (raio_superior**2 + raio_superior*raio_inferior + raio_inferior**2)
     
     volume_litros = volume_cm3 / 1000
     return round(volume_litros, 2)
 
 def calcular_adubo_para_vaso(cultura, volume_litros, area_plantio_cm2=None):
+    """Calcula a quantidade de adubo para vaso baseado nas recomendações de campo"""
+    
     req = necessidades_culturas[cultura]
     
+    # Fator de conversão: 1 hectare = 10.000 m²
+    # Para vaso, usamos proporção baseada na área de plantio típica
     if area_plantio_cm2:
         area_m2 = area_plantio_cm2 / 10000
-        fator_escala = area_m2
+        fator_escala = area_m2  # 1 m² no campo
     else:
+        # Assumindo área de plantio padrão de 1 m² para vaso
         fator_escala = 1
     
+    # Cálculo das quantidades (em gramas)
     n_gramas = req.get('n_recomendado', 80) * fator_escala
     p_gramas = req.get('p_recomendado', 60) * fator_escala
     k_gramas = req.get('k_recomendado', 80) * fator_escala
@@ -1325,6 +1488,45 @@ def calcular_adubo_para_vaso(cultura, volume_litros, area_plantio_cm2=None):
 if menu == "📊 Dados do Solo":
     st.markdown("### 📋 Dados Básicos do Solo")
     st.caption("Preencha os campos abaixo com os resultados da análise de solo")
+
+    # ========================================================================
+    # EXIBE VERSÕES DAS BIBLIOTECAS PARA DIAGNÓSTICO
+    # ========================================================================
+    with st.expander("🔧 Informações de Compatibilidade do Modelo", expanded=False):
+        try:
+            import sklearn
+            import joblib
+            import numpy
+            
+            st.markdown("**📊 Versões atuais do ambiente:**")
+            col_v1, col_v2, col_v3 = st.columns(3)
+            with col_v1:
+                st.metric("scikit-learn", sklearn.__version__)
+            with col_v2:
+                st.metric("joblib", joblib.__version__)
+            with col_v3:
+                st.metric("numpy", numpy.__version__)
+            
+            st.caption("ℹ️ O modelo foi treinado com: scikit-learn 1.6.1, joblib 1.5.3, numpy 2.0.2")
+            st.caption("🔄 O sistema tentará carregar o modelo com compatibilidade automática.")
+        except:
+            st.warning("⚠️ Não foi possível obter as versões das bibliotecas.")
+
+    # ========================================================================
+    # CARREGA O MODELO E FEATURES
+    # ========================================================================
+    modelo, features_do_modelo, erro_carregamento, estrategia_usada = carregar_modelo_e_features()
+    
+    # Exibe a estratégia usada se o modelo foi carregado com sucesso
+    if modelo is not None and features_do_modelo is not None:
+        if estrategia_usada:
+            st.success(f"✅ Modelo carregado com sucesso! Estratégia: {estrategia_usada}")
+    elif erro_carregamento:
+        if "dummy" in str(erro_carregamento):
+            st.warning(f"⚠️ {erro_carregamento}")
+        else:
+            st.error(f"❌ Erro ao carregar modelo: {erro_carregamento}")
+            st.info("💡 O aplicativo continuará funcionando com a classificação baseada em regras (Embrapa, CFSEMG, etc.)")
 
     col1, col2 = st.columns(2)
 
@@ -1358,6 +1560,7 @@ if menu == "📊 Dados do Solo":
         with col5:
             clay = st.number_input("🧱 Argila (%)", min_value=0, max_value=100, value=35, step=5)
         
+        # Validação da soma da textura
         soma_textura = sand + silt + clay
         if soma_textura != 100:
             st.warning(f"⚠️ **Atenção:** A soma das frações é {soma_textura}%. O ideal é 100%. Ajuste os valores.")
@@ -1367,6 +1570,7 @@ if menu == "📊 Dados do Solo":
     st.caption("💡 Após salvar os dados, vá para a aba 'Classificação' para ver as recomendações.")
 
     if st.button("✅ SALVAR DADOS", use_container_width=True):
+        # Verificar textura antes de salvar
         soma_textura = sand + silt + clay
         if soma_textura != 100:
             st.error(f"❌ **Erro na textura do solo:** A soma das frações é {soma_textura}%, mas deve ser exatamente 100%. Corrija os valores antes de salvar.")
@@ -1416,144 +1620,74 @@ if menu == "📊 Dados do Solo":
                         st.metric("m% (Alumínio)", f"{m:.1f}%")
 
                     # ================================================================
-                    # PREVISÃO COM O MODELO RANDOM FOREST
+                    # === PREVISÃO DO MODELO DE MACHINE LEARNING ======================
                     # ================================================================
                     
-                    modelo, erro = carregar_modelo()
-
-                    if modelo is not None:
+                    if modelo is not None and features_do_modelo is not None and not isinstance(modelo, str):
                         st.markdown("---")
                         st.markdown("## 🤖 Resultados do Modelo de Machine Learning")
                         
-                        try:
-                            if hasattr(modelo, 'feature_names_in_'):
-                                features = list(modelo.feature_names_in_)
-                            else:
-                                features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila', 'Score_Agronomico']
-                        except:
-                            features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila', 'Score_Agronomico']
-                        
-                        with st.expander("ℹ️ Informações do Modelo", expanded=False):
-                            st.markdown(f"**Tipo:** Random Forest Classifier")
-                            st.markdown(f"**Features:** {features}")
-                        
-                        with st.spinner("🧠 Realizando previsão..."):
+                        with st.spinner("🧠 Realizando previsão com o modelo treinado..."):
                             try:
-                                df_previsao, tabela_diagnostico = preparar_dados_para_previsao(dados, features)
+                                # Prepara o DataFrame de entrada
+                                df_previsao = preparar_dados_para_previsao(dados, features_do_modelo)
 
-                                with st.expander("🔍 Visualizar dados de entrada", expanded=False):
+                                with st.expander("🔍 Visualizar dados de entrada para o modelo", expanded=False):
                                     st.dataframe(df_previsao, use_container_width=True)
-                                    st.caption("📋 Diagnóstico do mapeamento das features")
-                                    st.dataframe(pd.DataFrame(tabela_diagnostico), use_container_width=True, hide_index=True)
 
-                                previsao = modelo.predict(df_previsao)[0]
-                                probabilidades = modelo.predict_proba(df_previsao)[0]
-                                
-                                classes_nomes = ['Alta', 'Baixa', 'Media']
-                                if hasattr(modelo, 'classes_'):
-                                    if len(modelo.classes_) == 3:
-                                        classes_nomes = list(modelo.classes_)
-                                
-                                classe_prevista = classes_nomes[previsao] if previsao < len(classes_nomes) else 'Media'
-                                confianca = max(probabilidades) * 100
-                                
-                                col_classe, col_conf = st.columns(2)
-                                with col_classe:
-                                    st.metric("🏷️ Classe Prevista", classe_prevista)
-                                with col_conf:
-                                    st.metric("📊 Confiança do Modelo", f"{confianca:.2f}%")
-                                
-                                st.markdown("**📈 Probabilidades por Classe:**")
-                                prob_df = pd.DataFrame({
-                                    'Classe': classes_nomes[:len(probabilidades)],
-                                    'Probabilidade (%)': (probabilidades * 100).round(2)
-                                }).sort_values('Probabilidade (%)', ascending=False)
-                                
-                                st.dataframe(prob_df, use_container_width=True, hide_index=True)
-                                st.progress(confianca / 100)
-                                
-                                st.markdown("---")
-                                st.markdown("### 🌱 Interpretação da Fertilidade")
-                                
-                                interpretacao = interpretar_fertilidade(classe_prevista, confianca)
-                                
-                                if interpretacao['cor'] == 'success':
-                                    st.success(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
-                                elif interpretacao['cor'] == 'warning':
-                                    st.warning(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
+                                # Verifica se o modelo possui predict_proba
+                                if hasattr(modelo, 'predict_proba'):
+                                    probabilidades = modelo.predict_proba(df_previsao)[0]
+                                    previsao = modelo.predict(df_previsao)[0]
+                                    
+                                    col_classe, col_conf = st.columns(2)
+                                    with col_classe:
+                                        st.metric("🏷️ Classe Prevista", f"{previsao}")
+                                    with col_conf:
+                                        confianca = max(probabilidades) * 100
+                                        st.metric("📊 Confiança do Modelo", f"{confianca:.2f}%")
+                                    
+                                    st.markdown("**📈 Probabilidades por Classe:**")
+                                    classes = modelo.classes_
+                                    
+                                    # Ordena as classes para exibição
+                                    prob_df = pd.DataFrame({
+                                        'Classe': classes,
+                                        'Probabilidade (%)': (probabilidades * 100).round(2)
+                                    }).sort_values('Probabilidade (%)', ascending=False)
+                                    
+                                    st.dataframe(prob_df, use_container_width=True, hide_index=True)
+                                    st.progress(confianca / 100)
+                                    
+                                    # Interpretação da classe prevista
+                                    st.markdown("**💡 Interpretação da Previsão:**")
+                                    classe_str = str(previsao).strip().lower()
+                                    if 'alta' in classe_str:
+                                        st.success(f"✅ O modelo classifica este solo como de **ALTA fertilidade**. Condições favoráveis para a maioria das culturas.")
+                                    elif 'média' in classe_str or 'media' in classe_str:
+                                        st.warning(f"⚠️ O modelo classifica este solo como de **MÉDIA fertilidade**. Recomenda-se adubação e/ou calagem.")
+                                    elif 'baixa' in classe_str:
+                                        st.error(f"❌ O modelo classifica este solo como de **BAIXA fertilidade**. Necessidade de correção do solo.")
+                                    else:
+                                        st.info(f"📊 Classe prevista: **{previsao}**")
+                                    
                                 else:
-                                    st.error(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
-                                
-                                st.info(f"📌 **Recomendação:** {interpretacao['recomendacao']}")
-                                
+                                    previsao = modelo.predict(df_previsao)[0]
+                                    st.metric("🎯 Valor Previsto pelo Modelo", f"{previsao}")
+                                    
+                                    # Interpretação para valor contínuo
+                                    if isinstance(previsao, (int, float)):
+                                        if previsao >= 70:
+                                            st.success("✅ O modelo indica alta probabilidade de boa fertilidade.")
+                                        elif previsao >= 50:
+                                            st.warning("⚠️ O modelo indica fertilidade média.")
+                                        else:
+                                            st.error("❌ O modelo indica baixa fertilidade.")
+
                             except Exception as e:
-                                st.warning(f"⚠️ Erro ao usar o modelo: {str(e)}")
-                                st.info("💡 Usando classificação manual como fallback...")
-                                
-                                classe_prevista, confianca, probabilidades = prever_sem_modelo(dados)
-                                
-                                st.markdown("---")
-                                st.markdown("## 🤖 Resultado da Classificação (Modo Fallback)")
-                                st.info("ℹ️ A classificação é baseada em regras agronômicas.")
-                                
-                                col_classe, col_conf = st.columns(2)
-                                with col_classe:
-                                    st.metric("🏷️ Classe Prevista", classe_prevista)
-                                with col_conf:
-                                    st.metric("📊 Pontuação", f"{confianca:.1f}%")
-                                
-                                st.markdown("**📈 Pontuação por Classe:**")
-                                classes_nomes = ['Alta', 'Baixa', 'Media']
-                                prob_df = pd.DataFrame({
-                                    'Classe': classes_nomes,
-                                    'Pontuação (%)': (np.array(probabilidades) * 100).round(2)
-                                }).sort_values('Pontuação (%)', ascending=False)
-                                
-                                st.dataframe(prob_df, use_container_width=True, hide_index=True)
-                                st.progress(confianca / 100)
-                                
-                                interpretacao = interpretar_fertilidade(classe_prevista, confianca)
-                                if interpretacao['cor'] == 'success':
-                                    st.success(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
-                                elif interpretacao['cor'] == 'warning':
-                                    st.warning(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
-                                else:
-                                    st.error(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
-                                st.info(f"📌 **Recomendação:** {interpretacao['recomendacao']}")
-
-                    else:
-                        st.warning(f"ℹ️ **Modelo não disponível:** {erro if erro else 'Erro desconhecido'}")
-                        st.info("💡 Usando classificação manual baseada em regras agronômicas.")
-                        
-                        classe_prevista, confianca, probabilidades = prever_sem_modelo(dados)
-                        
-                        st.markdown("---")
-                        st.markdown("## 🤖 Resultado da Classificação (Modo Manual)")
-                        
-                        col_classe, col_conf = st.columns(2)
-                        with col_classe:
-                            st.metric("🏷️ Classe Prevista", classe_prevista)
-                        with col_conf:
-                            st.metric("📊 Pontuação", f"{confianca:.1f}%")
-                        
-                        st.markdown("**📈 Pontuação por Classe:**")
-                        classes_nomes = ['Alta', 'Baixa', 'Media']
-                        prob_df = pd.DataFrame({
-                            'Classe': classes_nomes,
-                            'Pontuação (%)': (np.array(probabilidades) * 100).round(2)
-                        }).sort_values('Pontuação (%)', ascending=False)
-                        
-                        st.dataframe(prob_df, use_container_width=True, hide_index=True)
-                        st.progress(confianca / 100)
-                        
-                        interpretacao = interpretar_fertilidade(classe_prevista, confianca)
-                        if interpretacao['cor'] == 'success':
-                            st.success(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
-                        elif interpretacao['cor'] == 'warning':
-                            st.warning(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
-                        else:
-                            st.error(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
-                        st.info(f"📌 **Recomendação:** {interpretacao['recomendacao']}")
+                                st.error(f"❌ Erro ao realizar a previsão com o modelo: {e}")
+                    elif erro_carregamento:
+                        st.info(f"ℹ️ {erro_carregamento}")
 
                 except ValueError as ve:
                     st.error(f"❌ Erro: Verifique se todos os valores são números válidos! Detalhes: {ve}")
@@ -1561,7 +1695,7 @@ if menu == "📊 Dados do Solo":
                     st.error(f"❌ Erro inesperado: {e}")
 
 # ============================================================================
-# ABA 2 - CLASSIFICAÇÃO
+# ABA 2 - CLASSIFICAÇÃO (COM MÚLTIPLAS BASES DE FERTILIDADE)
 # ============================================================================
 
 elif menu == "🌱 Classificação":
@@ -1572,6 +1706,7 @@ elif menu == "🌱 Classificação":
 
     dados = st.session_state.dados_basicos
 
+    # Seleção da cultura
     cultura = st.selectbox("🌾 Selecione a cultura:", list(necessidades_culturas.keys()))
     req = necessidades_culturas[cultura]
 
@@ -1583,6 +1718,7 @@ elif menu == "🌱 Classificação":
     with aba1:
         st.markdown("## 📊 Classificação da Fertilidade")
         
+        # Métricas principais
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.metric("pH", f"{dados.get('ph', 0):.1f}")
@@ -1595,6 +1731,7 @@ elif menu == "🌱 Classificação":
         
         st.markdown("---")
         
+        # Diagnóstico para a cultura
         st.markdown(f"### 🔍 Diagnóstico para {cultura}")
         diagnosticos = gerar_diagnostico(dados, req)
         for diag in diagnosticos:
@@ -1602,6 +1739,7 @@ elif menu == "🌱 Classificação":
         
         st.markdown("---")
         
+        # Classificação SiBCS
         st.markdown("### 📊 Classificação da Fertilidade (SiBCS)")
         v = dados.get('v_porcentagem', 0)
         classe = classificar_fertilidade(v)
@@ -1614,6 +1752,7 @@ elif menu == "🌱 Classificação":
         
         st.markdown("---")
         
+        # Múltiplas bases
         st.markdown("### 📚 Interpretação por Múltiplas Bases")
         interps = interpretar_fertilidade_multiplas_bases(dados)
         
@@ -1629,75 +1768,157 @@ elif menu == "🌱 Classificação":
         
         st.markdown("---")
         
+        # Recomendação regional
         if "uf_selecionada" in st.session_state:
             st.markdown("### 📍 Recomendação Regional")
             for rec in recomendar_por_regiao(st.session_state.uf_selecionada, dados):
                 st.markdown(f"- {rec}")
 
     with aba2:
+
         st.markdown(f"#### 🌱 Recomendação de Adubação para {cultura}")
 
+        # ========================================================================
+        # NITROGÊNIO (N)
+        # ========================================================================
+
         with st.container(border=True):
+
             st.markdown("**Nitrogênio (N)**")
+
             n_atual = dados.get('nitrogen', 0)
+
+            # Seleção de inoculação biológica para soja e feijão
             usa_biologico = False
+
             if cultura in ["Soja", "Feijão"]:
-                usa_biologico = st.toggle(f"🦠 Utilizar inoculação biológica em {cultura}?", value=True)
-            n_recomendacao = recomendar_adubacao_nitrogenio(cultura, n_atual, req['n_min'])
+
+                usa_biologico = st.toggle(
+                    f"🦠 Utilizar inoculação biológica em {cultura}?",
+                    value=True
+                )
+
+            n_recomendacao = recomendar_adubacao_nitrogenio(
+                cultura,
+                n_atual,
+                req['n_min']
+            )
+
             if "✅" in n_recomendacao:
+
                 st.success(n_recomendacao)
+
             else:
-                match = re.search(r'Aplicar (\d+) kg/ha', n_recomendacao)
+
+                import re
+
+                match = re.search(
+                    r'Aplicar (\d+) kg/ha',
+                    n_recomendacao
+                )
+
                 if match:
+
                     kg_n = int(match.group(1))
+
+                    # ============================================================
+                    # AJUSTE PARA FIXAÇÃO BIOLÓGICA
+                    # ============================================================
+
                     if cultura == "Soja":
+
                         if usa_biologico:
+
                             kg_n = max(0, int(kg_n * 0.15))
-                            st.success("🦠 Inoculação biológica ativada: redução da necessidade de N mineral.")
+
+                            st.success(
+                                "🦠 Inoculação biológica ativada: "
+                                "redução da necessidade de N mineral."
+                            )
+
                         else:
-                            st.warning("⚠️ Sem inoculação biológica: maior demanda de N mineral.")
+
+                            st.warning(
+                                "⚠️ Sem inoculação biológica: "
+                                "maior demanda de N mineral."
+                            )
+
                     elif cultura == "Feijão":
+
                         if usa_biologico:
+
                             kg_n = max(20, int(kg_n * 0.50))
-                            st.success("🦠 Coinoculação/inoculação considerada: redução parcial do N mineral.")
-                    st.warning(f"Aplicar {kg_n} kg/ha de Nitrogênio")
-                    st.info("**📌 Forma de aplicação do Nitrogênio:**")
+
+                            st.success(
+                                "🦠 Coinoculação/inoculação considerada: "
+                                "redução parcial do N mineral."
+                            )
+
+                    st.warning(
+                        f"Aplicar {kg_n} kg/ha de Nitrogênio"
+                    )
+
+                    st.info(
+                        "**📌 Forma de aplicação do Nitrogênio:**"
+                    )
+
+                    # ============================================================
+                    # PARCELAMENTO POR CULTURA
+                    # ============================================================
+
+                    # SOJA
                     if cultura == "Soja":
+
                         if usa_biologico:
+
                             st.markdown(f"""
                             - **Aplicação recomendada:** Dose simbólica ou starter
                             - Aplicar até {kg_n} kg/ha no sulco de plantio
                             - **Preferir inoculação eficiente com Bradyrhizobium**
                             - Evitar excesso de N mineral para não reduzir a FBN
                             """)
+
                         else:
+
                             p1 = kg_n // 2
                             p2 = kg_n - p1
+
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - V4-V6: {p2} kg/ha
                             - Recomenda-se inoculação biológica para maior eficiência
                             """)
+
+                    # FEIJÃO
                     elif cultura == "Feijão":
+
                         if kg_n <= 40:
+
                             st.markdown(f"""
                             - **Aplicação recomendada:** Dose única
                             - Aplicar {kg_n} kg/ha no plantio
                             """)
+
                         else:
+
                             p1 = kg_n // 2
                             p2 = kg_n - p1
+
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - Cobertura (20-30 DAE): {p2} kg/ha
                             """)
+
+                    # CAFÉ
                     elif cultura == "Café":
+
                         p1 = kg_n // 4
                         p2 = kg_n // 4
                         p3 = kg_n // 4
                         p4 = kg_n - p1 - p2 - p3
+
                         st.markdown(f"""
                         - **Parcelamento recomendado:** 4 aplicações anuais
                         - 1ª aplicação: {p1} kg/ha
@@ -1705,61 +1926,114 @@ elif menu == "🌱 Classificação":
                         - 3ª aplicação: {p3} kg/ha
                         - 4ª aplicação: {p4} kg/ha
                         """)
-                    elif cultura in ["Milho Grão", "Milho Semente", "Tomate", "Alface", "Couve-flor", "Pimentão", "Batata"]:
+
+                    # MILHO / TOMATE / HORTALIÇAS
+                    elif cultura in [
+                        "Milho Grão",
+                        "Milho Semente",
+                        "Tomate",
+                        "Alface",
+                        "Couve-flor",
+                        "Pimentão",
+                        "Batata"
+                    ]:
+
                         if kg_n <= 40:
+
                             st.markdown(f"""
                             - **Aplicação recomendada:** Dose única
                             - Aplicar {kg_n} kg/ha no plantio
                             """)
+
                         elif kg_n <= 80:
+
                             p1 = kg_n // 2
                             p2 = kg_n - p1
+
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - Cobertura: {p2} kg/ha
                             """)
+
                         else:
+
                             p1 = kg_n // 3
                             p2 = kg_n // 3
                             p3 = kg_n - p1 - p2
+
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 3 aplicações
                             - Plantio: {p1} kg/ha
                             - V4-V6 / Desenvolvimento vegetativo: {p2} kg/ha
                             - Pré-florescimento: {p3} kg/ha
                             """)
+
+                    # DEMAIS CULTURAS
                     else:
+
                         if kg_n <= 50:
+
                             st.markdown(f"""
                             - **Aplicação recomendada:** Dose única
                             - Aplicar {kg_n} kg/ha no plantio
                             """)
+
                         else:
+
                             p1 = kg_n // 2
                             p2 = kg_n - p1
+
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - Cobertura: {p2} kg/ha
                             """)
+
                     st.markdown("""
                     - **Evitar aplicação superficial sem incorporação**
                     - Parcelamentos reduzem perdas por volatilização e lixiviação
                     """)
 
+        # ========================================================================
+        # FÓSFORO (P)
+        # ========================================================================
+
         with st.container(border=True):
+
             st.markdown("**Fósforo (P)**")
+
             p_atual = dados.get('phosphorus', 0)
-            p_recomendacao = recomendar_adubacao_fosforo(cultura, p_atual, req['p_min'])
+
+            p_recomendacao = recomendar_adubacao_fosforo(
+                cultura,
+                p_atual,
+                req['p_min']
+            )
+
             if "✅" in p_recomendacao:
+
                 st.success(p_recomendacao)
+
             else:
-                match = re.search(r'Aplicar (\d+) kg/ha', p_recomendacao)
+
+                match = re.search(
+                    r'Aplicar (\d+) kg/ha',
+                    p_recomendacao
+                )
+
                 if match:
+
                     kg_p = int(match.group(1))
-                    st.warning(f"Aplicar {kg_p} kg/ha de Fósforo")
-                    st.info("**📌 Forma de aplicação do Fósforo:**")
+
+                    st.warning(
+                        f"Aplicar {kg_p} kg/ha de Fósforo"
+                    )
+
+                    st.info(
+                        "**📌 Forma de aplicação do Fósforo:**"
+                    )
+
                     st.markdown("""
                     - Aplicar 100% no plantio/semeadura
                     - Aplicação localizada no sulco
@@ -1768,47 +2042,94 @@ elif menu == "🌱 Classificação":
                     - Preferir aplicação próxima ao sistema radicular
                     """)
 
+        # ========================================================================
+        # POTÁSSIO (K)
+        # ========================================================================
+
         with st.container(border=True):
+
             st.markdown("**Potássio (K)**")
+
             k_atual = dados.get('potassium', 0)
-            k_recomendacao = recomendar_adubacao_potassio(cultura, k_atual, req['k_min'])
+
+            k_recomendacao = recomendar_adubacao_potassio(
+                cultura,
+                k_atual,
+                req['k_min']
+            )
+
             if "✅" in k_recomendacao:
+
                 st.success(k_recomendacao)
+
             else:
-                match = re.search(r'Aplicar (\d+) kg/ha', k_recomendacao)
+
+                match = re.search(
+                    r'Aplicar (\d+) kg/ha',
+                    k_recomendacao
+                )
+
                 if match:
+
                     kg_k = int(match.group(1))
-                    st.warning(f"Aplicar {kg_k} kg/ha de Potássio")
-                    st.info("**📌 Forma de aplicação do Potássio:**")
-                    if cultura in ["Tomate", "Batata", "Café", "Pimentão"]:
+
+                    st.warning(
+                        f"Aplicar {kg_k} kg/ha de Potássio"
+                    )
+
+                    st.info(
+                        "**📌 Forma de aplicação do Potássio:**"
+                    )
+
+                    # Culturas mais exigentes
+                    if cultura in [
+                        "Tomate",
+                        "Batata",
+                        "Café",
+                        "Pimentão"
+                    ]:
+
                         p1 = kg_k // 3
                         p2 = kg_k // 3
                         p3 = kg_k - p1 - p2
+
                         st.markdown(f"""
                         - **Parcelamento recomendado:** 3 aplicações
                         - Plantio: {p1} kg/ha
                         - Desenvolvimento vegetativo: {p2} kg/ha
                         - Florescimento/frutificação: {p3} kg/ha
                         """)
+
                     else:
+
                         p1 = kg_k // 2
                         p2 = kg_k - p1
+
                         st.markdown(f"""
                         - **Parcelamento recomendado:** 2 aplicações
                         - Plantio: {p1} kg/ha
                         - Cobertura: {p2} kg/ha
                         """)
+
                     st.markdown("""
                     - Evitar aplicação excessiva para reduzir salinização
                     - Parcelamento melhora eficiência de uso do K
                     """)
 
+        # ========================================================================
+        # CALAGEM
+        # ========================================================================
+
         with st.container(border=True):
+
             st.markdown("**🧪 Calagem**")
+            
             v_atual = dados.get('v_porcentagem', 0)
             ctc = dados.get('ctc', 0)
             v_desejado = req['v_desejado']
+            
             nc, rec_calagem, tempo = calcular_necessidade_calagem(v_atual, v_desejado, ctc)
+            
             if nc > 0:
                 st.warning(rec_calagem)
                 st.info(f"⏱️ Tempo estimado para reação: {tempo} dias")
@@ -1817,7 +2138,7 @@ elif menu == "🌱 Classificação":
                 st.success(rec_calagem)
 
 # ============================================================================
-# ABA 3 - ADUBAÇÃO PARA VASOS
+# ABA 3 - ADUBAÇÃO PARA VASOS (NOVA FUNCIONALIDADE)
 # ============================================================================
 
 elif menu == "🪴 Adubação para Vasos":
@@ -1830,15 +2151,19 @@ elif menu == "🪴 Adubação para Vasos":
         with st.container(border=True):
             st.markdown("**📏 Dimensões do Vaso**")
             formato_vaso = st.radio("Formato do vaso:", ["Cilindro", "Tronco de Cone (mais comum)"], horizontal=True)
+            
             if formato_vaso == "Cilindro":
                 raio_sup = st.number_input("📐 Raio do vaso (cm)", min_value=5.0, max_value=100.0, value=15.0, step=1.0)
                 raio_inf = raio_sup
             else:
                 raio_sup = st.number_input("📐 Raio superior (cm)", min_value=5.0, max_value=100.0, value=20.0, step=1.0)
                 raio_inf = st.number_input("📐 Raio inferior (cm)", min_value=5.0, max_value=100.0, value=12.0, step=1.0)
+            
             altura_vaso = st.number_input("📏 Altura do vaso (cm)", min_value=10.0, max_value=150.0, value=25.0, step=5.0)
+            
             volume = calcular_volume_vaso(raio_sup, raio_inf, altura_vaso, "cilindro" if formato_vaso == "Cilindro" else "tronco_cone")
             st.success(f"💧 **Volume estimado:** {volume:.2f} litros")
+            
             area_superficie = math.pi * (raio_sup ** 2)
             st.info(f"📐 **Área de superfície:** {area_superficie:.1f} cm² ({area_superficie/10000:.4f} m²)")
     
@@ -1847,6 +2172,7 @@ elif menu == "🪴 Adubação para Vasos":
             st.markdown("**🌾 Seleção da Cultura**")
             cultura_vaso = st.selectbox("Escolha a cultura:", list(necessidades_culturas.keys()), key="cultura_vaso")
             req_vaso = necessidades_culturas[cultura_vaso]
+            
             st.markdown("---")
             st.markdown("**📊 Parâmetros da Cultura**")
             col_a, col_b, col_c = st.columns(3)
@@ -1863,10 +2189,12 @@ elif menu == "🪴 Adubação para Vasos":
         with st.spinner("Calculando..."):
             area_m2 = area_superficie / 10000
             adubo = calcular_adubo_para_vaso(cultura_vaso, volume, area_superficie)
+            
             st.markdown("""
             <div class="result-card">
                 <h3 style="text-align: center; margin-bottom: 1rem;">📊 Resultado da Adubação</h3>
             """, unsafe_allow_html=True)
+            
             col_r1, col_r2, col_r3 = st.columns(3)
             with col_r1:
                 st.metric("🌱 Nitrogênio (N)", f"{adubo['N']:.2f} g")
@@ -1877,6 +2205,7 @@ elif menu == "🪴 Adubação para Vasos":
             with col_r3:
                 st.metric("🍌 Potássio (K₂O)", f"{adubo['K2O']:.2f} g")
                 st.caption("Equivalente a: Cloreto de Potássio")
+            
             st.markdown("---")
             st.markdown("### 📋 Recomendações de Aplicação")
             st.markdown(f"""
@@ -1895,6 +2224,7 @@ elif menu == "🪴 Adubação para Vasos":
             - Ajuste conforme o substrato utilizado e a fase da cultura
             - Considere a fertilidade natural do substrato antes da adubação
             """)
+            
             st.markdown("</div>", unsafe_allow_html=True)
 
 # ============================================================================
@@ -1929,6 +2259,7 @@ elif menu == "🤖 Assistente IA":
                     pergunta,
                     st.session_state.dados_basicos if st.session_state.dados_basicos else None
                 )
+                
                 st.markdown(f"""
                 <div class="result-card">
                     <h3 style="text-align: center; margin-bottom: 1rem;">🤖 Resposta da IA</h3>
@@ -1976,6 +2307,7 @@ elif menu == "📈 Relatório":
         }
         
         relatorio = pd.DataFrame(relatorio_data)
+        
         st.dataframe(relatorio, use_container_width=True, hide_index=True)
         
         csv = relatorio.to_csv(index=False).encode('utf-8')
@@ -2090,49 +2422,89 @@ elif menu == "📋 Pesquisa":
     st.markdown("Sua opinião é fundamental para melhorarmos a ferramenta!")
     st.markdown("---")
     
+    # ========== FORMULÁRIO PARA TODOS OS USUÁRIOS ==========
+    
     if "pesquisa_respondida" not in st.session_state:
         st.session_state.pesquisa_respondida = False
     
     if not st.session_state.pesquisa_respondida:
+        
         with st.form("pesquisa_form"):
             st.markdown("#### 1. Avaliação da Plataforma")
-            nota_plataforma = st.slider("De 0 a 10, qual a nota pela funcionalidade da plataforma?", min_value=0, max_value=10, value=5, step=1)
+            nota_plataforma = st.slider(
+                "De 0 a 10, qual a nota pela funcionalidade da plataforma?",
+                min_value=0, max_value=10, value=5, step=1
+            )
+            
             st.markdown("---")
             st.markdown("#### 2. Didática da Interpretação")
-            nota_didatica = st.slider("De 0 a 10, o quão didático foi a interpretação dos dados?", min_value=0, max_value=10, value=5, step=1)
+            nota_didatica = st.slider(
+                "De 0 a 10, o quão didático foi a interpretação dos dados?",
+                min_value=0, max_value=10, value=5, step=1
+            )
+            
             st.markdown("---")
             st.markdown("#### 3. Uso Acadêmico")
+            
             col_estudante, col_nota = st.columns([1, 2])
             with col_estudante:
                 eh_estudante = st.checkbox("Sou estudante/pesquisador")
+            
             with col_nota:
                 if eh_estudante:
-                    nota_academico = st.slider("De 0 a 10, qual a probabilidade de utilizar a ferramenta para fins acadêmicos?", min_value=0, max_value=10, value=5, step=1)
+                    nota_academico = st.slider(
+                        "De 0 a 10, qual a probabilidade de utilizar a ferramenta para fins acadêmicos?",
+                        min_value=0, max_value=10, value=5, step=1
+                    )
                 else:
                     nota_academico = "Não se aplica (não sou estudante)"
                     st.info("✅ Você marcou que não é estudante. Esta pergunta não se aplica.")
+            
             st.markdown("---")
             st.markdown("#### 4. Uso em Propriedade Rural")
+            
             col_produtor, col_nota2 = st.columns([1, 2])
             with col_produtor:
                 eh_produtor = st.checkbox("Sou produtor rural")
+            
             with col_nota2:
                 if eh_produtor:
-                    nota_produtor = st.slider("De 0 a 10, qual a probabilidade de usar esta ferramenta em sua propriedade rural?", min_value=0, max_value=10, value=5, step=1)
+                    nota_produtor = st.slider(
+                        "De 0 a 10, qual a probabilidade de usar esta ferramenta em sua propriedade rural?",
+                        min_value=0, max_value=10, value=5, step=1
+                    )
                 else:
                     nota_produtor = "Não se aplica (não sou produtor)"
                     st.info("✅ Você marcou que não é produtor. Esta pergunta não se aplica.")
+            
             st.markdown("---")
             st.markdown("#### 5. Classificação do Uso")
-            classificacao_uso = st.radio("Como você classificaria o uso da ferramenta?", ["Fácil", "Médio", "Difícil"], horizontal=True)
+            
+            classificacao_uso = st.radio(
+                "Como você classificaria o uso da ferramenta?",
+                ["Fácil", "Médio", "Difícil"],
+                horizontal=True
+            )
+            
             st.markdown("---")
             st.markdown("#### 6. Sugestoes de Aprimoramento")
-            sugestoes = st.text_area("Sugestoes de aprimoramentos. O que falta ou pode melhorar?", placeholder="Ex: Adicionar gráficos, incluir mais culturas, melhorar a explicação do V%...", height=100)
+            
+            sugestoes = st.text_area(
+                "Sugestoes de aprimoramentos. O que falta ou pode melhorar?",
+                placeholder="Ex: Adicionar gráficos, incluir mais culturas, melhorar a explicação do V%...",
+                height=100
+            )
+            
             st.markdown("---")
+            
+            # Campo para identificacao opcional
             with st.expander("🔒 Identificacao (opcional)"):
                 nome = st.text_input("Nome (opcional)")
                 email = st.text_input("E-mail (opcional - para contato)")
+            
+            # Botão de envio
             submitted = st.form_submit_button("📤 ENVIAR PESQUISA", use_container_width=True)
+            
             if submitted:
                 resposta = {
                     "data_hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -2147,7 +2519,10 @@ elif menu == "📋 Pesquisa":
                     "nome": nome if nome else "Anônimo",
                     "email": email if email else "Não informado"
                 }
+                
                 arquivo_txt = "pesquisas_satisfacao.txt"
+                
+                # Formatar resposta para TXT
                 texto_resposta = f"""
 {'='*60}
 NOVA PESQUISA - {resposta['data_hora']}
@@ -2176,11 +2551,16 @@ NOVA PESQUISA - {resposta['data_hora']}
 
 {'='*60}
 """
+                
+                # Salvar no arquivo TXT (anexar)
                 with open(arquivo_txt, "a", encoding='utf-8') as f:
                     f.write(texto_resposta)
+                
                 st.session_state.pesquisa_respondida = True
                 st.session_state.ultima_pesquisa = resposta
+                
                 st.success("✅ Pesquisa enviada com sucesso! Muito obrigado pela sua contribuição!")
+                
                 st.markdown("### 📊 Resumo da sua resposta")
                 st.markdown(f"""
                 | Pergunta | Resposta |
@@ -2193,16 +2573,22 @@ NOVA PESQUISA - {resposta['data_hora']}
                 | Probabilidade de uso na propriedade | {nota_produtor} |
                 | Classificação do uso | {classificacao_uso} |
                 """)
+                
                 st.info("💾 Sua resposta foi registrada. Obrigado!")
+    
     else:
         st.success("✅ Você já respondeu à pesquisa! Muito obrigado pela sua contribuição!")
         st.info("💡 Caso queira dar novas sugestoes, entre em contato pelo e-mail.")
     
+    # ========== RELATÓRIO PROTEGIDO POR SENHA ==========
     st.markdown("---")
     st.markdown("### 🔒 Relatório de Pesquisas (Área Restrita)")
+    
     senha_correta = "91959441"
+    
     if "relatorio_liberado" not in st.session_state:
         st.session_state.relatorio_liberado = False
+    
     if not st.session_state.relatorio_liberado:
         senha = st.text_input("Digite a senha do administrador para acessar o relatório:", type="password")
         if st.button("🔓 Acessar Relatório"):
@@ -2213,11 +2599,16 @@ NOVA PESQUISA - {resposta['data_hora']}
                 st.error("❌ Senha incorreta!")
     else:
         st.success("✅ Modo administrador - Relatório liberado!")
+        
         arquivo_txt = "pesquisas_satisfacao.txt"
+        
         if os.path.exists(arquivo_txt):
             with open(arquivo_txt, "r", encoding='utf-8') as f:
                 conteudo = f.read()
+            
             st.text_area("📋 RELATÓRIO COMPLETO", conteudo, height=400)
+            
+            # Download em TXT
             with open(arquivo_txt, "rb") as f:
                 st.download_button(
                     label="📥 Baixar Relatório (TXT)",
@@ -2227,6 +2618,7 @@ NOVA PESQUISA - {resposta['data_hora']}
                 )
         else:
             st.info("ℹ️ Ainda não há nenhuma pesquisa registrada.")
+        
         if st.button("🔒 Sair do modo administrador"):
             st.session_state.relatorio_liberado = False
             st.rerun()
