@@ -1,8 +1,6 @@
 # ============================================================================
 # IMPORTAÇÕES
 # ============================================================================
-import sys
-import types
 
 # Cria um módulo falso vazio na memória para enganar o modelo antigo
 if 'sklearn._loss' not in sys.modules:
@@ -23,7 +21,6 @@ import math
 import joblib
 import pickle
 from datetime import datetime
-import sys
 import importlib
 import warnings
 import numpy as np
