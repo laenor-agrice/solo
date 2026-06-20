@@ -13,9 +13,11 @@ import os
 import math
 import joblib
 import pickle
-import warnings
-import sys
 from datetime import datetime
+import sys
+import importlib
+import warnings
+import numpy as np
 warnings.filterwarnings('ignore')
 
 # ============================================================================
@@ -470,7 +472,6 @@ menu = st.radio(
 def listar_modelos_disponiveis():
     """Lista todos os modelos Gemini disponíveis para sua chave"""
     try:
-        # Verificar se a API Key foi configurada
         if not GEMINI_API_KEY or GEMINI_API_KEY == "":
             return []
         
@@ -483,7 +484,6 @@ def listar_modelos_disponiveis():
             
             for model in modelos.get('models', []):
                 nome = model.get('name', '').replace('models/', '')
-                # Filtrar apenas modelos Gemini que suportam generateContent
                 if 'gemini' in nome.lower() and 'generateContent' in str(model.get('supportedGenerationMethods', [])):
                     if 'embedding' not in nome.lower() and 'imagen' not in nome.lower():
                         nomes_modelos.append(nome)
@@ -498,9 +498,7 @@ def listar_modelos_disponiveis():
 # CONFIGURAÇÃO GEMINI API
 # ============================================================================
 
-# ⚠️ INSIRA SUA CHAVE API AQUI (APENAS NESTE LOCAL)
-# Obtenha sua chave em: https://aistudio.google.com/apikey
-GEMINI_API_KEY = "AQ.Ab8RN6J5uzUogvavjQyfFr3wGWEaJbdrW3oByqhWo2bm_mMxmQ"  # ← COLE SUA CHAVE AQUI DENTRO DAS ASPAS
+GEMINI_API_KEY = "AQ.Ab8RN6J5uzUogvavjQyfFr3wGWEaJbdrW3oByqhWo2bm_mMxmQ"
 
 # ============================================================================
 # 1. EMBRAPA - Tabelas de interpretação de fertilidade
@@ -795,27 +793,22 @@ def interpretar_fertilidade_multiplas_bases(dados):
         "boletim_100": {}
     }
     
-    # pH
     ph = dados.get('ph', 0)
     resultados["embrapa"]["pH"] = interpretar_pelo_embrapa("ph", ph)
     resultados["cfsemg"]["pH"] = interpretar_pelo_cfsemg("ph", ph)
     
-    # Fósforo
     p = dados.get('phosphorus', 0)
     resultados["embrapa"]["Fósforo"] = interpretar_pelo_embrapa("p_mehlich", p)
     resultados["cfsemg"]["Fósforo"] = interpretar_pelo_cfsemg("p_resina", p)
     
-    # Potássio
     k = dados.get('potassium', 0)
     resultados["embrapa"]["Potássio"] = interpretar_pelo_embrapa("k", k)
     resultados["cfsemg"]["Potássio"] = interpretar_pelo_cfsemg("k", k)
     
-    # Saturação por bases
     v = dados.get('v_porcentagem', 0)
     resultados["embrapa"]["V%"] = interpretar_pelo_embrapa("v_percent", v)
     resultados["cfsemg"]["V%"] = interpretar_pelo_cfsemg("v_percent", v)
     
-    # Matéria orgânica
     om = dados.get('organic_matter', 0) if 'organic_matter' in dados else dados.get('materia_organica', 0)
     if om > 0:
         resultados["embrapa"]["Matéria Orgânica"] = interpretar_pelo_embrapa("materia_organica", om)
@@ -851,7 +844,7 @@ def recomendar_por_regiao(uf, dados):
     return recomendacoes
 
 # ============================================================================
-# FUNÇÃO IA GEMINI (ATUALIZADA COM BASES DE FERTILIDADE)
+# FUNÇÃO IA GEMINI
 # ============================================================================
 
 def gerar_resposta_ia(pergunta, dados_solo=None):
@@ -866,7 +859,6 @@ def gerar_resposta_ia(pergunta, dados_solo=None):
         if not modelos:
             return "❌ **Nenhum modelo Gemini disponível!** \n\nVerifique se sua chave API está correta e se a API Gemini está ativada."
         
-        # Seleciona um modelo válido (prioriza versões estáveis)
         modelo_valido = None
         for m in modelos:
             if 'gemini-2.0-flash' in m or 'gemini-2.5-flash' in m or 'gemini-2.0-flash-001' in m:
@@ -975,93 +967,37 @@ def carregar_modelo():
         # Primeiro, tenta carregar com joblib
         try:
             modelo = joblib.load('modelo_rf.pkl')
-            print("✅ Modelo carregado com joblib")
+            return modelo, None, None, None
         except Exception as e:
-            print(f"⚠️ Joblib falhou: {e}, tentando pickle...")
-            
             # Se joblib falhar, usa pickle com tratamento especial
+            
+            # Cria um módulo fake _loss se não existir
+            if '_loss' not in sys.modules:
+                import types
+                fake_loss = types.ModuleType('_loss')
+                sys.modules['_loss'] = fake_loss
+            
             try:
-                # IMPORTANTE: Usar pickle com fix para o erro _loss
-                import pickle
-                import numpy as np
-                
-                # Cria um ambiente de importação seguro
+                with open('modelo_rf.pkl', 'rb') as f:
+                    modelo = pickle.load(f)
+                    return modelo, None, None, None
+            except Exception as e2:
+                # Se ainda falhar, tenta com o unpickler seguro
                 class SafeUnpickler(pickle.Unpickler):
                     def find_class(self, module, name):
-                        # Redireciona imports problemáticos
                         if module == 'sklearn.loss' or module == 'sklearn._loss':
-                            # Se tentar importar _loss, redireciona para o módulo correto
                             import sklearn.metrics
                             return getattr(sklearn.metrics, name, None)
                         return super().find_class(module, name)
                 
                 with open('modelo_rf.pkl', 'rb') as f:
-                    # Usa o unpickler seguro
                     modelo = SafeUnpickler(f).load()
-                    print("✅ Modelo carregado com SafeUnpickler")
+                    return modelo, None, None, None
                     
-            except Exception as e2:
-                print(f"⚠️ Pickle com SafeUnpickler falhou: {e2}")
-                
-                # Última tentativa: pickle normal com substituição de módulo
-                import sys
-                import types
-                
-                # Cria um módulo fake _loss se não existir
-                if '_loss' not in sys.modules:
-                    fake_loss = types.ModuleType('_loss')
-                    # Adiciona funções comuns que podem ser necessárias
-                    sys.modules['_loss'] = fake_loss
-                
-                try:
-                    with open('modelo_rf.pkl', 'rb') as f:
-                        modelo = pickle.load(f)
-                        print("✅ Modelo carregado com pickle normal")
-                except Exception as e3:
-                    raise Exception(f"Todas as tentativas de carregar o modelo falharam: {e3}")
-        
-        # Carrega o encoder e features
-        label_encoder = None
-        features = None
-        
-        # Tenta carregar label_encoder
-        try:
-            with open('label_encoder.pkl', 'rb') as f:
-                label_encoder = pickle.load(f)
-            print("✅ Label encoder carregado")
-        except FileNotFoundError:
-            print("⚠️ label_encoder.pkl não encontrado, criando fallback")
-            # Cria fallback do label_encoder
-            from sklearn.preprocessing import LabelEncoder
-            label_encoder = LabelEncoder()
-            label_encoder.classes_ = np.array(['Alta', 'Baixa', 'Media'])
-        except Exception as e:
-            print(f"⚠️ Erro ao carregar label_encoder: {e}")
-        
-        # Tenta carregar features
-        try:
-            with open('features.pkl', 'rb') as f:
-                features = pickle.load(f)
-            print("✅ Features carregadas")
-        except FileNotFoundError:
-            print("⚠️ features.pkl não encontrado, usando padrão")
-            features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila', 'Score_Agronomico']
-        except Exception as e:
-            print(f"⚠️ Erro ao carregar features: {e}")
-            features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila', 'Score_Agronomico']
-        
-        return modelo, label_encoder, features, None
-        
     except FileNotFoundError as e:
         return None, None, None, f"Arquivo não encontrado: {e.filename}"
-    except ModuleNotFoundError as e:
-        # Erro específico do _loss
-        if '_loss' in str(e) or 'loss' in str(e).lower():
-            return None, None, None, f"⚠️ **Erro de compatibilidade:** O modelo foi treinado com uma versão diferente do scikit-learn. O sistema usará a classificação manual como fallback.\n\n🔧 **Solução:** O código já contorna este erro automaticamente. Se o problema persistir, verifique se o arquivo 'modelo_rf.pkl' é compatível."
-        return None, None, None, f"Erro ao carregar modelo: {str(e)}"
     except Exception as e:
         return None, None, None, f"Erro ao carregar modelo: {str(e)}"
-
 
 # ============================================================================
 # FUNÇÃO ALTERNATIVA PARA PREVISÃO SEM MODELO (FALLBACK)
@@ -1142,7 +1078,7 @@ def prever_sem_modelo(dados_usuario):
     
     # Probabilidades simuladas
     if classe == 'Alta':
-        probs = [0.70, 0.15, 0.15]  # [Alta, Baixa, Media]
+        probs = [0.70, 0.15, 0.15]
     elif classe == 'Media':
         probs = [0.15, 0.10, 0.75]
     else:
@@ -1151,15 +1087,13 @@ def prever_sem_modelo(dados_usuario):
     return classe, confianca, probs
 
 # ============================================================================
-# PREPARAR DADOS PARA PREVISÃO (ALINHADO COM O MODELO)
+# PREPARAR DADOS PARA PREVISÃO
 # ============================================================================
 
 def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
     """
     Prepara os dados do usuário para o modelo Random Forest
-    O modelo espera: pH, N, P, K, Areia, Silte, Argila, Score_Agronomico
     """
-    # Mapeamento das variáveis do app para o modelo
     mapeamento = {
         'ph': 'pH',
         'nitrogen': 'N',
@@ -1175,18 +1109,14 @@ def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
     
     for feature in features_do_modelo:
         if feature == 'Score_Agronomico':
-            # Calcula o Score_Agronomico baseado nas outras variáveis
             ph = dados_usuario.get('ph', 6.0)
             n = dados_usuario.get('nitrogen', 30)
             p = dados_usuario.get('phosphorus', 20)
             k = dados_usuario.get('potassium', 0.25)
-            
-            # Fórmula do Score Agronômico (mesma usada no treinamento)
             score = (ph * 10) + (n * 0.5) + (p * 0.5) + (k * 100)
             dados_modelo[feature] = score
             coluna_encontrada = "calculado"
         else:
-            # Busca a feature no dicionário de mapeamento
             coluna_encontrada = "(não encontrada)"
             for chave_app, nome_feature in mapeamento.items():
                 if feature == nome_feature and chave_app in dados_usuario:
@@ -1195,7 +1125,6 @@ def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
                     break
             
             if coluna_encontrada == "(não encontrada)":
-                # Se não encontrar, usa valor padrão
                 dados_modelo[feature] = 0
         
         tabela_diagnostico.append({
@@ -1204,15 +1133,13 @@ def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
             'Valor utilizado': dados_modelo[feature]
         })
     
-    # Cria DataFrame com a ordem correta
     df_previsao = pd.DataFrame([dados_modelo])
     df_previsao = df_previsao[features_do_modelo]
     
     return df_previsao, tabela_diagnostico
 
-
 # ============================================================================
-# INTERPRETAÇÃO DO NÍVEL DE FERTILIDADE (ALINHADO COM O MODELO)
+# INTERPRETAÇÃO DO NÍVEL DE FERTILIDADE
 # ============================================================================
 
 def interpretar_fertilidade(classe_prevista, confianca):
@@ -1235,7 +1162,7 @@ def interpretar_fertilidade(classe_prevista, confianca):
             'mensagem': 'O solo apresenta **MÉDIA fertilidade**. Recomenda-se adubação para atingir níveis adequados.',
             'recomendacao': 'Adubação: 60-100 kg/ha de N, 80-120 kg/ha de P2O5, 60-100 kg/ha de K2O. Avaliar necessidade de calagem.'
         }
-    else:  # Baixa
+    else:
         return {
             'nivel': 'Baixa',
             'icone': '❌',
@@ -1408,27 +1335,22 @@ def calcular_volume_vaso(raio_superior, raio_inferior, altura, formato="tronco_c
     """Calcula o volume do vaso em litros"""
     if formato == "cilindro":
         volume_cm3 = math.pi * (raio_superior ** 2) * altura
-    else:  # tronco de cone
+    else:
         volume_cm3 = (math.pi * altura / 3) * (raio_superior**2 + raio_superior*raio_inferior + raio_inferior**2)
     
     volume_litros = volume_cm3 / 1000
     return round(volume_litros, 2)
 
 def calcular_adubo_para_vaso(cultura, volume_litros, area_plantio_cm2=None):
-    """Calcula a quantidade de adubo para vaso baseado nas recomendações de campo"""
-    
+    """Calcula a quantidade de adubo para vaso"""
     req = necessidades_culturas[cultura]
     
-    # Fator de conversão: 1 hectare = 10.000 m²
-    # Para vaso, usamos proporção baseada na área de plantio típica
     if area_plantio_cm2:
         area_m2 = area_plantio_cm2 / 10000
-        fator_escala = area_m2  # 1 m² no campo
+        fator_escala = area_m2
     else:
-        # Assumindo área de plantio padrão de 1 m² para vaso
         fator_escala = 1
     
-    # Cálculo das quantidades (em gramas)
     n_gramas = req.get('n_recomendado', 80) * fator_escala
     p_gramas = req.get('p_recomendado', 60) * fator_escala
     k_gramas = req.get('k_recomendado', 80) * fator_escala
@@ -1482,7 +1404,6 @@ if menu == "📊 Dados do Solo":
         with col5:
             clay = st.number_input("🧱 Argila (%)", min_value=0, max_value=100, value=35, step=5)
         
-        # Validação da soma da textura
         soma_textura = sand + silt + clay
         if soma_textura != 100:
             st.warning(f"⚠️ **Atenção:** A soma das frações é {soma_textura}%. O ideal é 100%. Ajuste os valores.")
@@ -1492,7 +1413,6 @@ if menu == "📊 Dados do Solo":
     st.caption("💡 Após salvar os dados, vá para a aba 'Classificação' para ver as recomendações.")
 
     if st.button("✅ SALVAR DADOS", use_container_width=True):
-        # Verificar textura antes de salvar
         soma_textura = sand + silt + clay
         if soma_textura != 100:
             st.error(f"❌ **Erro na textura do solo:** A soma das frações é {soma_textura}%, mas deve ser exatamente 100%. Corrija os valores antes de salvar.")
@@ -1542,26 +1462,31 @@ if menu == "📊 Dados do Solo":
                         st.metric("m% (Alumínio)", f"{m:.1f}%")
 
                     # ================================================================
-                    # PREVISÃO COM O MODELO RANDOM FOREST
+                    # PREVISÃO COM O MODELO RANDOM FOREST (COM FALLBACK)
                     # ================================================================
                     
                     # Carrega o modelo
                     modelo, label_encoder, features, erro = carregar_modelo()
 
-                    if modelo is not None and features is not None:
+                    if modelo is not None:
                         st.markdown("---")
                         st.markdown("## 🤖 Resultados do Modelo de Machine Learning")
                         
-                        # Exibe informações do modelo
+                        # Extrai features do modelo se possível
+                        try:
+                            if hasattr(modelo, 'feature_names_in_'):
+                                features = list(modelo.feature_names_in_)
+                            else:
+                                features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila', 'Score_Agronomico']
+                        except:
+                            features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila', 'Score_Agronomico']
+                        
                         with st.expander("ℹ️ Informações do Modelo", expanded=False):
                             st.markdown(f"**Tipo:** Random Forest Classifier")
                             st.markdown(f"**Features:** {features}")
-                            if label_encoder is not None:
-                                st.markdown(f"**Classes:** {label_encoder.classes_}")
                         
                         with st.spinner("🧠 Realizando previsão com o modelo treinado..."):
                             try:
-                                # Prepara os dados
                                 df_previsao, tabela_diagnostico = preparar_dados_para_previsao(dados, features)
 
                                 with st.expander("🔍 Visualizar dados de entrada", expanded=False):
@@ -1569,50 +1494,38 @@ if menu == "📊 Dados do Solo":
                                     st.caption("📋 Diagnóstico do mapeamento das features")
                                     st.dataframe(pd.DataFrame(tabela_diagnostico), use_container_width=True, hide_index=True)
 
-                                # Faz a previsão
                                 previsao = modelo.predict(df_previsao)[0]
                                 probabilidades = modelo.predict_proba(df_previsao)[0]
                                 
-                                # Converte a previsão para o nome da classe
-                                if label_encoder is not None:
-                                    classe_prevista = label_encoder.inverse_transform([previsao])[0]
-                                else:
-                                    # Fallback se não tiver label_encoder
-                                    classes = ['Alta', 'Baixa', 'Media']
-                                    classe_prevista = classes[previsao] if previsao < len(classes) else 'Media'
+                                # Mapeamento de classes
+                                classes_nomes = ['Alta', 'Baixa', 'Media']
+                                if hasattr(modelo, 'classes_'):
+                                    if len(modelo.classes_) == 3:
+                                        classes_nomes = list(modelo.classes_)
                                 
+                                classe_prevista = classes_nomes[previsao] if previsao < len(classes_nomes) else 'Media'
                                 confianca = max(probabilidades) * 100
                                 
-                                # Exibe resultados
                                 col_classe, col_conf = st.columns(2)
                                 with col_classe:
                                     st.metric("🏷️ Classe Prevista", classe_prevista)
                                 with col_conf:
                                     st.metric("📊 Confiança do Modelo", f"{confianca:.2f}%")
                                 
-                                # Tabela de probabilidades
                                 st.markdown("**📈 Probabilidades por Classe:**")
-                                if label_encoder is not None:
-                                    classes_nomes = label_encoder.classes_
-                                else:
-                                    classes_nomes = ['Alta', 'Baixa', 'Media']
-                                
                                 prob_df = pd.DataFrame({
-                                    'Classe': classes_nomes,
+                                    'Classe': classes_nomes[:len(probabilidades)],
                                     'Probabilidade (%)': (probabilidades * 100).round(2)
                                 }).sort_values('Probabilidade (%)', ascending=False)
                                 
                                 st.dataframe(prob_df, use_container_width=True, hide_index=True)
                                 st.progress(confianca / 100)
                                 
-                                # INTERPRETAÇÃO DO NÍVEL DE FERTILIDADE
                                 st.markdown("---")
                                 st.markdown("### 🌱 Interpretação da Fertilidade")
                                 
-                                # Obtém a interpretação
                                 interpretacao = interpretar_fertilidade(classe_prevista, confianca)
                                 
-                                # Exibe o resultado com a cor apropriada
                                 if interpretacao['cor'] == 'success':
                                     st.success(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
                                 elif interpretacao['cor'] == 'warning':
@@ -1620,28 +1533,78 @@ if menu == "📊 Dados do Solo":
                                 else:
                                     st.error(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
                                 
-                                # Exibe a recomendação
                                 st.info(f"📌 **Recomendação:** {interpretacao['recomendacao']}")
                                 
-                                # Exibe detalhes adicionais
-                                with st.expander("📊 Detalhes da Classificação", expanded=False):
-                                    st.markdown(f"""
-                                    - **Nível de Fertilidade:** {interpretacao['nivel']}
-                                    - **Confiança do Modelo:** {confianca:.1f}%
-                                    - **Classe Prevista:** {classe_prevista}
-                                    - **Probabilidades:** 
-                                      - Alta: {probabilidades[0]*100:.1f}%
-                                      - Baixa: {probabilidades[1]*100:.1f}%
-                                      - Média: {probabilidades[2]*100:.1f}%
-                                    """)
-                                    
                             except Exception as e:
-                                st.error(f"❌ Erro ao realizar a previsão: {e}")
-                                st.info("💡 Verifique se todos os dados foram preenchidos corretamente.")
+                                st.warning(f"⚠️ Erro ao usar o modelo: {e}")
+                                st.info("💡 Usando classificação manual como fallback...")
+                                
+                                # FALLBACK
+                                classe_prevista, confianca, probabilidades = prever_sem_modelo(dados)
+                                
+                                st.markdown("---")
+                                st.markdown("## 🤖 Resultado da Classificação (Modo Fallback)")
+                                st.info("ℹ️ A classificação é baseada em regras agronômicas.")
+                                
+                                col_classe, col_conf = st.columns(2)
+                                with col_classe:
+                                    st.metric("🏷️ Classe Prevista", classe_prevista)
+                                with col_conf:
+                                    st.metric("📊 Pontuação", f"{confianca:.1f}%")
+                                
+                                st.markdown("**📈 Pontuação por Classe:**")
+                                classes_nomes = ['Alta', 'Baixa', 'Media']
+                                prob_df = pd.DataFrame({
+                                    'Classe': classes_nomes,
+                                    'Pontuação (%)': (np.array(probabilidades) * 100).round(2)
+                                }).sort_values('Pontuação (%)', ascending=False)
+                                
+                                st.dataframe(prob_df, use_container_width=True, hide_index=True)
+                                st.progress(confianca / 100)
+                                
+                                interpretacao = interpretar_fertilidade(classe_prevista, confianca)
+                                if interpretacao['cor'] == 'success':
+                                    st.success(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
+                                elif interpretacao['cor'] == 'warning':
+                                    st.warning(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
+                                else:
+                                    st.error(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
+                                st.info(f"📌 **Recomendação:** {interpretacao['recomendacao']}")
 
-                    elif erro:
-                        st.warning(f"ℹ️ **Modelo de ML não disponível:** {erro}")
-                        st.info("💡 O sistema continuará funcionando com as outras funcionalidades (classificação manual, recomendações, etc.)")
+                    else:
+                        st.warning(f"ℹ️ **Modelo não disponível:** {erro if erro else 'Erro desconhecido'}")
+                        st.info("💡 Usando classificação manual baseada em regras agronômicas.")
+                        
+                        # FALLBACK
+                        classe_prevista, confianca, probabilidades = prever_sem_modelo(dados)
+                        
+                        st.markdown("---")
+                        st.markdown("## 🤖 Resultado da Classificação (Modo Manual)")
+                        
+                        col_classe, col_conf = st.columns(2)
+                        with col_classe:
+                            st.metric("🏷️ Classe Prevista", classe_prevista)
+                        with col_conf:
+                            st.metric("📊 Pontuação", f"{confianca:.1f}%")
+                        
+                        st.markdown("**📈 Pontuação por Classe:**")
+                        classes_nomes = ['Alta', 'Baixa', 'Media']
+                        prob_df = pd.DataFrame({
+                            'Classe': classes_nomes,
+                            'Pontuação (%)': (np.array(probabilidades) * 100).round(2)
+                        }).sort_values('Pontuação (%)', ascending=False)
+                        
+                        st.dataframe(prob_df, use_container_width=True, hide_index=True)
+                        st.progress(confianca / 100)
+                        
+                        interpretacao = interpretar_fertilidade(classe_prevista, confianca)
+                        if interpretacao['cor'] == 'success':
+                            st.success(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
+                        elif interpretacao['cor'] == 'warning':
+                            st.warning(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
+                        else:
+                            st.error(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
+                        st.info(f"📌 **Recomendação:** {interpretacao['recomendacao']}")
 
                 except ValueError as ve:
                     st.error(f"❌ Erro: Verifique se todos os valores são números válidos! Detalhes: {ve}")
@@ -1649,7 +1612,7 @@ if menu == "📊 Dados do Solo":
                     st.error(f"❌ Erro inesperado: {e}")
 
 # ============================================================================
-# ABA 2 - CLASSIFICAÇÃO (COM MÚLTIPLAS BASES DE FERTILIDADE)
+# ABA 2 - CLASSIFICAÇÃO
 # ============================================================================
 
 elif menu == "🌱 Classificação":
@@ -1660,7 +1623,6 @@ elif menu == "🌱 Classificação":
 
     dados = st.session_state.dados_basicos
 
-    # Seleção da cultura
     cultura = st.selectbox("🌾 Selecione a cultura:", list(necessidades_culturas.keys()))
     req = necessidades_culturas[cultura]
 
@@ -1672,7 +1634,6 @@ elif menu == "🌱 Classificação":
     with aba1:
         st.markdown("## 📊 Classificação da Fertilidade")
         
-        # Métricas principais
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.metric("pH", f"{dados.get('ph', 0):.1f}")
@@ -1685,7 +1646,6 @@ elif menu == "🌱 Classificação":
         
         st.markdown("---")
         
-        # Diagnóstico para a cultura
         st.markdown(f"### 🔍 Diagnóstico para {cultura}")
         diagnosticos = gerar_diagnostico(dados, req)
         for diag in diagnosticos:
@@ -1693,7 +1653,6 @@ elif menu == "🌱 Classificação":
         
         st.markdown("---")
         
-        # Classificação SiBCS
         st.markdown("### 📊 Classificação da Fertilidade (SiBCS)")
         v = dados.get('v_porcentagem', 0)
         classe = classificar_fertilidade(v)
@@ -1706,7 +1665,6 @@ elif menu == "🌱 Classificação":
         
         st.markdown("---")
         
-        # Múltiplas bases
         st.markdown("### 📚 Interpretação por Múltiplas Bases")
         interps = interpretar_fertilidade_multiplas_bases(dados)
         
@@ -1722,17 +1680,14 @@ elif menu == "🌱 Classificação":
         
         st.markdown("---")
         
-        # Recomendação regional
         if "uf_selecionada" in st.session_state:
             st.markdown("### 📍 Recomendação Regional")
             for rec in recomendar_por_regiao(st.session_state.uf_selecionada, dados):
                 st.markdown(f"- {rec}")
 
     with aba2:
-
         st.markdown(f"#### 🌱 Recomendação de Adubação para {cultura}")
 
-        # NITROGÊNIO (N)
         with st.container(border=True):
             st.markdown("**Nitrogênio (N)**")
             n_atual = dados.get('nitrogen', 0)
@@ -1743,7 +1698,6 @@ elif menu == "🌱 Classificação":
             if "✅" in n_recomendacao:
                 st.success(n_recomendacao)
             else:
-                import re
                 match = re.search(r'Aplicar (\d+) kg/ha', n_recomendacao)
                 if match:
                     kg_n = int(match.group(1))
@@ -1845,7 +1799,6 @@ elif menu == "🌱 Classificação":
                     - Parcelamentos reduzem perdas por volatilização e lixiviação
                     """)
 
-        # FÓSFORO (P)
         with st.container(border=True):
             st.markdown("**Fósforo (P)**")
             p_atual = dados.get('phosphorus', 0)
@@ -1866,7 +1819,6 @@ elif menu == "🌱 Classificação":
                     - Preferir aplicação próxima ao sistema radicular
                     """)
 
-        # POTÁSSIO (K)
         with st.container(border=True):
             st.markdown("**Potássio (K)**")
             k_atual = dados.get('potassium', 0)
@@ -1902,7 +1854,6 @@ elif menu == "🌱 Classificação":
                     - Parcelamento melhora eficiência de uso do K
                     """)
 
-        # CALAGEM
         with st.container(border=True):
             st.markdown("**🧪 Calagem**")
             v_atual = dados.get('v_porcentagem', 0)
