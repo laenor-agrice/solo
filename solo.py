@@ -17,7 +17,6 @@ import sys
 import importlib
 import warnings
 warnings.filterwarnings('ignore')
-
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA - DESIGN PREMIUM
 # ============================================================================
