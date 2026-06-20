@@ -1,20 +1,7 @@
 # ============================================================================
-# IMPORTAÇÕES - VERSÃO SIMPLIFICADA
+# IMPORTAÇÕES
 # ============================================================================
 
-# Importa sys primeiro para resolver o erro
-import sys
-
-# Cria módulos fake ANTES de qualquer outra importação
-if 'sklearn._loss' not in sys.modules:
-    import types
-    sys.modules['sklearn._loss'] = types.ModuleType('sklearn._loss')
-
-if 'sklearn.metrics._loss' not in sys.modules:
-    import types
-    sys.modules['sklearn.metrics._loss'] = types.ModuleType('sklearn.metrics._loss')
-
-# Agora importa o resto
 import streamlit as st
 import pandas as pd
 import requests
@@ -30,8 +17,10 @@ from datetime import datetime
 import importlib
 import warnings
 import numpy as np
+import sys
 
 warnings.filterwarnings('ignore')
+
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA - DESIGN PREMIUM
 # ============================================================================
@@ -962,54 +951,29 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# CARREGAR MODELO TREINADO (RANDOM FOREST) - CORRIGIDO PARA GITHUB
+# CARREGAR MODELO TREINADO (RANDOM FOREST) - VERSÃO PROFISSIONAL
 # ============================================================================
 
 @st.cache_resource
 def carregar_modelo():
     """
     Carrega o modelo Random Forest treinado no Colab
-    Corrigido para evitar erro 'No module named _loss' no GitHub/Streamlit Cloud
+    Usa tentativa com joblib e fallback com pickle
     """
     try:
-        # ============================================================
-        # SOLUÇÃO PARA O ERRO '_loss' - Usar pickle com compatibilidade
-        # ============================================================
+        # Tenta carregar com joblib (recomendado)
+        modelo = joblib.load('modelo_rf.pkl')
+        return modelo, None, None
         
-        # Primeiro, tenta carregar com joblib
-        try:
-            modelo = joblib.load('modelo_rf.pkl')
-            return modelo, None, None, None
-        except Exception as e:
-            # Se joblib falhar, usa pickle com tratamento especial
-            
-            # Cria um módulo fake _loss se não existir
-            if '_loss' not in sys.modules:
-                import types
-                fake_loss = types.ModuleType('_loss')
-                sys.modules['_loss'] = fake_loss
-            
-            try:
-                with open('modelo_rf.pkl', 'rb') as f:
-                    modelo = pickle.load(f)
-                    return modelo, None, None, None
-            except Exception as e2:
-                # Se ainda falhar, tenta com o unpickler seguro
-                class SafeUnpickler(pickle.Unpickler):
-                    def find_class(self, module, name):
-                        if module == 'sklearn.loss' or module == 'sklearn._loss':
-                            import sklearn.metrics
-                            return getattr(sklearn.metrics, name, None)
-                        return super().find_class(module, name)
-                
-                with open('modelo_rf.pkl', 'rb') as f:
-                    modelo = SafeUnpickler(f).load()
-                    return modelo, None, None, None
-                    
-    except FileNotFoundError as e:
-        return None, None, None, f"Arquivo não encontrado: {e.filename}"
     except Exception as e:
-        return None, None, None, f"Erro ao carregar modelo: {str(e)}"
+        # Se falhar, tenta com pickle
+        try:
+            with open('modelo_rf.pkl', 'rb') as f:
+                modelo = pickle.load(f)
+            return modelo, None, None
+        except Exception as e2:
+            # Se ambos falharem, retorna erro
+            return None, None, f"Erro ao carregar modelo: {str(e2)}"
 
 # ============================================================================
 # FUNÇÃO ALTERNATIVA PARA PREVISÃO SEM MODELO (FALLBACK)
@@ -1478,7 +1442,7 @@ if menu == "📊 Dados do Solo":
                     # ================================================================
                     
                     # Carrega o modelo
-                    modelo, label_encoder, features, erro = carregar_modelo()
+                    modelo, _, erro = carregar_modelo()
 
                     if modelo is not None:
                         st.markdown("---")
@@ -1548,7 +1512,7 @@ if menu == "📊 Dados do Solo":
                                 st.info(f"📌 **Recomendação:** {interpretacao['recomendacao']}")
                                 
                             except Exception as e:
-                                st.warning(f"⚠️ Erro ao usar o modelo: {e}")
+                                st.warning(f"⚠️ Erro ao usar o modelo: {str(e)}")
                                 st.info("💡 Usando classificação manual como fallback...")
                                 
                                 # FALLBACK
