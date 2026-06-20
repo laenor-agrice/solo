@@ -11,6 +11,7 @@ import re
 import base64
 import os
 import math
+import joblib  # <<< ADIÇÃO 1: Import para carregar o modelo
 from datetime import datetime
 
 # ============================================================================
@@ -1005,6 +1006,74 @@ RESPOSTA:"""
     
     except Exception as erro:
         return f"❌ **Erro:** {str(erro)}"
+
+# ============================================================================
+# === INÍCIO DAS ADIÇÕES PARA O MODELO DE MACHINE LEARNING === <<< ADIÇÃO 2
+# ============================================================================
+
+@st.cache_resource
+def carregar_modelo_e_features():
+    """
+    Carrega o modelo treinado e a lista de features dos arquivos .pkl.
+    Utiliza cache do Streamlit para evitar recarregar a cada interação.
+    """
+    modelo = None
+    features = None
+    erro_msg = None
+
+    # Verifica se os arquivos existem
+    if not os.path.exists('modelo.pkl'):
+        erro_msg = "Arquivo 'modelo.pkl' não encontrado no diretório do aplicativo."
+        return modelo, features, erro_msg
+    if not os.path.exists('features.pkl'):
+        erro_msg = "Arquivo 'features.pkl' não encontrado no diretório do aplicativo."
+        return modelo, features, erro_msg
+
+    try:
+        modelo = joblib.load('modelo.pkl')
+    except Exception as e:
+        erro_msg = f"Erro ao carregar 'modelo.pkl'. Detalhes: {e}"
+        return modelo, features, erro_msg
+
+    try:
+        features = joblib.load('features.pkl')
+    except Exception as e:
+        erro_msg = f"Erro ao carregar 'features.pkl'. Detalhes: {e}"
+        return modelo, features, erro_msg
+
+    return modelo, features, erro_msg
+
+def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
+    """
+    Prepara o DataFrame de entrada para o modelo com base nos dados do usuário
+    e na lista de features esperadas pelo modelo.
+    """
+    # Cria um DataFrame com uma única linha a partir dos dados do usuário
+    df_usuario = pd.DataFrame([dados_usuario])
+
+    # Cria um novo DataFrame alinhado com as features do modelo, preenchendo com 0 as que faltam
+    df_previsao = pd.DataFrame(columns=features_do_modelo)
+    
+    # Preenche as colunas que existem nos dados do usuário
+    for feature in features_do_modelo:
+        if feature in df_usuario.columns:
+            df_previsao[feature] = df_usuario[feature]
+        else:
+            # Se a feature esperada pelo modelo não está nos dados do usuário, preenche com 0
+            df_previsao[feature] = 0
+            
+            # Notifica o usuário sobre features ausentes, que podem afetar a previsão
+            st.warning(f"⚠️ Feature '{feature}' não fornecida nos dados do solo. Atribuído valor 0 para a previsão do modelo.", icon="⚠️")
+
+    # Garante a ordem correta das colunas
+    df_previsao = df_previsao[features_do_modelo]
+
+    return df_previsao
+
+# ============================================================================
+# === FIM DAS ADIÇÕES PARA O MODELO DE MACHINE LEARNING ===
+# ============================================================================
+
 # ============================================================================
 # FUNÇÕES DE CÁLCULO
 # ============================================================================
@@ -1211,6 +1280,10 @@ if menu == "📊 Dados do Solo":
     st.markdown("### 📋 Dados Básicos do Solo")
     st.caption("Preencha os campos abaixo com os resultados da análise de solo")
 
+    # --- INÍCIO DA INTEGRAÇÃO DO MODELO NA ABA 1 --- <<< ADIÇÃO 3
+    modelo, features_do_modelo, erro_carregamento = carregar_modelo_e_features()
+    # --- FIM DA INTEGRAÇÃO DO MODELO NA ABA 1 ---
+
     col1, col2 = st.columns(2)
 
     with col1:
@@ -1301,7 +1374,64 @@ if menu == "📊 Dados do Solo":
                         st.metric("V% (Saturação)", f"{v:.1f}%")
                     with col_d:
                         st.metric("m% (Alumínio)", f"{m:.1f}%")
-                        
+
+                    # ========================================================================
+                    # === INÍCIO DO BLOCO DE PREVISÃO DO MODELO DE MACHINE LEARNING === <<< ADIÇÃO 4
+                    # ========================================================================
+                    
+                    # Só executa se os arquivos do modelo foram carregados com sucesso
+                    if modelo is not None and features_do_modelo is not None:
+                        st.markdown("---")
+                        st.markdown("## 🤖 Resultados do Modelo de Machine Learning")
+                        with st.spinner("🧠 Realizando previsão com o modelo treinado..."):
+                            try:
+                                # Prepara o DataFrame de entrada alinhado com as features do modelo
+                                df_previsao = preparar_dados_para_previsao(dados, features_do_modelo)
+                                
+                                # Tenta realizar a previsão
+                                with st.expander("🔍 Visualizar dados de entrada para o modelo", expanded=False):
+                                    st.dataframe(df_previsao, use_container_width=True)
+
+                                # Verifica se o modelo possui predict_proba, indicando um classificador
+                                if hasattr(modelo, 'predict_proba'):
+                                    probabilidades = modelo.predict_proba(df_previsao)[0]
+                                    previsao = modelo.predict(df_previsao)[0]
+                                    
+                                    col_classe, col_conf = st.columns(2)
+                                    with col_classe:
+                                        st.metric("🏷️ Classe Prevista", f"{previsao}")
+                                    with col_conf:
+                                        # A confiança é a probabilidade da classe prevista
+                                        confianca = max(probabilidades) * 100
+                                        st.metric("📊 Confiança do Modelo", f"{confianca:.2f}%")
+                                    
+                                    st.markdown("**📈 Probabilidades por Classe:**")
+                                    classes = modelo.classes_
+                                    
+                                    # Exibe as probabilidades em um layout amigável
+                                    prob_df = pd.DataFrame({
+                                        'Classe': classes,
+                                        'Probabilidade (%)': (probabilidades * 100).round(2)
+                                    }).sort_values('Probabilidade (%)', ascending=False)
+                                    
+                                    st.dataframe(prob_df, use_container_width=True, hide_index=True)
+                                    
+                                    # Barra de progresso para a classe mais provável
+                                    st.progress(confianca / 100)
+                                    
+                                else:
+                                    # Caso seja um modelo de regressão, apenas predict está disponível
+                                    previsao = modelo.predict(df_previsao)[0]
+                                    st.metric("🎯 Valor Previsto pelo Modelo", f"{previsao:.4f}")
+
+                            except Exception as e:
+                                st.error(f"❌ Erro ao realizar a previsão com o modelo: {e}")
+                    elif erro_carregamento:
+                         st.info(f"ℹ️ Modelo de ML não disponível: {erro_carregamento}")
+                    # ========================================================================
+                    # === FIM DO BLOCO DE PREVISÃO DO MODELO DE MACHINE LEARNING ===
+                    # ========================================================================
+
                 except ValueError:
                     st.error("❌ Erro: Verifique se todos os valores são números válidos!")
 
