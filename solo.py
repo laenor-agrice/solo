@@ -13,10 +13,9 @@ import os
 import math
 import joblib
 import pickle
-from datetime import datetime
-import sys
-import importlib
 import warnings
+import sys
+from datetime import datetime
 warnings.filterwarnings('ignore')
 
 # ============================================================================
@@ -411,8 +410,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-
 
 # ============================================================================
 # CABEÇALHO HERO
@@ -961,30 +958,54 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# CARREGAR MODELO TREINADO (RANDOM FOREST)
+# CARREGAR MODELO TREINADO (RANDOM FOREST) - CORRIGIDO
 # ============================================================================
 
 @st.cache_resource
 def carregar_modelo():
     """
     Carrega o modelo Random Forest treinado no Colab
+    Corrigido para lidar com erro do módulo _loss
     """
     try:
-        # Carrega o modelo
-        modelo = joblib.load('modelo_rf.pkl')
+        # Tentativa 1: Carregar com joblib (recomendado para modelos scikit-learn)
+        try:
+            modelo = joblib.load('modelo_rf.pkl')
+        except Exception as e:
+            # Se falhar, tentar com pickle manual
+            with open('modelo_rf.pkl', 'rb') as f:
+                modelo = pickle.load(f)
         
-        # Carrega o encoder
-        with open('label_encoder.pkl', 'rb') as f:
-            label_encoder = pickle.load(f)
+        # Carrega o encoder e features
+        try:
+            with open('label_encoder.pkl', 'rb') as f:
+                label_encoder = pickle.load(f)
+        except FileNotFoundError:
+            # Se o label_encoder não existir, criar um fallback
+            label_encoder = None
         
-        # Carrega as features
-        with open('features.pkl', 'rb') as f:
-            features = pickle.load(f)
+        try:
+            with open('features.pkl', 'rb') as f:
+                features = pickle.load(f)
+        except FileNotFoundError:
+            # Se features não existir, usar as features padrão
+            features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila', 'Score_Agronomico']
+        
+        # Se não tiver label_encoder, criar um fallback
+        if label_encoder is None:
+            from sklearn.preprocessing import LabelEncoder
+            label_encoder = LabelEncoder()
+            label_encoder.classes_ = np.array(['Alta', 'Baixa', 'Media'])
         
         return modelo, label_encoder, features, None
         
     except FileNotFoundError as e:
-        return None, None, None, f"Arquivo não encontrado: {e.filename}. Certifique-se de que modelo_rf.pkl, label_encoder.pkl e features.pkl estão na pasta."
+        return None, None, None, f"Arquivo não encontrado: {e.filename}. Certifique-se de que modelo_rf.pkl está na pasta."
+    except ModuleNotFoundError as e:
+        # Erro específico do _loss
+        if '_loss' in str(e):
+            return None, None, None, f"Erro de compatibilidade do scikit-learn: {str(e)}. Tente atualizar o scikit-learn: pip install --upgrade scikit-learn"
+        return None, None, None, f"Erro ao carregar modelo: {str(e)}"
     except Exception as e:
         return None, None, None, f"Erro ao carregar modelo: {str(e)}"
 
@@ -1395,7 +1416,8 @@ if menu == "📊 Dados do Solo":
                         with st.expander("ℹ️ Informações do Modelo", expanded=False):
                             st.markdown(f"**Tipo:** Random Forest Classifier")
                             st.markdown(f"**Features:** {features}")
-                            st.markdown(f"**Classes:** {label_encoder.classes_}")
+                            if label_encoder is not None:
+                                st.markdown(f"**Classes:** {label_encoder.classes_}")
                         
                         with st.spinner("🧠 Realizando previsão com o modelo treinado..."):
                             try:
@@ -1412,7 +1434,13 @@ if menu == "📊 Dados do Solo":
                                 probabilidades = modelo.predict_proba(df_previsao)[0]
                                 
                                 # Converte a previsão para o nome da classe
-                                classe_prevista = label_encoder.inverse_transform([previsao])[0]
+                                if label_encoder is not None:
+                                    classe_prevista = label_encoder.inverse_transform([previsao])[0]
+                                else:
+                                    # Fallback se não tiver label_encoder
+                                    classes = ['Alta', 'Baixa', 'Media']
+                                    classe_prevista = classes[previsao] if previsao < len(classes) else 'Media'
+                                
                                 confianca = max(probabilidades) * 100
                                 
                                 # Exibe resultados
@@ -1424,8 +1452,13 @@ if menu == "📊 Dados do Solo":
                                 
                                 # Tabela de probabilidades
                                 st.markdown("**📈 Probabilidades por Classe:**")
+                                if label_encoder is not None:
+                                    classes_nomes = label_encoder.classes_
+                                else:
+                                    classes_nomes = ['Alta', 'Baixa', 'Media']
+                                
                                 prob_df = pd.DataFrame({
-                                    'Classe': label_encoder.classes_,
+                                    'Classe': classes_nomes,
                                     'Probabilidade (%)': (probabilidades * 100).round(2)
                                 }).sort_values('Probabilidade (%)', ascending=False)
                                 
@@ -1467,7 +1500,8 @@ if menu == "📊 Dados do Solo":
                                 st.info("💡 Verifique se todos os dados foram preenchidos corretamente.")
 
                     elif erro:
-                        st.info(f"ℹ️ Modelo de ML não disponível: {erro}")
+                        st.warning(f"ℹ️ **Modelo de ML não disponível:** {erro}")
+                        st.info("💡 O sistema continuará funcionando com as outras funcionalidades (classificação manual, recomendações, etc.)")
 
                 except ValueError as ve:
                     st.error(f"❌ Erro: Verifique se todos os valores são números válidos! Detalhes: {ve}")
