@@ -11,7 +11,7 @@ import re
 import base64
 import os
 import math
-import joblib  # <<< ADIÇÃO 1: Import para carregar o modelo
+import joblib
 from datetime import datetime
 
 # ============================================================================
@@ -1008,7 +1008,7 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# === INÍCIO DAS ADIÇÕES PARA O MODELO DE MACHINE LEARNING === <<< ADIÇÃO 2
+# === FUNÇÕES DO MODELO DE MACHINE LEARNING (CORRIGIDAS) ===
 # ============================================================================
 
 @st.cache_resource
@@ -1045,34 +1045,75 @@ def carregar_modelo_e_features():
 
 def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
     """
-    Prepara o DataFrame de entrada para o modelo com base nos dados do usuário
-    e na lista de features esperadas pelo modelo.
-    """
-    # Cria um DataFrame com uma única linha a partir dos dados do usuário
-    df_usuario = pd.DataFrame([dados_usuario])
-
-    # Cria um novo DataFrame alinhado com as features do modelo, preenchendo com 0 as que faltam
-    df_previsao = pd.DataFrame(columns=features_do_modelo)
+    Prepara o DataFrame de entrada para o modelo.
+    Usa um mapeamento explícito para traduzir os nomes das chaves do usuário
+    para as features esperadas pelo modelo.
     
-    # Preenche as colunas que existem nos dados do usuário
+    ⚠️ IMPORTANTE: Ajuste o dicionário 'mapeamento' conforme o conteúdo REAL do seu features.pkl.
+    """
+    
+    # =========================================================================
+    # MAPEAMENTO EXPLÍCITO: Chaves do app -> Features do modelo
+    # AJUSTE AQUI: O lado direito (valor) deve ser IGUAL ao que está no features.pkl
+    # O lado esquerdo (chave) é o nome usado no seu dicionário 'dados_usuario'
+    # =========================================================================
+    mapeamento = {
+        'nitrogen': 'nitrogen',       # Ex: se features.pkl tem 'N', troque por 'N'
+        'phosphorus': 'phosphorus',   # Ex: se features.pkl tem 'P', troque por 'P'
+        'potassium': 'potassium',     # Ex: se features.pkl tem 'K', troque por 'K'
+        'ph': 'ph',                   # Ex: se features.pkl tem 'pH', troque por 'pH'
+        'aluminum': 'aluminum',       # Ex: se features.pkl tem 'Al', troque por 'Al'
+        'calcium': 'calcium',         # Ex: se features.pkl tem 'Ca', troque por 'Ca'
+        'magnesium': 'magnesium',     # Ex: se features.pkl tem 'Mg', troque por 'Mg'
+        'h_al': 'h_al',               # Ex: se features.pkl tem 'H_Al', troque por 'H_Al'
+        'organic_matter': 'organic_matter', # Ex: se features.pkl tem 'MO', troque por 'MO'
+        'materia_organica': 'materia_organica', # Manter se existir
+        'sand': 'sand',               # Ex: se features.pkl tem 'Areia', troque por 'Areia'
+        'silt': 'silt',               # Ex: se features.pkl tem 'Silte', troque por 'Silte'
+        'clay': 'clay',               # Ex: se features.pkl tem 'Argila', troque por 'Argila'
+        'sb': 'sb',                   # Ex: se features.pkl tem 'SB', troque por 'SB'
+        'ctc': 'ctc',                 # Ex: se features.pkl tem 'CTC', troque por 'CTC'
+        'v_porcentagem': 'v_porcentagem', # Ex: se features.pkl tem 'V', troque por 'V'
+        'm_porcentagem': 'm_porcentagem'  # Ex: se features.pkl tem 'm', troque por 'm'
+    }
+
+    # Inverte o mapeamento para: Nome da Feature -> Chave do Usuário
+    feature_para_chave = {v: k for k, v in mapeamento.items()}
+
+    # Cria um dicionário com os dados formatados para o modelo
+    dados_modelo = {}
+    features_faltantes = []
+    
     for feature in features_do_modelo:
-        if feature in df_usuario.columns:
-            df_previsao[feature] = df_usuario[feature]
+        chave_usuario = feature_para_chave.get(feature)
+        
+        if chave_usuario and chave_usuario in dados_usuario:
+            # Caso perfeito: feature mapeada e dado existe
+            dados_modelo[feature] = dados_usuario[chave_usuario]
+        elif chave_usuario:
+            # Feature mapeada, mas o dado não foi fornecido pelo usuário
+            dados_modelo[feature] = 0
+            features_faltantes.append(f"'{feature}' (campo: {chave_usuario})")
         else:
-            # Se a feature esperada pelo modelo não está nos dados do usuário, preenche com 0
-            df_previsao[feature] = 0
-            
-            # Notifica o usuário sobre features ausentes, que podem afetar a previsão
-            st.warning(f"⚠️ Feature '{feature}' não fornecida nos dados do solo. Atribuído valor 0 para a previsão do modelo.", icon="⚠️")
+            # Feature NÃO está no mapeamento (você precisa adicionar!)
+            dados_modelo[feature] = 0
+            features_faltantes.append(f"'{feature}' (não mapeada)")
+
+    # Exibe warnings agrupados para não poluir a interface
+    if features_faltantes:
+        with st.expander("⚠️ Avisos do Modelo Preditivo", expanded=False):
+            st.warning("Algumas features esperadas pelo modelo não foram encontradas e receberam valor 0:")
+            for feat in features_faltantes:
+                st.markdown(f"- {feat}")
+            st.info("💡 Se isso for um erro, verifique o dicionário 'mapeamento' na função 'preparar_dados_para_previsao'.")
+
+    # Cria o DataFrame final com 1 linha
+    df_previsao = pd.DataFrame([dados_modelo])
 
     # Garante a ordem correta das colunas
     df_previsao = df_previsao[features_do_modelo]
 
     return df_previsao
-
-# ============================================================================
-# === FIM DAS ADIÇÕES PARA O MODELO DE MACHINE LEARNING ===
-# ============================================================================
 
 # ============================================================================
 # FUNÇÕES DE CÁLCULO
@@ -1280,9 +1321,8 @@ if menu == "📊 Dados do Solo":
     st.markdown("### 📋 Dados Básicos do Solo")
     st.caption("Preencha os campos abaixo com os resultados da análise de solo")
 
-    # --- INÍCIO DA INTEGRAÇÃO DO MODELO NA ABA 1 --- <<< ADIÇÃO 3
+    # Carrega o modelo e as features (com cache)
     modelo, features_do_modelo, erro_carregamento = carregar_modelo_e_features()
-    # --- FIM DA INTEGRAÇÃO DO MODELO NA ABA 1 ---
 
     col1, col2 = st.columns(2)
 
@@ -1375,9 +1415,9 @@ if menu == "📊 Dados do Solo":
                     with col_d:
                         st.metric("m% (Alumínio)", f"{m:.1f}%")
 
-                    # ========================================================================
-                    # === INÍCIO DO BLOCO DE PREVISÃO DO MODELO DE MACHINE LEARNING === <<< ADIÇÃO 4
-                    # ========================================================================
+                    # ================================================================
+                    # === PREVISÃO DO MODELO DE MACHINE LEARNING (CORRIGIDA) ===========
+                    # ================================================================
                     
                     # Só executa se os arquivos do modelo foram carregados com sucesso
                     if modelo is not None and features_do_modelo is not None:
@@ -1386,9 +1426,14 @@ if menu == "📊 Dados do Solo":
                         with st.spinner("🧠 Realizando previsão com o modelo treinado..."):
                             try:
                                 # Prepara o DataFrame de entrada alinhado com as features do modelo
+                                # AGORA COM O MAPEAMENTO CORRIGIDO!
                                 df_previsao = preparar_dados_para_previsao(dados, features_do_modelo)
                                 
-                                # Tenta realizar a previsão
+                                # Debug (pode comentar depois de verificar que está correto)
+                                # st.write("Shape do DataFrame para previsão:", df_previsao.shape)
+                                # st.write("Features do modelo:", features_do_modelo)
+                                # st.dataframe(df_previsao)
+
                                 with st.expander("🔍 Visualizar dados de entrada para o modelo", expanded=False):
                                     st.dataframe(df_previsao, use_container_width=True)
 
@@ -1426,11 +1471,12 @@ if menu == "📊 Dados do Solo":
 
                             except Exception as e:
                                 st.error(f"❌ Erro ao realizar a previsão com o modelo: {e}")
+                                st.error("Detalhes para depuração: Verifique se o mapeamento na função 'preparar_dados_para_previsao' está correto.")
                     elif erro_carregamento:
                          st.info(f"ℹ️ Modelo de ML não disponível: {erro_carregamento}")
-                    # ========================================================================
-                    # === FIM DO BLOCO DE PREVISÃO DO MODELO DE MACHINE LEARNING ===
-                    # ========================================================================
+                    # ================================================================
+                    # ============= FIM DO BLOCO DE PREVISÃO ==========================
+                    # ================================================================
 
                 except ValueError:
                     st.error("❌ Erro: Verifique se todos os valores são números válidos!")
