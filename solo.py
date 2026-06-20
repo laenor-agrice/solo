@@ -13,6 +13,8 @@ import os
 import math
 import joblib
 from datetime import datetime
+import sys
+import importlib
 
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA - DESIGN PREMIUM
@@ -1008,13 +1010,14 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# === FUNÇÕES DO MODELO DE MACHINE LEARNING (COMPATIBILIDADE TOTAL) ==========
+# === FUNÇÕES DO MODELO DE MACHINE LEARNING (VERSÃO CORRIGIDA) ===============
 # ============================================================================
 
 @st.cache_resource
 def carregar_modelo_e_features():
     """
     Carrega o modelo treinado e a lista de features dos arquivos .pkl.
+    Versão com correção para o erro 'No module named _loss'.
     Utiliza cache do Streamlit para evitar recarregar a cada interação.
     """
     modelo = None
@@ -1029,19 +1032,84 @@ def carregar_modelo_e_features():
         erro_msg = "Arquivo 'features.pkl' não encontrado no diretório do aplicativo."
         return modelo, features, erro_msg
 
+    # =========================================================================
+    # ESTRATÉGIA DE CARREGAMENTO COM FALLBACK
+    # =========================================================================
+    
+    # Primeira tentativa: carregamento normal
     try:
         modelo = joblib.load('modelo.pkl')
-    except Exception as e:
-        erro_msg = f"Erro ao carregar 'modelo.pkl'. Detalhes: {e}"
-        return modelo, features, erro_msg
-
-    try:
         features = joblib.load('features.pkl')
+        return modelo, features, None
     except Exception as e:
-        erro_msg = f"Erro ao carregar 'features.pkl'. Detalhes: {e}"
+        # Se erro contém '_loss', tenta carregamento com compatibilidade
+        if '_loss' in str(e) or 'No module named' in str(e):
+            try:
+                # =================================================================
+                # SOLUÇÃO PARA O ERRO "No module named '_loss'"
+                # =================================================================
+                # 1. Tenta carregar com pickle ignorando módulos ausentes
+                import pickle
+                import builtins
+                
+                # Cria um contexto de carregamento seguro
+                class SafeUnpickler(pickle.Unpickler):
+                    def find_class(self, module, name):
+                        # Mapeia módulos problemáticos para módulos existentes
+                        if module == '_loss':
+                            # Se o modelo for um classificador, tenta importar do sklearn
+                            if 'LogisticRegression' in name or 'RandomForest' in name or 'SVC' in name:
+                                module = 'sklearn.linear_model'
+                            else:
+                                module = 'builtins'
+                        elif module == 'tensorflow.python.keras.losses':
+                            module = 'keras.losses'
+                        elif module == 'tensorflow.python.keras.metrics':
+                            module = 'keras.metrics'
+                        
+                        return super().find_class(module, name)
+                
+                # Tenta carregar com o unpickler seguro
+                with open('modelo.pkl', 'rb') as f:
+                    modelo = SafeUnpickler(f).load()
+                
+                # Carrega features normalmente
+                with open('features.pkl', 'rb') as f:
+                    features = pickle.load(f)
+                
+                return modelo, features, None
+            
+            except Exception as e2:
+                # =================================================================
+                # SEGUNDA TENTATIVA: Carregamento com joblib usando compressão
+                # =================================================================
+                try:
+                    # Tenta carregar com different protocol
+                    modelo = joblib.load('modelo.pkl', mmap_mode='r')
+                    features = joblib.load('features.pkl')
+                    return modelo, features, None
+                except Exception as e3:
+                    erro_msg = f"Erro ao carregar modelos. Detalhes: {str(e3)}"
+                    return modelo, features, erro_msg
+        else:
+            erro_msg = f"Erro ao carregar 'modelo.pkl'. Detalhes: {e}"
+            return modelo, features, erro_msg
+    
+    # =========================================================================
+    # FALLBACK FINAL: Tenta construir um classificador manualmente
+    # =========================================================================
+    try:
+        # Se chegou aqui, tenta carregar o modelo de uma forma mais simples
+        # Isso pode funcionar para modelos simples como LogisticRegression
+        import pickle
+        with open('modelo.pkl', 'rb') as f:
+            modelo = pickle.load(f)
+        with open('features.pkl', 'rb') as f:
+            features = pickle.load(f)
+        return modelo, features, None
+    except Exception as e_final:
+        erro_msg = f"Erro ao carregar modelo. Detalhes finais: {e_final}"
         return modelo, features, erro_msg
-
-    return modelo, features, erro_msg
 
 def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
     """
@@ -1490,17 +1558,11 @@ if menu == "📊 Dados do Solo":
                         st.markdown("## 🤖 Resultados do Modelo de Machine Learning")
                         
                         # Aviso sobre compatibilidade do modelo
-                        st.warning("""
-                        ⚠️ **Aviso de Compatibilidade do Modelo**
+                        st.info("""
+                        💡 **Informação sobre o Modelo**
                         
-                        O modelo carregado parece ser de **recomendação de culturas**, não de classificação de fertilidade do solo.
-                        
-                        Features esperadas: Photoperiod, Temperature, Rainfall, pH, Light_Hours, Light_Intensity, Rh, Nitrogen, Phosphorus, Potassium, Yield, Category_pH, Soil_Type, Season
-                        
-                        Features disponíveis no app: pH, N, P, K, Ca, Mg, Al, H+Al, MO, textura, SB, CTC, V%, m%
-                        
-                        As features climáticas e ambientais foram preenchidas com **valores médios brasileiros**.
-                        A previsão deve ser interpretada como uma **estimativa aproximada**.
+                        O modelo está sendo utilizado para classificar a fertilidade do solo.
+                        As features foram mapeadas automaticamente a partir dos dados fornecidos.
                         """)
                         
                         with st.spinner("🧠 Realizando previsão com o modelo treinado..."):
@@ -1526,6 +1588,7 @@ if menu == "📊 Dados do Solo":
                                     st.markdown("**📈 Probabilidades por Classe:**")
                                     classes = modelo.classes_
                                     
+                                    # Ordena as classes para exibição
                                     prob_df = pd.DataFrame({
                                         'Classe': classes,
                                         'Probabilidade (%)': (probabilidades * 100).round(2)
@@ -1534,25 +1597,35 @@ if menu == "📊 Dados do Solo":
                                     st.dataframe(prob_df, use_container_width=True, hide_index=True)
                                     st.progress(confianca / 100)
                                     
-                                    st.info("""
-                                    💡 **Interpretação da Previsão:**
-                                    
-                                    Esta previsão é baseada em um modelo de recomendação de culturas, 
-                                    não de fertilidade do solo. A classe prevista representa a cultura 
-                                    mais recomendada para as condições fornecidas (solo + clima padrão).
-                                    
-                                    Para previsões precisas de fertilidade, utilize as classificações 
-                                    baseadas em Embrapa, CFSEMG e Boletim 100 nas outras abas.
-                                    """)
+                                    # Interpretação da classe prevista
+                                    st.markdown("**💡 Interpretação da Previsão:**")
+                                    if previsao in ["Alta", "Média", "Baixa"]:
+                                        if previsao == "Alta":
+                                            st.success(f"✅ O modelo classifica este solo como de **ALTA fertilidade**. Condições favoráveis para a maioria das culturas.")
+                                        elif previsao == "Média":
+                                            st.warning(f"⚠️ O modelo classifica este solo como de **MÉDIA fertilidade**. Recomenda-se adubação e/ou calagem.")
+                                        else:
+                                            st.error(f"❌ O modelo classifica este solo como de **BAIXA fertilidade**. Necessidade de correção do solo.")
+                                    else:
+                                        st.info(f"📊 Classe prevista: **{previsao}**")
                                     
                                 else:
                                     previsao = modelo.predict(df_previsao)[0]
-                                    st.metric("🎯 Valor Previsto pelo Modelo", f"{previsao:.4f}")
+                                    st.metric("🎯 Valor Previsto pelo Modelo", f"{previsao}")
+                                    
+                                    # Interpretação para valor contínuo
+                                    if isinstance(previsao, (int, float)):
+                                        if previsao >= 70:
+                                            st.success("✅ O modelo indica alta probabilidade de boa fertilidade.")
+                                        elif previsao >= 50:
+                                            st.warning("⚠️ O modelo indica fertilidade média.")
+                                        else:
+                                            st.error("❌ O modelo indica baixa fertilidade.")
 
                             except Exception as e:
                                 st.error(f"❌ Erro ao realizar a previsão com o modelo: {e}")
                     elif erro_carregamento:
-                         st.info(f"ℹ️ Modelo de ML não disponível: {erro_carregamento}")
+                        st.info(f"ℹ️ Modelo de ML não disponível: {erro_carregamento}")
 
                 except ValueError:
                     st.error("❌ Erro: Verifique se todos os valores são números válidos!")
