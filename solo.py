@@ -960,19 +960,209 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# === FUNÇÃO PARA CARREGAR O MODELO SIMPLIFICADO =============================
+# CARREGAR MODELO TREINADO (RANDOM FOREST)
 # ============================================================================
 
 @st.cache_resource
-def carregar_modelo_e_features():
+def carregar_modelo():
     """
-    Carrega o modelo simplificado criado no Colab.
-    Resolve o erro "No module named '_loss'".
+    Carrega o modelo Random Forest treinado no Colab
     """
-    modelo = None
-    features = None
-    erro_msg = None
-    estrategia_usada = None
+    try:
+        # Carrega o modelo
+        modelo = joblib.load('modelo_rf.pkl')
+        
+        # Carrega o encoder
+        with open('label_encoder.pkl', 'rb') as f:
+            label_encoder = pickle.load(f)
+        
+        # Carrega as features
+        with open('features.pkl', 'rb') as f:
+            features = pickle.load(f)
+        
+        return modelo, label_encoder, features, None
+        
+    except FileNotFoundError as e:
+        return None, None, None, f"Arquivo não encontrado: {e.filename}"
+    except Exception as e:
+        return None, None, None, f"Erro ao carregar modelo: {str(e)}"
+
+
+# ============================================================================
+# PREPARAR DADOS PARA PREVISÃO (ALINHADO COM O MODELO)
+# ============================================================================
+
+def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
+    """
+    Prepara os dados do usuário para o modelo Random Forest
+    O modelo espera: pH, N, P, K, Areia, Silte, Argila, Score_Agronomico
+    """
+    # Mapeamento das variáveis do app para o modelo
+    mapeamento = {
+        'ph': 'pH',
+        'nitrogen': 'N',
+        'phosphorus': 'P',
+        'potassium': 'K',
+        'sand': 'Areia',
+        'silt': 'Silte',
+        'clay': 'Argila'
+    }
+    
+    dados_modelo = {}
+    
+    for feature in features_do_modelo:
+        if feature == 'Score_Agronomico':
+            # Calcula o Score_Agronomico baseado nas outras variáveis
+            ph = dados_usuario.get('ph', 6.0)
+            n = dados_usuario.get('nitrogen', 30)
+            p = dados_usuario.get('phosphorus', 20)
+            k = dados_usuario.get('potassium', 0.25)
+            
+            # Fórmula do Score Agronômico (mesma usada no treinamento)
+            score = (ph * 10) + (n * 0.5) + (p * 0.5) + (k * 100)
+            dados_modelo[feature] = score
+        else:
+            # Busca a feature no dicionário de mapeamento
+            valor_encontrado = False
+            for chave_app, nome_feature in mapeamento.items():
+                if feature == nome_feature and chave_app in dados_usuario:
+                    dados_modelo[feature] = dados_usuario[chave_app]
+                    valor_encontrado = True
+                    break
+            
+            if not valor_encontrado:
+                # Se não encontrar, usa valor padrão
+                dados_modelo[feature] = 0
+    
+    # Cria DataFrame com a ordem correta
+    df_previsao = pd.DataFrame([dados_modelo])
+    df_previsao = df_previsao[features_do_modelo]
+    
+    return df_previsao
+
+
+# ============================================================================
+# INTERPRETAÇÃO DO NÍVEL DE FERTILIDADE (ALINHADO COM O MODELO)
+# ============================================================================
+
+def interpretar_fertilidade(classe_prevista, confianca):
+    """
+    Interpreta o resultado da previsão do modelo
+    """
+    if classe_prevista == "Alta":
+        return {
+            'nivel': 'Alta',
+            'icone': '✅',
+            'cor': 'success',
+            'mensagem': 'O solo apresenta **ALTA fertilidade**. Condições favoráveis para a maioria das culturas. Recomenda-se apenas adubação de manutenção.',
+            'recomendacao': 'Manutenção: 30-50 kg/ha de N, 40-80 kg/ha de P2O5, 40-60 kg/ha de K2O'
+        }
+    elif classe_prevista == "Media":
+        return {
+            'nivel': 'Média',
+            'icone': '⚠️',
+            'cor': 'warning',
+            'mensagem': 'O solo apresenta **MÉDIA fertilidade**. Recomenda-se adubação para atingir níveis adequados.',
+            'recomendacao': 'Adubação: 60-100 kg/ha de N, 80-120 kg/ha de P2O5, 60-100 kg/ha de K2O. Avaliar necessidade de calagem.'
+        }
+    else:  # Baixa
+        return {
+            'nivel': 'Baixa',
+            'icone': '❌',
+            'cor': 'error',
+            'mensagem': 'O solo apresenta **BAIXA fertilidade**. Necessidade de correção do solo e adubação significativa.',
+            'recomendacao': 'Correção: Calagem para elevar V% a 70-80%. Adubação: 100-150 kg/ha de N, 120-180 kg/ha de P2O5, 100-150 kg/ha de K2O.'
+        }
+
+
+# ============================================================================
+# PREVISÃO COM O MODELO (PARTE SUBSTITUÍDA NO CÓDIGO PRINCIPAL)
+# ============================================================================
+
+# Carrega o modelo
+modelo, label_encoder, features, erro = carregar_modelo()
+
+if modelo is not None and features is not None:
+    st.markdown("---")
+    st.markdown("## 🤖 Resultados do Modelo de Machine Learning")
+    
+    # Exibe informações do modelo
+    with st.expander("ℹ️ Informações do Modelo", expanded=False):
+        st.markdown(f"**Tipo:** Random Forest Classifier")
+        st.markdown(f"**Features:** {features}")
+        st.markdown(f"**Classes:** {label_encoder.classes_}")
+    
+    with st.spinner("🧠 Realizando previsão com o modelo treinado..."):
+        try:
+            # Prepara os dados
+            df_previsao = preparar_dados_para_previsao(dados, features)
+
+            with st.expander("🔍 Visualizar dados de entrada", expanded=False):
+                st.dataframe(df_previsao, use_container_width=True)
+
+            # Faz a previsão
+            previsao = modelo.predict(df_previsao)[0]
+            probabilidades = modelo.predict_proba(df_previsao)[0]
+            
+            # Converte a previsão para o nome da classe
+            classe_prevista = label_encoder.inverse_transform([previsao])[0]
+            confianca = max(probabilidades) * 100
+            
+            # Exibe resultados
+            col_classe, col_conf = st.columns(2)
+            with col_classe:
+                st.metric("🏷️ Classe Prevista", classe_prevista)
+            with col_conf:
+                st.metric("📊 Confiança do Modelo", f"{confianca:.2f}%")
+            
+            # Tabela de probabilidades
+            st.markdown("**📈 Probabilidades por Classe:**")
+            prob_df = pd.DataFrame({
+                'Classe': label_encoder.classes_,
+                'Probabilidade (%)': (probabilidades * 100).round(2)
+            }).sort_values('Probabilidade (%)', ascending=False)
+            
+            st.dataframe(prob_df, use_container_width=True, hide_index=True)
+            st.progress(confianca / 100)
+            
+            # ================================================================
+            # INTERPRETAÇÃO DO NÍVEL DE FERTILIDADE (PARTE ALTERADA)
+            # ================================================================
+            st.markdown("---")
+            st.markdown("### 🌱 Interpretação da Fertilidade")
+            
+            # Obtém a interpretação
+            interpretacao = interpretar_fertilidade(classe_prevista, confianca)
+            
+            # Exibe o resultado com a cor apropriada
+            if interpretacao['cor'] == 'success':
+                st.success(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
+            elif interpretacao['cor'] == 'warning':
+                st.warning(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
+            else:
+                st.error(f"{interpretacao['icone']} **{interpretacao['mensagem']}**")
+            
+            # Exibe a recomendação
+            st.info(f"📌 **Recomendação:** {interpretacao['recomendacao']}")
+            
+            # Exibe detalhes adicionais
+            with st.expander("📊 Detalhes da Classificação", expanded=False):
+                st.markdown(f"""
+                - **Nível de Fertilidade:** {interpretacao['nivel']}
+                - **Confiança do Modelo:** {confianca:.1f}%
+                - **Classe Prevista:** {classe_prevista}
+                - **Probabilidades:** 
+                  - Alta: {probabilidades[0]*100:.1f}%
+                  - Baixa: {probabilidades[1]*100:.1f}%
+                  - Média: {probabilidades[2]*100:.1f}%
+                """)
+                
+        except Exception as e:
+            st.error(f"❌ Erro ao realizar a previsão: {e}")
+            st.info("💡 Verifique se todos os dados foram preenchidos corretamente.")
+
+elif erro:
+    st.info(f"ℹ️ Modelo de ML não disponível: {erro}")
 
     # ========================================================================
     # TENTATIVA 1: Carregar modelo simplificado
