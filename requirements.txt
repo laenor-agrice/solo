@@ -1,5 +1,0 @@
-streamlit>=1.28.0
-joblib
-scikit-learn
-pandas>=2.0.0
-streamlit-folium>=0.15.0
