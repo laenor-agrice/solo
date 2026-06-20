@@ -1488,45 +1488,6 @@ if menu == "📊 Dados do Solo":
     st.markdown("### 📋 Dados Básicos do Solo")
     st.caption("Preencha os campos abaixo com os resultados da análise de solo")
 
-    # ========================================================================
-    # EXIBE VERSÕES DAS BIBLIOTECAS PARA DIAGNÓSTICO
-    # ========================================================================
-    with st.expander("🔧 Informações de Compatibilidade do Modelo", expanded=False):
-        try:
-            import sklearn
-            import joblib
-            import numpy
-            
-            st.markdown("**📊 Versões atuais do ambiente:**")
-            col_v1, col_v2, col_v3 = st.columns(3)
-            with col_v1:
-                st.metric("scikit-learn", sklearn.__version__)
-            with col_v2:
-                st.metric("joblib", joblib.__version__)
-            with col_v3:
-                st.metric("numpy", numpy.__version__)
-            
-            st.caption("ℹ️ O modelo foi treinado com: scikit-learn 1.6.1, joblib 1.5.3, numpy 2.0.2")
-            st.caption("🔄 O sistema tentará carregar o modelo com compatibilidade automática.")
-        except:
-            st.warning("⚠️ Não foi possível obter as versões das bibliotecas.")
-
-    # ========================================================================
-    # CARREGA O MODELO E FEATURES
-    # ========================================================================
-    modelo, features_do_modelo, erro_carregamento, estrategia_usada = carregar_modelo_e_features()
-    
-    # Exibe a estratégia usada se o modelo foi carregado com sucesso
-    if modelo is not None and features_do_modelo is not None:
-        if estrategia_usada:
-            st.success(f"✅ Modelo carregado com sucesso! Estratégia: {estrategia_usada}")
-    elif erro_carregamento:
-        if "dummy" in str(erro_carregamento):
-            st.warning(f"⚠️ {erro_carregamento}")
-        else:
-            st.error(f"❌ Erro ao carregar modelo: {erro_carregamento}")
-            st.info("💡 O aplicativo continuará funcionando com a classificação baseada em regras (Embrapa, CFSEMG, etc.)")
-
     col1, col2 = st.columns(2)
 
     with col1:
@@ -1618,81 +1579,10 @@ if menu == "📊 Dados do Solo":
                     with col_d:
                         st.metric("m% (Alumínio)", f"{m:.1f}%")
 
-                    # ================================================================
-                    # === PREVISÃO DO MODELO DE MACHINE LEARNING ======================
-                    # ================================================================
-                    
-                    if modelo is not None and features_do_modelo is not None and not isinstance(modelo, str):
-                        st.markdown("---")
-                        st.markdown("## 🤖 Resultados do Modelo de Machine Learning")
-                        
-                        with st.spinner("🧠 Realizando previsão com o modelo treinado..."):
-                            try:
-                                # Prepara o DataFrame de entrada
-                                df_previsao = preparar_dados_para_previsao(dados, features_do_modelo)
-
-                                with st.expander("🔍 Visualizar dados de entrada para o modelo", expanded=False):
-                                    st.dataframe(df_previsao, use_container_width=True)
-
-                                # Verifica se o modelo possui predict_proba
-                                if hasattr(modelo, 'predict_proba'):
-                                    probabilidades = modelo.predict_proba(df_previsao)[0]
-                                    previsao = modelo.predict(df_previsao)[0]
-                                    
-                                    col_classe, col_conf = st.columns(2)
-                                    with col_classe:
-                                        st.metric("🏷️ Classe Prevista", f"{previsao}")
-                                    with col_conf:
-                                        confianca = max(probabilidades) * 100
-                                        st.metric("📊 Confiança do Modelo", f"{confianca:.2f}%")
-                                    
-                                    st.markdown("**📈 Probabilidades por Classe:**")
-                                    classes = modelo.classes_
-                                    
-                                    # Ordena as classes para exibição
-                                    prob_df = pd.DataFrame({
-                                        'Classe': classes,
-                                        'Probabilidade (%)': (probabilidades * 100).round(2)
-                                    }).sort_values('Probabilidade (%)', ascending=False)
-                                    
-                                    st.dataframe(prob_df, use_container_width=True, hide_index=True)
-                                    st.progress(confianca / 100)
-                                    
-                                    # Interpretação da classe prevista
-                                    st.markdown("**💡 Interpretação da Previsão:**")
-                                    classe_str = str(previsao).strip().lower()
-                                    if 'alta' in classe_str:
-                                        st.success(f"✅ O modelo classifica este solo como de **ALTA fertilidade**. Condições favoráveis para a maioria das culturas.")
-                                    elif 'média' in classe_str or 'media' in classe_str:
-                                        st.warning(f"⚠️ O modelo classifica este solo como de **MÉDIA fertilidade**. Recomenda-se adubação e/ou calagem.")
-                                    elif 'baixa' in classe_str:
-                                        st.error(f"❌ O modelo classifica este solo como de **BAIXA fertilidade**. Necessidade de correção do solo.")
-                                    else:
-                                        st.info(f"📊 Classe prevista: **{previsao}**")
-                                    
-                                else:
-                                    previsao = modelo.predict(df_previsao)[0]
-                                    st.metric("🎯 Valor Previsto pelo Modelo", f"{previsao}")
-                                    
-                                    # Interpretação para valor contínuo
-                                    if isinstance(previsao, (int, float)):
-                                        if previsao >= 70:
-                                            st.success("✅ O modelo indica alta probabilidade de boa fertilidade.")
-                                        elif previsao >= 50:
-                                            st.warning("⚠️ O modelo indica fertilidade média.")
-                                        else:
-                                            st.error("❌ O modelo indica baixa fertilidade.")
-
-                            except Exception as e:
-                                st.error(f"❌ Erro ao realizar a previsão com o modelo: {e}")
-                    elif erro_carregamento:
-                        st.info(f"ℹ️ {erro_carregamento}")
-
                 except ValueError as ve:
                     st.error(f"❌ Erro: Verifique se todos os valores são números válidos! Detalhes: {ve}")
                 except Exception as e:
                     st.error(f"❌ Erro inesperado: {e}")
-
 # ============================================================================
 # ABA 2 - CLASSIFICAÇÃO (COM MÚLTIPLAS BASES DE FERTILIDADE)
 # ============================================================================
