@@ -1,8 +1,7 @@
 # ============================================================================
-# IMPORTAÇÕES - ORDEM CORRETA
+# IMPORTAÇÕES
 # ============================================================================
 
-import sys
 import streamlit as st
 import pandas as pd
 import requests
@@ -951,7 +950,7 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# CARREGAR MODELO TREINADO - VERSÃO LIMPA
+# CARREGAR MODELO TREINADO - VERSÃO SIMPLIFICADA
 # ============================================================================
 
 @st.cache_resource
