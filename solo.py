@@ -1,6 +1,9 @@
 # ============================================================================
 # IMPORTAÇÕES
 # ============================================================================
+import sys
+import sklearn.metrics._loss as mock_loss
+sys.modules['sklearn.metrics._loss'] = mock_loss
 
 import streamlit as st
 import pandas as pd
