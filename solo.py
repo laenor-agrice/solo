@@ -2,19 +2,19 @@
 # IMPORTAÇÕES DE SISTEMA (CORREÇÃO DE COMPATIBILIDADE)
 # ============================================================================
 # ============================================================================
-# CORREÇÃO DE COMPATIBILIDADE - MODELO ANTEMÃO
+# IMPORTAÇÕES
 # ============================================================================
-import sys as _sys
-import types as _types
 
-# Injeta os caminhos falsos diretamente na tabela de módulos do interpretador
-_mock = _types.ModuleType('sklearn._loss')
-_sys.modules['sklearn._loss'] = _mock
-_sys.modules['sklearn.metrics._loss'] = _mock
+import sys
+import types
 
-# ============================================================================
-# IMPORTAÇÕES PRINCIPAIS
-# ============================================================================
+# Cria um módulo falso vazio na memória para enganar o modelo antigo
+if 'sklearn._loss' not in sys.modules:
+    mock_loss = types.ModuleType('sklearn._loss')
+    sys.modules['sklearn._loss'] = mock_loss
+    # Garante que mapeia variações comuns que o pickle procura
+    sys.modules['sklearn.metrics._loss'] = mock_loss
+
 import streamlit as st
 import pandas as pd
 import requests
@@ -31,8 +31,6 @@ import importlib
 import warnings
 import numpy as np
 warnings.filterwarnings('ignore')
-
-
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA - DESIGN PREMIUM
 # ============================================================================
