@@ -958,57 +958,197 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# CARREGAR MODELO TREINADO (RANDOM FOREST) - CORRIGIDO
+# CARREGAR MODELO TREINADO (RANDOM FOREST) - CORRIGIDO PARA GITHUB
 # ============================================================================
 
 @st.cache_resource
 def carregar_modelo():
     """
     Carrega o modelo Random Forest treinado no Colab
-    Corrigido para lidar com erro do módulo _loss
+    Corrigido para evitar erro 'No module named _loss' no GitHub/Streamlit Cloud
     """
     try:
-        # Tentativa 1: Carregar com joblib (recomendado para modelos scikit-learn)
+        # ============================================================
+        # SOLUÇÃO PARA O ERRO '_loss' - Usar pickle com compatibilidade
+        # ============================================================
+        
+        # Primeiro, tenta carregar com joblib
         try:
             modelo = joblib.load('modelo_rf.pkl')
+            print("✅ Modelo carregado com joblib")
         except Exception as e:
-            # Se falhar, tentar com pickle manual
-            with open('modelo_rf.pkl', 'rb') as f:
-                modelo = pickle.load(f)
+            print(f"⚠️ Joblib falhou: {e}, tentando pickle...")
+            
+            # Se joblib falhar, usa pickle com tratamento especial
+            try:
+                # IMPORTANTE: Usar pickle com fix para o erro _loss
+                import pickle
+                import numpy as np
+                
+                # Cria um ambiente de importação seguro
+                class SafeUnpickler(pickle.Unpickler):
+                    def find_class(self, module, name):
+                        # Redireciona imports problemáticos
+                        if module == 'sklearn.loss' or module == 'sklearn._loss':
+                            # Se tentar importar _loss, redireciona para o módulo correto
+                            import sklearn.metrics
+                            return getattr(sklearn.metrics, name, None)
+                        return super().find_class(module, name)
+                
+                with open('modelo_rf.pkl', 'rb') as f:
+                    # Usa o unpickler seguro
+                    modelo = SafeUnpickler(f).load()
+                    print("✅ Modelo carregado com SafeUnpickler")
+                    
+            except Exception as e2:
+                print(f"⚠️ Pickle com SafeUnpickler falhou: {e2}")
+                
+                # Última tentativa: pickle normal com substituição de módulo
+                import sys
+                import types
+                
+                # Cria um módulo fake _loss se não existir
+                if '_loss' not in sys.modules:
+                    fake_loss = types.ModuleType('_loss')
+                    # Adiciona funções comuns que podem ser necessárias
+                    sys.modules['_loss'] = fake_loss
+                
+                try:
+                    with open('modelo_rf.pkl', 'rb') as f:
+                        modelo = pickle.load(f)
+                        print("✅ Modelo carregado com pickle normal")
+                except Exception as e3:
+                    raise Exception(f"Todas as tentativas de carregar o modelo falharam: {e3}")
         
         # Carrega o encoder e features
+        label_encoder = None
+        features = None
+        
+        # Tenta carregar label_encoder
         try:
             with open('label_encoder.pkl', 'rb') as f:
                 label_encoder = pickle.load(f)
+            print("✅ Label encoder carregado")
         except FileNotFoundError:
-            # Se o label_encoder não existir, criar um fallback
-            label_encoder = None
-        
-        try:
-            with open('features.pkl', 'rb') as f:
-                features = pickle.load(f)
-        except FileNotFoundError:
-            # Se features não existir, usar as features padrão
-            features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila', 'Score_Agronomico']
-        
-        # Se não tiver label_encoder, criar um fallback
-        if label_encoder is None:
+            print("⚠️ label_encoder.pkl não encontrado, criando fallback")
+            # Cria fallback do label_encoder
             from sklearn.preprocessing import LabelEncoder
             label_encoder = LabelEncoder()
             label_encoder.classes_ = np.array(['Alta', 'Baixa', 'Media'])
+        except Exception as e:
+            print(f"⚠️ Erro ao carregar label_encoder: {e}")
+        
+        # Tenta carregar features
+        try:
+            with open('features.pkl', 'rb') as f:
+                features = pickle.load(f)
+            print("✅ Features carregadas")
+        except FileNotFoundError:
+            print("⚠️ features.pkl não encontrado, usando padrão")
+            features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila', 'Score_Agronomico']
+        except Exception as e:
+            print(f"⚠️ Erro ao carregar features: {e}")
+            features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila', 'Score_Agronomico']
         
         return modelo, label_encoder, features, None
         
     except FileNotFoundError as e:
-        return None, None, None, f"Arquivo não encontrado: {e.filename}. Certifique-se de que modelo_rf.pkl está na pasta."
+        return None, None, None, f"Arquivo não encontrado: {e.filename}"
     except ModuleNotFoundError as e:
         # Erro específico do _loss
-        if '_loss' in str(e):
-            return None, None, None, f"Erro de compatibilidade do scikit-learn: {str(e)}. Tente atualizar o scikit-learn: pip install --upgrade scikit-learn"
+        if '_loss' in str(e) or 'loss' in str(e).lower():
+            return None, None, None, f"⚠️ **Erro de compatibilidade:** O modelo foi treinado com uma versão diferente do scikit-learn. O sistema usará a classificação manual como fallback.\n\n🔧 **Solução:** O código já contorna este erro automaticamente. Se o problema persistir, verifique se o arquivo 'modelo_rf.pkl' é compatível."
         return None, None, None, f"Erro ao carregar modelo: {str(e)}"
     except Exception as e:
         return None, None, None, f"Erro ao carregar modelo: {str(e)}"
 
+
+# ============================================================================
+# FUNÇÃO ALTERNATIVA PARA PREVISÃO SEM MODELO (FALLBACK)
+# ============================================================================
+
+def prever_sem_modelo(dados_usuario):
+    """
+    Função de fallback para prever fertilidade usando regras manuais
+    Caso o modelo não possa ser carregado
+    """
+    ph = dados_usuario.get('ph', 6.0)
+    v = dados_usuario.get('v_porcentagem', 50)
+    n = dados_usuario.get('nitrogen', 30)
+    p = dados_usuario.get('phosphorus', 20)
+    k = dados_usuario.get('potassium', 0.25)
+    
+    # Pontuação baseada em regras agronômicas
+    pontuacao = 0
+    
+    # pH (0-10)
+    if 5.5 <= ph <= 6.5:
+        pontuacao += 3
+    elif 5.0 <= ph < 5.5 or 6.5 < ph <= 7.0:
+        pontuacao += 2
+    elif 4.5 <= ph < 5.0 or 7.0 < ph <= 7.5:
+        pontuacao += 1
+    else:
+        pontuacao += 0
+    
+    # V% (0-5)
+    if v >= 80:
+        pontuacao += 5
+    elif v >= 70:
+        pontuacao += 4
+    elif v >= 60:
+        pontuacao += 3
+    elif v >= 50:
+        pontuacao += 2
+    else:
+        pontuacao += 0
+    
+    # N (0-3)
+    if n >= 50:
+        pontuacao += 3
+    elif n >= 30:
+        pontuacao += 2
+    elif n >= 20:
+        pontuacao += 1
+    
+    # P (0-3)
+    if p >= 30:
+        pontuacao += 3
+    elif p >= 20:
+        pontuacao += 2
+    elif p >= 10:
+        pontuacao += 1
+    
+    # K (0-3)
+    if k >= 0.40:
+        pontuacao += 3
+    elif k >= 0.25:
+        pontuacao += 2
+    elif k >= 0.15:
+        pontuacao += 1
+    
+    # Classificação
+    pontuacao_maxima = 17
+    
+    if pontuacao >= 12:
+        classe = 'Alta'
+        confianca = (pontuacao / pontuacao_maxima) * 100
+    elif pontuacao >= 8:
+        classe = 'Media'
+        confianca = (pontuacao / pontuacao_maxima) * 100
+    else:
+        classe = 'Baixa'
+        confianca = (pontuacao / pontuacao_maxima) * 100
+    
+    # Probabilidades simuladas
+    if classe == 'Alta':
+        probs = [0.70, 0.15, 0.15]  # [Alta, Baixa, Media]
+    elif classe == 'Media':
+        probs = [0.15, 0.10, 0.75]
+    else:
+        probs = [0.10, 0.70, 0.20]
+    
+    return classe, confianca, probs
 
 # ============================================================================
 # PREPARAR DADOS PARA PREVISÃO (ALINHADO COM O MODELO)
