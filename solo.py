@@ -1,17 +1,19 @@
 # ============================================================================
 # IMPORTAÇÕES DE SISTEMA (CORREÇÃO DE COMPATIBILIDADE)
 # ============================================================================
-import sys
-import types
+# ============================================================================
+# CORREÇÃO DE COMPATIBILIDADE - MODELO ANTEMÃO
+# ============================================================================
+import sys as _sys
+import types as _types
 
-# Cria um módulo falso vazio na memória para enganar o modelo antigo do scikit-learn
-if 'sklearn._loss' not in sys.modules:
-    mock_loss = types.ModuleType('sklearn._loss')
-    sys.modules['sklearn._loss'] = mock_loss
-    sys.modules['sklearn.metrics._loss'] = mock_loss
+# Injeta os caminhos falsos diretamente na tabela de módulos do interpretador
+_mock = _types.ModuleType('sklearn._loss')
+_sys.modules['sklearn._loss'] = _mock
+_sys.modules['sklearn.metrics._loss'] = _mock
 
 # ============================================================================
-# DEMAIS IMPORTAÇÕES
+# IMPORTAÇÕES PRINCIPAIS
 # ============================================================================
 import streamlit as st
 import pandas as pd
