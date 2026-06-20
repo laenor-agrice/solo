@@ -1045,192 +1045,142 @@ def carregar_modelo_e_features():
 
 def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
     """
-    Prepara o DataFrame de entrada para o modelo com mapeamento completo.
-    Detecta automaticamente features de diferentes domínios (solo, clima, cultura)
-    e faz o melhor mapeamento possível.
+    Prepara o DataFrame de entrada para o modelo com mapeamento inteligente.
+    Utiliza dicionário de equivalência para encontrar as variáveis correspondentes
+    nos dados do usuário, sem gerar avisos na interface.
     """
     
     # =========================================================================
-    # MAPEAMENTO COMPLETO PARA MODELO DE RECOMENDAÇÃO DE CULTURAS
-    # Features: Photoperiod, Temperature, Rainfall, pH, Light_Hours, 
-    #           Light_Intensity, Rh, Nitrogen, Phosphorus, Potassium, 
-    #           Yield, Category_pH, Soil_Type, Season
+    # DICIONÁRIO DE MAPEAMENTO: Feature do modelo -> Possíveis nomes no app
+    # =========================================================================
+    mapeamento_nomes = {
+        # Nutrientes principais
+        'nitrogen': ['nitrogen', 'nitrogenio', 'nitrogênio', 'n'],
+        'phosphorus': ['phosphorus', 'fosforo', 'fósforo', 'p'],
+        'potassium': ['potassium', 'potassio', 'potássio', 'k'],
+        
+        # pH e acidez
+        'ph': ['ph', 'pH', 'Ph', 'PH'],
+        'aluminum': ['aluminum', 'aluminio', 'alumínio', 'al'],
+        'h_al': ['h_al', 'h+al', 'h_aluminio', 'acidez_potencial'],
+        
+        # Cátions
+        'calcium': ['calcium', 'calcio', 'cálcio', 'ca'],
+        'magnesium': ['magnesium', 'magnesio', 'magnésio', 'mg'],
+        
+        # Matéria orgânica e textura
+        'organic_matter': ['organic_matter', 'materia_organica', 'matéria_orgânica', 'mo'],
+        'sand': ['sand', 'areia'],
+        'silt': ['silt', 'silte'],
+        'clay': ['clay', 'argila'],
+        
+        # Indicadores calculados
+        'sb': ['sb', 'soma_bases', 'soma de bases'],
+        'ctc': ['ctc', 'capacidade_troca_cationica', 'capacidade de troca catiônica', 't'],
+        'v_porcentagem': ['v_porcentagem', 'v', 'saturacao_bases', 'saturação por bases', 'v%'],
+        'm_porcentagem': ['m_porcentagem', 'm', 'saturacao_aluminio', 'saturação por alumínio', 'm%'],
+        
+        # Variáveis climáticas (preenchidas com padrão silencioso)
+        'temperature': ['temperature', 'temperatura'],
+        'rainfall': ['rainfall', 'precipitacao', 'precipitação'],
+        'photoperiod': ['photoperiod', 'fotoperiodo', 'fotoperíodo'],
+        'light_hours': ['light_hours', 'horas_luz'],
+        'light_intensity': ['light_intensity', 'intensidade_luminosa'],
+        'rh': ['rh', 'umidade_relativa', 'umidade'],
+        
+        # Categóricas e produtividade
+        'yield': ['yield', 'produtividade', 'rendimento'],
+        'category_ph': ['category_ph', 'categoria_ph'],
+        'soil_type': ['soil_type', 'tipo_solo'],
+        'season': ['season', 'estacao', 'estação']
+    }
+    
+    # Valores padrão para features não encontradas (preenchimento silencioso)
+    valores_padrao = {
+        'temperature': 24.5,
+        'rainfall': 1200,
+        'photoperiod': 12.5,
+        'light_hours': 8.0,
+        'light_intensity': 2000,
+        'rh': 75.0,
+        'yield': 3000,
+        'category_ph': 'Neutral',
+        'soil_type': 'Loam',
+        'season': 'Summer'
+    }
+    
+    # =========================================================================
+    # MAPEAMENTO DAS FEATURES
     # =========================================================================
     
-    # Dicionário base para features do modelo
     dados_modelo = {}
-    
-    # Lista para rastrear features não encontradas
-    features_nao_mapeadas = []
-    features_com_valor_padrao = []
-    features_mapeadas_com_sucesso = []
+    tabela_diagnostico = []
     
     for feature in features_do_modelo:
-        feature_lower = feature.lower().replace(' ', '_').replace('-', '_')
+        feature_lower = feature.lower().strip()
+        coluna_encontrada = None
+        valor_final = 0
         
-        # =====================================================================
-        # MAPEAMENTO DE FEATURES DE SOLO (DISPONÍVEIS NO APP)
-        # =====================================================================
-        if feature_lower == 'ph':
-            dados_modelo[feature] = dados_usuario.get('ph', 6.0)
-            features_mapeadas_com_sucesso.append(feature)
+        # Busca a feature no dicionário de mapeamento
+        if feature_lower in mapeamento_nomes:
+            nomes_possiveis = mapeamento_nomes[feature_lower]
             
-        elif feature_lower in ['nitrogen', 'n']:
-            dados_modelo[feature] = dados_usuario.get('nitrogen', 30)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['phosphorus', 'p']:
-            dados_modelo[feature] = dados_usuario.get('phosphorus', 20)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['potassium', 'k']:
-            dados_modelo[feature] = dados_usuario.get('potassium', 0.25)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        # =====================================================================
-        # MAPEAMENTO DE FEATURES CLIMÁTICAS (VALORES PADRÃO PARA BRASIL)
-        # =====================================================================
-        elif feature_lower in ['temperature', 'temp']:
-            dados_modelo[feature] = 24.5  # Temperatura média Brasil
-            features_com_valor_padrao.append(f"{feature}=24.5°C (padrão)")
-            
-        elif feature_lower in ['rainfall', 'precipitation', 'rain']:
-            dados_modelo[feature] = 1200  # Precipitação média mm/ano Brasil
-            features_com_valor_padrao.append(f"{feature}=1200mm (padrão)")
-            
-        elif feature_lower in ['photoperiod', 'day_length']:
-            dados_modelo[feature] = 12.5  # Fotoperíodo médio horas
-            features_com_valor_padrao.append(f"{feature}=12.5h (padrão)")
-            
-        elif feature_lower in ['light_hours', 'sunlight_hours']:
-            dados_modelo[feature] = 8.0  # Horas de luz solar média
-            features_com_valor_padrao.append(f"{feature}=8.0h (padrão)")
-            
-        elif feature_lower in ['light_intensity', 'solar_radiation']:
-            dados_modelo[feature] = 2000  # Intensidade luminosa média µmol/m²/s
-            features_com_valor_padrao.append(f"{feature}=2000 (padrão)")
-            
-        elif feature_lower in ['rh', 'relative_humidity', 'humidity']:
-            dados_modelo[feature] = 75.0  # Umidade relativa média Brasil
-            features_com_valor_padrao.append(f"{feature}=75% (padrão)")
-            
-        # =====================================================================
-        # MAPEAMENTO DE FEATURES DE PRODUTIVIDADE
-        # =====================================================================
-        elif feature_lower in ['yield', 'productivity']:
-            dados_modelo[feature] = 3000  # Rendimento médio kg/ha
-            features_com_valor_padrao.append(f"{feature}=3000 (padrão)")
-            
-        # =====================================================================
-        # MAPEAMENTO DE CATEGORIAS E TIPO DE SOLO
-        # =====================================================================
-        elif feature_lower in ['category_ph', 'ph_category']:
-            ph_valor = dados_usuario.get('ph', 6.0)
-            if ph_valor < 5.0:
-                dados_modelo[feature] = 'Acidic'
-            elif ph_valor > 7.0:
-                dados_modelo[feature] = 'Alkaline'
-            else:
-                dados_modelo[feature] = 'Neutral'
-            features_mapeadas_com_sucesso.append(f"{feature} (derivado do pH)")
-            
-        elif feature_lower in ['soil_type', 'soil']:
-            # Deriva tipo de solo da textura
-            clay = dados_usuario.get('clay', 35)
-            sand = dados_usuario.get('sand', 35)
-            if clay > 35:
-                dados_modelo[feature] = 'Clay'
-            elif sand > 60:
-                dados_modelo[feature] = 'Sandy'
-            else:
-                dados_modelo[feature] = 'Loam'
-            features_mapeadas_com_sucesso.append(f"{feature} (derivado da textura)")
-            
-        elif feature_lower in ['season', 'growing_season']:
-            dados_modelo[feature] = 'Summer'  # Estação padrão
-            features_com_valor_padrao.append(f"{feature}=Summer (padrão)")
-            
-        # =====================================================================
-        # MAPEAMENTO DE OUTRAS FEATURES DE SOLO QUE POSSAM EXISTIR
-        # =====================================================================
-        elif feature_lower in ['calcium', 'ca']:
-            dados_modelo[feature] = dados_usuario.get('calcium', 3.0)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['magnesium', 'mg']:
-            dados_modelo[feature] = dados_usuario.get('magnesium', 1.5)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['aluminum', 'al']:
-            dados_modelo[feature] = dados_usuario.get('aluminum', 0.5)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['organic_matter', 'om', 'mo']:
-            dados_modelo[feature] = dados_usuario.get('organic_matter', 25.0)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['h_al', 'h+al', 'potential_acidity']:
-            dados_modelo[feature] = dados_usuario.get('h_al', 3.5)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['sb', 'sum_bases']:
-            dados_modelo[feature] = dados_usuario.get('sb', 0)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['ctc', 'cec']:
-            dados_modelo[feature] = dados_usuario.get('ctc', 0)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['v', 'v_percent', 'base_saturation']:
-            dados_modelo[feature] = dados_usuario.get('v_porcentagem', 0)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['m', 'm_percent', 'aluminum_saturation']:
-            dados_modelo[feature] = dados_usuario.get('m_porcentagem', 0)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['sand', 'areia']:
-            dados_modelo[feature] = dados_usuario.get('sand', 35)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['silt', 'silte']:
-            dados_modelo[feature] = dados_usuario.get('silt', 30)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        elif feature_lower in ['clay', 'argila']:
-            dados_modelo[feature] = dados_usuario.get('clay', 35)
-            features_mapeadas_com_sucesso.append(feature)
-            
-        # =====================================================================
-        # FEATURE NÃO RECONHECIDA
-        # =====================================================================
-        else:
-            dados_modelo[feature] = 0
-            features_nao_mapeadas.append(feature)
-    
-    # Exibe informações sobre o mapeamento
-    with st.expander("🔍 Detalhes do Mapeamento para o Modelo", expanded=False):
-        if features_mapeadas_com_sucesso:
-            st.success(f"✅ **{len(features_mapeadas_com_sucesso)} features mapeadas com dados reais do solo**")
-        if features_com_valor_padrao:
-            st.info(f"ℹ️ **{len(features_com_valor_padrao)} features com valores padrão (dados climáticos/ambientais)**")
-            for fp in features_com_valor_padrao:
-                st.caption(f"  • {fp}")
-        if features_nao_mapeadas:
-            st.warning(f"⚠️ **{len(features_nao_mapeadas)} features não reconhecidas (preenchidas com 0)**")
-            for fn in features_nao_mapeadas:
-                st.caption(f"  • {fn}")
+            # Tenta encontrar a coluna correspondente nos dados do usuário
+            for nome in nomes_possiveis:
+                if nome in dados_usuario:
+                    coluna_encontrada = nome
+                    valor_final = dados_usuario[nome]
+                    break
         
-        st.info("💡 **Nota:** Este modelo parece ser de recomendação de culturas, não de fertilidade do solo. As features climáticas foram preenchidas com valores médios brasileiros.")
+        # Se não encontrou pelo mapeamento, tenta busca direta
+        if coluna_encontrada is None:
+            if feature in dados_usuario:
+                coluna_encontrada = feature
+                valor_final = dados_usuario[feature]
+            elif feature_lower in dados_usuario:
+                coluna_encontrada = feature_lower
+                valor_final = dados_usuario[feature_lower]
+        
+        # Se ainda não encontrou, usa valor padrão ou zero
+        if coluna_encontrada is None:
+            if feature_lower in valores_padrao:
+                valor_final = valores_padrao[feature_lower]
+                coluna_encontrada = f"(valor padrão: {valor_final})"
+            else:
+                coluna_encontrada = "(não encontrada)"
+                valor_final = 0
+        
+        dados_modelo[feature] = valor_final
+        tabela_diagnostico.append({
+            'Feature esperada': feature,
+            'Coluna encontrada': coluna_encontrada,
+            'Valor utilizado': valor_final
+        })
     
-    # Cria o DataFrame final com 1 linha
+    # =========================================================================
+    # TABELA DE DIAGNÓSTICO (EXPANDER COLAPSADO - APENAS PARA DEPURAÇÃO)
+    # =========================================================================
+    with st.expander("🔍 Diagnóstico do Mapeamento (Depuração)", expanded=False):
+        df_diagnostico = pd.DataFrame(tabela_diagnostico)
+        st.dataframe(df_diagnostico, use_container_width=True, hide_index=True)
+        
+        # Estatísticas do mapeamento
+        mapeadas = sum(1 for item in tabela_diagnostico if not item['Coluna encontrada'].startswith('('))
+        com_padrao = sum(1 for item in tabela_diagnostico if 'valor padrão' in item['Coluna encontrada'])
+        nao_encontradas = sum(1 for item in tabela_diagnostico if 'não encontrada' in item['Coluna encontrada'])
+        
+        st.caption(f"✅ Features mapeadas com dados reais: {mapeadas}")
+        st.caption(f"ℹ️ Features com valores padrão (clima/ambiente): {com_padrao}")
+        if nao_encontradas > 0:
+            st.caption(f"⚠️ Features não encontradas (preenchidas com 0): {nao_encontradas}")
+    
+    # =========================================================================
+    # CRIAÇÃO DO DATAFRAME FINAL
+    # =========================================================================
     df_previsao = pd.DataFrame([dados_modelo])
-    
-    # Garante a ordem correta das colunas
     df_previsao = df_previsao[features_do_modelo]
     
     return df_previsao
-
 # ============================================================================
 # FUNÇÕES DE CÁLCULO
 # ============================================================================
