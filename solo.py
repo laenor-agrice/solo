@@ -1008,7 +1008,7 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# === FUNÇÕES DO MODELO DE MACHINE LEARNING (CORRIGIDAS) ===
+# === FUNÇÕES DO MODELO DE MACHINE LEARNING (COMPATIBILIDADE TOTAL) ==========
 # ============================================================================
 
 @st.cache_resource
@@ -1045,74 +1045,190 @@ def carregar_modelo_e_features():
 
 def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
     """
-    Prepara o DataFrame de entrada para o modelo.
-    Usa um mapeamento explícito para traduzir os nomes das chaves do usuário
-    para as features esperadas pelo modelo.
-    
-    ⚠️ IMPORTANTE: Ajuste o dicionário 'mapeamento' conforme o conteúdo REAL do seu features.pkl.
+    Prepara o DataFrame de entrada para o modelo com mapeamento completo.
+    Detecta automaticamente features de diferentes domínios (solo, clima, cultura)
+    e faz o melhor mapeamento possível.
     """
     
     # =========================================================================
-    # MAPEAMENTO EXPLÍCITO: Chaves do app -> Features do modelo
-    # AJUSTE AQUI: O lado direito (valor) deve ser IGUAL ao que está no features.pkl
-    # O lado esquerdo (chave) é o nome usado no seu dicionário 'dados_usuario'
+    # MAPEAMENTO COMPLETO PARA MODELO DE RECOMENDAÇÃO DE CULTURAS
+    # Features: Photoperiod, Temperature, Rainfall, pH, Light_Hours, 
+    #           Light_Intensity, Rh, Nitrogen, Phosphorus, Potassium, 
+    #           Yield, Category_pH, Soil_Type, Season
     # =========================================================================
-    mapeamento = {
-        'nitrogen': 'nitrogen',       # Ex: se features.pkl tem 'N', troque por 'N'
-        'phosphorus': 'phosphorus',   # Ex: se features.pkl tem 'P', troque por 'P'
-        'potassium': 'potassium',     # Ex: se features.pkl tem 'K', troque por 'K'
-        'ph': 'ph',                   # Ex: se features.pkl tem 'pH', troque por 'pH'
-        'aluminum': 'aluminum',       # Ex: se features.pkl tem 'Al', troque por 'Al'
-        'calcium': 'calcium',         # Ex: se features.pkl tem 'Ca', troque por 'Ca'
-        'magnesium': 'magnesium',     # Ex: se features.pkl tem 'Mg', troque por 'Mg'
-        'h_al': 'h_al',               # Ex: se features.pkl tem 'H_Al', troque por 'H_Al'
-        'organic_matter': 'organic_matter', # Ex: se features.pkl tem 'MO', troque por 'MO'
-        'materia_organica': 'materia_organica', # Manter se existir
-        'sand': 'sand',               # Ex: se features.pkl tem 'Areia', troque por 'Areia'
-        'silt': 'silt',               # Ex: se features.pkl tem 'Silte', troque por 'Silte'
-        'clay': 'clay',               # Ex: se features.pkl tem 'Argila', troque por 'Argila'
-        'sb': 'sb',                   # Ex: se features.pkl tem 'SB', troque por 'SB'
-        'ctc': 'ctc',                 # Ex: se features.pkl tem 'CTC', troque por 'CTC'
-        'v_porcentagem': 'v_porcentagem', # Ex: se features.pkl tem 'V', troque por 'V'
-        'm_porcentagem': 'm_porcentagem'  # Ex: se features.pkl tem 'm', troque por 'm'
-    }
-
-    # Inverte o mapeamento para: Nome da Feature -> Chave do Usuário
-    feature_para_chave = {v: k for k, v in mapeamento.items()}
-
-    # Cria um dicionário com os dados formatados para o modelo
+    
+    # Dicionário base para features do modelo
     dados_modelo = {}
-    features_faltantes = []
+    
+    # Lista para rastrear features não encontradas
+    features_nao_mapeadas = []
+    features_com_valor_padrao = []
+    features_mapeadas_com_sucesso = []
     
     for feature in features_do_modelo:
-        chave_usuario = feature_para_chave.get(feature)
+        feature_lower = feature.lower().replace(' ', '_').replace('-', '_')
         
-        if chave_usuario and chave_usuario in dados_usuario:
-            # Caso perfeito: feature mapeada e dado existe
-            dados_modelo[feature] = dados_usuario[chave_usuario]
-        elif chave_usuario:
-            # Feature mapeada, mas o dado não foi fornecido pelo usuário
-            dados_modelo[feature] = 0
-            features_faltantes.append(f"'{feature}' (campo: {chave_usuario})")
+        # =====================================================================
+        # MAPEAMENTO DE FEATURES DE SOLO (DISPONÍVEIS NO APP)
+        # =====================================================================
+        if feature_lower == 'ph':
+            dados_modelo[feature] = dados_usuario.get('ph', 6.0)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['nitrogen', 'n']:
+            dados_modelo[feature] = dados_usuario.get('nitrogen', 30)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['phosphorus', 'p']:
+            dados_modelo[feature] = dados_usuario.get('phosphorus', 20)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['potassium', 'k']:
+            dados_modelo[feature] = dados_usuario.get('potassium', 0.25)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        # =====================================================================
+        # MAPEAMENTO DE FEATURES CLIMÁTICAS (VALORES PADRÃO PARA BRASIL)
+        # =====================================================================
+        elif feature_lower in ['temperature', 'temp']:
+            dados_modelo[feature] = 24.5  # Temperatura média Brasil
+            features_com_valor_padrao.append(f"{feature}=24.5°C (padrão)")
+            
+        elif feature_lower in ['rainfall', 'precipitation', 'rain']:
+            dados_modelo[feature] = 1200  # Precipitação média mm/ano Brasil
+            features_com_valor_padrao.append(f"{feature}=1200mm (padrão)")
+            
+        elif feature_lower in ['photoperiod', 'day_length']:
+            dados_modelo[feature] = 12.5  # Fotoperíodo médio horas
+            features_com_valor_padrao.append(f"{feature}=12.5h (padrão)")
+            
+        elif feature_lower in ['light_hours', 'sunlight_hours']:
+            dados_modelo[feature] = 8.0  # Horas de luz solar média
+            features_com_valor_padrao.append(f"{feature}=8.0h (padrão)")
+            
+        elif feature_lower in ['light_intensity', 'solar_radiation']:
+            dados_modelo[feature] = 2000  # Intensidade luminosa média µmol/m²/s
+            features_com_valor_padrao.append(f"{feature}=2000 (padrão)")
+            
+        elif feature_lower in ['rh', 'relative_humidity', 'humidity']:
+            dados_modelo[feature] = 75.0  # Umidade relativa média Brasil
+            features_com_valor_padrao.append(f"{feature}=75% (padrão)")
+            
+        # =====================================================================
+        # MAPEAMENTO DE FEATURES DE PRODUTIVIDADE
+        # =====================================================================
+        elif feature_lower in ['yield', 'productivity']:
+            dados_modelo[feature] = 3000  # Rendimento médio kg/ha
+            features_com_valor_padrao.append(f"{feature}=3000 (padrão)")
+            
+        # =====================================================================
+        # MAPEAMENTO DE CATEGORIAS E TIPO DE SOLO
+        # =====================================================================
+        elif feature_lower in ['category_ph', 'ph_category']:
+            ph_valor = dados_usuario.get('ph', 6.0)
+            if ph_valor < 5.0:
+                dados_modelo[feature] = 'Acidic'
+            elif ph_valor > 7.0:
+                dados_modelo[feature] = 'Alkaline'
+            else:
+                dados_modelo[feature] = 'Neutral'
+            features_mapeadas_com_sucesso.append(f"{feature} (derivado do pH)")
+            
+        elif feature_lower in ['soil_type', 'soil']:
+            # Deriva tipo de solo da textura
+            clay = dados_usuario.get('clay', 35)
+            sand = dados_usuario.get('sand', 35)
+            if clay > 35:
+                dados_modelo[feature] = 'Clay'
+            elif sand > 60:
+                dados_modelo[feature] = 'Sandy'
+            else:
+                dados_modelo[feature] = 'Loam'
+            features_mapeadas_com_sucesso.append(f"{feature} (derivado da textura)")
+            
+        elif feature_lower in ['season', 'growing_season']:
+            dados_modelo[feature] = 'Summer'  # Estação padrão
+            features_com_valor_padrao.append(f"{feature}=Summer (padrão)")
+            
+        # =====================================================================
+        # MAPEAMENTO DE OUTRAS FEATURES DE SOLO QUE POSSAM EXISTIR
+        # =====================================================================
+        elif feature_lower in ['calcium', 'ca']:
+            dados_modelo[feature] = dados_usuario.get('calcium', 3.0)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['magnesium', 'mg']:
+            dados_modelo[feature] = dados_usuario.get('magnesium', 1.5)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['aluminum', 'al']:
+            dados_modelo[feature] = dados_usuario.get('aluminum', 0.5)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['organic_matter', 'om', 'mo']:
+            dados_modelo[feature] = dados_usuario.get('organic_matter', 25.0)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['h_al', 'h+al', 'potential_acidity']:
+            dados_modelo[feature] = dados_usuario.get('h_al', 3.5)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['sb', 'sum_bases']:
+            dados_modelo[feature] = dados_usuario.get('sb', 0)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['ctc', 'cec']:
+            dados_modelo[feature] = dados_usuario.get('ctc', 0)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['v', 'v_percent', 'base_saturation']:
+            dados_modelo[feature] = dados_usuario.get('v_porcentagem', 0)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['m', 'm_percent', 'aluminum_saturation']:
+            dados_modelo[feature] = dados_usuario.get('m_porcentagem', 0)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['sand', 'areia']:
+            dados_modelo[feature] = dados_usuario.get('sand', 35)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['silt', 'silte']:
+            dados_modelo[feature] = dados_usuario.get('silt', 30)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        elif feature_lower in ['clay', 'argila']:
+            dados_modelo[feature] = dados_usuario.get('clay', 35)
+            features_mapeadas_com_sucesso.append(feature)
+            
+        # =====================================================================
+        # FEATURE NÃO RECONHECIDA
+        # =====================================================================
         else:
-            # Feature NÃO está no mapeamento (você precisa adicionar!)
             dados_modelo[feature] = 0
-            features_faltantes.append(f"'{feature}' (não mapeada)")
-
-    # Exibe warnings agrupados para não poluir a interface
-    if features_faltantes:
-        with st.expander("⚠️ Avisos do Modelo Preditivo", expanded=False):
-            st.warning("Algumas features esperadas pelo modelo não foram encontradas e receberam valor 0:")
-            for feat in features_faltantes:
-                st.markdown(f"- {feat}")
-            st.info("💡 Se isso for um erro, verifique o dicionário 'mapeamento' na função 'preparar_dados_para_previsao'.")
-
+            features_nao_mapeadas.append(feature)
+    
+    # Exibe informações sobre o mapeamento
+    with st.expander("🔍 Detalhes do Mapeamento para o Modelo", expanded=False):
+        if features_mapeadas_com_sucesso:
+            st.success(f"✅ **{len(features_mapeadas_com_sucesso)} features mapeadas com dados reais do solo**")
+        if features_com_valor_padrao:
+            st.info(f"ℹ️ **{len(features_com_valor_padrao)} features com valores padrão (dados climáticos/ambientais)**")
+            for fp in features_com_valor_padrao:
+                st.caption(f"  • {fp}")
+        if features_nao_mapeadas:
+            st.warning(f"⚠️ **{len(features_nao_mapeadas)} features não reconhecidas (preenchidas com 0)**")
+            for fn in features_nao_mapeadas:
+                st.caption(f"  • {fn}")
+        
+        st.info("💡 **Nota:** Este modelo parece ser de recomendação de culturas, não de fertilidade do solo. As features climáticas foram preenchidas com valores médios brasileiros.")
+    
     # Cria o DataFrame final com 1 linha
     df_previsao = pd.DataFrame([dados_modelo])
-
+    
     # Garante a ordem correta das colunas
     df_previsao = df_previsao[features_do_modelo]
-
+    
     return df_previsao
 
 # ============================================================================
@@ -1416,28 +1532,36 @@ if menu == "📊 Dados do Solo":
                         st.metric("m% (Alumínio)", f"{m:.1f}%")
 
                     # ================================================================
-                    # === PREVISÃO DO MODELO DE MACHINE LEARNING (CORRIGIDA) ===========
+                    # === PREVISÃO DO MODELO DE MACHINE LEARNING ======================
                     # ================================================================
                     
-                    # Só executa se os arquivos do modelo foram carregados com sucesso
                     if modelo is not None and features_do_modelo is not None:
                         st.markdown("---")
                         st.markdown("## 🤖 Resultados do Modelo de Machine Learning")
+                        
+                        # Aviso sobre compatibilidade do modelo
+                        st.warning("""
+                        ⚠️ **Aviso de Compatibilidade do Modelo**
+                        
+                        O modelo carregado parece ser de **recomendação de culturas**, não de classificação de fertilidade do solo.
+                        
+                        Features esperadas: Photoperiod, Temperature, Rainfall, pH, Light_Hours, Light_Intensity, Rh, Nitrogen, Phosphorus, Potassium, Yield, Category_pH, Soil_Type, Season
+                        
+                        Features disponíveis no app: pH, N, P, K, Ca, Mg, Al, H+Al, MO, textura, SB, CTC, V%, m%
+                        
+                        As features climáticas e ambientais foram preenchidas com **valores médios brasileiros**.
+                        A previsão deve ser interpretada como uma **estimativa aproximada**.
+                        """)
+                        
                         with st.spinner("🧠 Realizando previsão com o modelo treinado..."):
                             try:
-                                # Prepara o DataFrame de entrada alinhado com as features do modelo
-                                # AGORA COM O MAPEAMENTO CORRIGIDO!
+                                # Prepara o DataFrame de entrada
                                 df_previsao = preparar_dados_para_previsao(dados, features_do_modelo)
-                                
-                                # Debug (pode comentar depois de verificar que está correto)
-                                # st.write("Shape do DataFrame para previsão:", df_previsao.shape)
-                                # st.write("Features do modelo:", features_do_modelo)
-                                # st.dataframe(df_previsao)
 
                                 with st.expander("🔍 Visualizar dados de entrada para o modelo", expanded=False):
                                     st.dataframe(df_previsao, use_container_width=True)
 
-                                # Verifica se o modelo possui predict_proba, indicando um classificador
+                                # Verifica se o modelo possui predict_proba
                                 if hasattr(modelo, 'predict_proba'):
                                     probabilidades = modelo.predict_proba(df_previsao)[0]
                                     previsao = modelo.predict(df_previsao)[0]
@@ -1446,37 +1570,39 @@ if menu == "📊 Dados do Solo":
                                     with col_classe:
                                         st.metric("🏷️ Classe Prevista", f"{previsao}")
                                     with col_conf:
-                                        # A confiança é a probabilidade da classe prevista
                                         confianca = max(probabilidades) * 100
                                         st.metric("📊 Confiança do Modelo", f"{confianca:.2f}%")
                                     
                                     st.markdown("**📈 Probabilidades por Classe:**")
                                     classes = modelo.classes_
                                     
-                                    # Exibe as probabilidades em um layout amigável
                                     prob_df = pd.DataFrame({
                                         'Classe': classes,
                                         'Probabilidade (%)': (probabilidades * 100).round(2)
                                     }).sort_values('Probabilidade (%)', ascending=False)
                                     
                                     st.dataframe(prob_df, use_container_width=True, hide_index=True)
-                                    
-                                    # Barra de progresso para a classe mais provável
                                     st.progress(confianca / 100)
                                     
+                                    st.info("""
+                                    💡 **Interpretação da Previsão:**
+                                    
+                                    Esta previsão é baseada em um modelo de recomendação de culturas, 
+                                    não de fertilidade do solo. A classe prevista representa a cultura 
+                                    mais recomendada para as condições fornecidas (solo + clima padrão).
+                                    
+                                    Para previsões precisas de fertilidade, utilize as classificações 
+                                    baseadas em Embrapa, CFSEMG e Boletim 100 nas outras abas.
+                                    """)
+                                    
                                 else:
-                                    # Caso seja um modelo de regressão, apenas predict está disponível
                                     previsao = modelo.predict(df_previsao)[0]
                                     st.metric("🎯 Valor Previsto pelo Modelo", f"{previsao:.4f}")
 
                             except Exception as e:
                                 st.error(f"❌ Erro ao realizar a previsão com o modelo: {e}")
-                                st.error("Detalhes para depuração: Verifique se o mapeamento na função 'preparar_dados_para_previsao' está correto.")
                     elif erro_carregamento:
                          st.info(f"ℹ️ Modelo de ML não disponível: {erro_carregamento}")
-                    # ================================================================
-                    # ============= FIM DO BLOCO DE PREVISÃO ==========================
-                    # ================================================================
 
                 except ValueError:
                     st.error("❌ Erro: Verifique se todos os valores são números válidos!")
