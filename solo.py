@@ -984,7 +984,7 @@ def carregar_modelo():
         return modelo, label_encoder, features, None
         
     except FileNotFoundError as e:
-        return None, None, None, f"Arquivo não encontrado: {e.filename}"
+        return None, None, None, f"Arquivo não encontrado: {e.filename}. Certifique-se de que modelo_rf.pkl, label_encoder.pkl e features.pkl estão na pasta."
     except Exception as e:
         return None, None, None, f"Erro ao carregar modelo: {str(e)}"
 
@@ -1381,7 +1381,7 @@ if menu == "📊 Dados do Solo":
                         st.metric("m% (Alumínio)", f"{m:.1f}%")
 
                     # ================================================================
-                    # === PREVISÃO COM O MODELO RANDOM FOREST ========================
+                    # PREVISÃO COM O MODELO RANDOM FOREST
                     # ================================================================
                     
                     # Carrega o modelo
@@ -1432,9 +1432,7 @@ if menu == "📊 Dados do Solo":
                                 st.dataframe(prob_df, use_container_width=True, hide_index=True)
                                 st.progress(confianca / 100)
                                 
-                                # ================================================================
                                 # INTERPRETAÇÃO DO NÍVEL DE FERTILIDADE
-                                # ================================================================
                                 st.markdown("---")
                                 st.markdown("### 🌱 Interpretação da Fertilidade")
                                 
@@ -1560,147 +1558,69 @@ elif menu == "🌱 Classificação":
 
         st.markdown(f"#### 🌱 Recomendação de Adubação para {cultura}")
 
-        # ========================================================================
         # NITROGÊNIO (N)
-        # ========================================================================
-
         with st.container(border=True):
-
             st.markdown("**Nitrogênio (N)**")
-
             n_atual = dados.get('nitrogen', 0)
-
-            # Seleção de inoculação biológica para soja e feijão
             usa_biologico = False
-
             if cultura in ["Soja", "Feijão"]:
-
-                usa_biologico = st.toggle(
-                    f"🦠 Utilizar inoculação biológica em {cultura}?",
-                    value=True
-                )
-
-            n_recomendacao = recomendar_adubacao_nitrogenio(
-                cultura,
-                n_atual,
-                req['n_min']
-            )
-
+                usa_biologico = st.toggle(f"🦠 Utilizar inoculação biológica em {cultura}?", value=True)
+            n_recomendacao = recomendar_adubacao_nitrogenio(cultura, n_atual, req['n_min'])
             if "✅" in n_recomendacao:
-
                 st.success(n_recomendacao)
-
             else:
-
                 import re
-
-                match = re.search(
-                    r'Aplicar (\d+) kg/ha',
-                    n_recomendacao
-                )
-
+                match = re.search(r'Aplicar (\d+) kg/ha', n_recomendacao)
                 if match:
-
                     kg_n = int(match.group(1))
-
-                    # ============================================================
-                    # AJUSTE PARA FIXAÇÃO BIOLÓGICA
-                    # ============================================================
-
                     if cultura == "Soja":
-
                         if usa_biologico:
-
                             kg_n = max(0, int(kg_n * 0.15))
-
-                            st.success(
-                                "🦠 Inoculação biológica ativada: "
-                                "redução da necessidade de N mineral."
-                            )
-
+                            st.success("🦠 Inoculação biológica ativada: redução da necessidade de N mineral.")
                         else:
-
-                            st.warning(
-                                "⚠️ Sem inoculação biológica: "
-                                "maior demanda de N mineral."
-                            )
-
+                            st.warning("⚠️ Sem inoculação biológica: maior demanda de N mineral.")
                     elif cultura == "Feijão":
-
                         if usa_biologico:
-
                             kg_n = max(20, int(kg_n * 0.50))
-
-                            st.success(
-                                "🦠 Coinoculação/inoculação considerada: "
-                                "redução parcial do N mineral."
-                            )
-
-                    st.warning(
-                        f"Aplicar {kg_n} kg/ha de Nitrogênio"
-                    )
-
-                    st.info(
-                        "**📌 Forma de aplicação do Nitrogênio:**"
-                    )
-
-                    # ============================================================
-                    # PARCELAMENTO POR CULTURA
-                    # ============================================================
-
-                    # SOJA
+                            st.success("🦠 Coinoculação/inoculação considerada: redução parcial do N mineral.")
+                    st.warning(f"Aplicar {kg_n} kg/ha de Nitrogênio")
+                    st.info("**📌 Forma de aplicação do Nitrogênio:**")
                     if cultura == "Soja":
-
                         if usa_biologico:
-
                             st.markdown(f"""
                             - **Aplicação recomendada:** Dose simbólica ou starter
                             - Aplicar até {kg_n} kg/ha no sulco de plantio
                             - **Preferir inoculação eficiente com Bradyrhizobium**
                             - Evitar excesso de N mineral para não reduzir a FBN
                             """)
-
                         else:
-
                             p1 = kg_n // 2
                             p2 = kg_n - p1
-
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - V4-V6: {p2} kg/ha
                             - Recomenda-se inoculação biológica para maior eficiência
                             """)
-
-                    # FEIJÃO
                     elif cultura == "Feijão":
-
                         if kg_n <= 40:
-
                             st.markdown(f"""
                             - **Aplicação recomendada:** Dose única
                             - Aplicar {kg_n} kg/ha no plantio
                             """)
-
                         else:
-
                             p1 = kg_n // 2
                             p2 = kg_n - p1
-
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - Cobertura (20-30 DAE): {p2} kg/ha
                             """)
-
-                    # CAFÉ
                     elif cultura == "Café":
-
                         p1 = kg_n // 4
                         p2 = kg_n // 4
                         p3 = kg_n // 4
                         p4 = kg_n - p1 - p2 - p3
-
                         st.markdown(f"""
                         - **Parcelamento recomendado:** 4 aplicações anuais
                         - 1ª aplicação: {p1} kg/ha
@@ -1708,114 +1628,62 @@ elif menu == "🌱 Classificação":
                         - 3ª aplicação: {p3} kg/ha
                         - 4ª aplicação: {p4} kg/ha
                         """)
-
-                    # MILHO / TOMATE / HORTALIÇAS
-                    elif cultura in [
-                        "Milho Grão",
-                        "Milho Semente",
-                        "Tomate",
-                        "Alface",
-                        "Couve-flor",
-                        "Pimentão",
-                        "Batata"
-                    ]:
-
+                    elif cultura in ["Milho Grão", "Milho Semente", "Tomate", "Alface", "Couve-flor", "Pimentão", "Batata"]:
                         if kg_n <= 40:
-
                             st.markdown(f"""
                             - **Aplicação recomendada:** Dose única
                             - Aplicar {kg_n} kg/ha no plantio
                             """)
-
                         elif kg_n <= 80:
-
                             p1 = kg_n // 2
                             p2 = kg_n - p1
-
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - Cobertura: {p2} kg/ha
                             """)
-
                         else:
-
                             p1 = kg_n // 3
                             p2 = kg_n // 3
                             p3 = kg_n - p1 - p2
-
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 3 aplicações
                             - Plantio: {p1} kg/ha
                             - V4-V6 / Desenvolvimento vegetativo: {p2} kg/ha
                             - Pré-florescimento: {p3} kg/ha
                             """)
-
-                    # DEMAIS CULTURAS
                     else:
-
                         if kg_n <= 50:
-
                             st.markdown(f"""
                             - **Aplicação recomendada:** Dose única
                             - Aplicar {kg_n} kg/ha no plantio
                             """)
-
                         else:
-
                             p1 = kg_n // 2
                             p2 = kg_n - p1
-
                             st.markdown(f"""
                             - **Parcelamento recomendado:** 2 aplicações
                             - Plantio: {p1} kg/ha
                             - Cobertura: {p2} kg/ha
                             """)
-
                     st.markdown("""
                     - **Evitar aplicação superficial sem incorporação**
                     - Parcelamentos reduzem perdas por volatilização e lixiviação
                     """)
 
-        # ========================================================================
         # FÓSFORO (P)
-        # ========================================================================
-
         with st.container(border=True):
-
             st.markdown("**Fósforo (P)**")
-
             p_atual = dados.get('phosphorus', 0)
-
-            p_recomendacao = recomendar_adubacao_fosforo(
-                cultura,
-                p_atual,
-                req['p_min']
-            )
-
+            p_recomendacao = recomendar_adubacao_fosforo(cultura, p_atual, req['p_min'])
             if "✅" in p_recomendacao:
-
                 st.success(p_recomendacao)
-
             else:
-
-                match = re.search(
-                    r'Aplicar (\d+) kg/ha',
-                    p_recomendacao
-                )
-
+                match = re.search(r'Aplicar (\d+) kg/ha', p_recomendacao)
                 if match:
-
                     kg_p = int(match.group(1))
-
-                    st.warning(
-                        f"Aplicar {kg_p} kg/ha de Fósforo"
-                    )
-
-                    st.info(
-                        "**📌 Forma de aplicação do Fósforo:**"
-                    )
-
+                    st.warning(f"Aplicar {kg_p} kg/ha de Fósforo")
+                    st.info("**📌 Forma de aplicação do Fósforo:**")
                     st.markdown("""
                     - Aplicar 100% no plantio/semeadura
                     - Aplicação localizada no sulco
@@ -1824,94 +1692,49 @@ elif menu == "🌱 Classificação":
                     - Preferir aplicação próxima ao sistema radicular
                     """)
 
-        # ========================================================================
         # POTÁSSIO (K)
-        # ========================================================================
-
         with st.container(border=True):
-
             st.markdown("**Potássio (K)**")
-
             k_atual = dados.get('potassium', 0)
-
-            k_recomendacao = recomendar_adubacao_potassio(
-                cultura,
-                k_atual,
-                req['k_min']
-            )
-
+            k_recomendacao = recomendar_adubacao_potassio(cultura, k_atual, req['k_min'])
             if "✅" in k_recomendacao:
-
                 st.success(k_recomendacao)
-
             else:
-
-                match = re.search(
-                    r'Aplicar (\d+) kg/ha',
-                    k_recomendacao
-                )
-
+                match = re.search(r'Aplicar (\d+) kg/ha', k_recomendacao)
                 if match:
-
                     kg_k = int(match.group(1))
-
-                    st.warning(
-                        f"Aplicar {kg_k} kg/ha de Potássio"
-                    )
-
-                    st.info(
-                        "**📌 Forma de aplicação do Potássio:**"
-                    )
-
-                    # Culturas mais exigentes
-                    if cultura in [
-                        "Tomate",
-                        "Batata",
-                        "Café",
-                        "Pimentão"
-                    ]:
-
+                    st.warning(f"Aplicar {kg_k} kg/ha de Potássio")
+                    st.info("**📌 Forma de aplicação do Potássio:**")
+                    if cultura in ["Tomate", "Batata", "Café", "Pimentão"]:
                         p1 = kg_k // 3
                         p2 = kg_k // 3
                         p3 = kg_k - p1 - p2
-
                         st.markdown(f"""
                         - **Parcelamento recomendado:** 3 aplicações
                         - Plantio: {p1} kg/ha
                         - Desenvolvimento vegetativo: {p2} kg/ha
                         - Florescimento/frutificação: {p3} kg/ha
                         """)
-
                     else:
-
                         p1 = kg_k // 2
                         p2 = kg_k - p1
-
                         st.markdown(f"""
                         - **Parcelamento recomendado:** 2 aplicações
                         - Plantio: {p1} kg/ha
                         - Cobertura: {p2} kg/ha
                         """)
-
                     st.markdown("""
                     - Evitar aplicação excessiva para reduzir salinização
                     - Parcelamento melhora eficiência de uso do K
                     """)
 
-        # ========================================================================
         # CALAGEM
-        # ========================================================================
-
         with st.container(border=True):
-
             st.markdown("**🧪 Calagem**")
-            
             v_atual = dados.get('v_porcentagem', 0)
             ctc = dados.get('ctc', 0)
             v_desejado = req['v_desejado']
-            
             nc, rec_calagem, tempo = calcular_necessidade_calagem(v_atual, v_desejado, ctc)
-            
             if nc > 0:
                 st.warning(rec_calagem)
                 st.info(f"⏱️ Tempo estimado para reação: {tempo} dias")
@@ -1920,7 +1743,7 @@ elif menu == "🌱 Classificação":
                 st.success(rec_calagem)
 
 # ============================================================================
-# ABA 3 - ADUBAÇÃO PARA VASOS (NOVA FUNCIONALIDADE)
+# ABA 3 - ADUBAÇÃO PARA VASOS
 # ============================================================================
 
 elif menu == "🪴 Adubação para Vasos":
@@ -1933,19 +1756,15 @@ elif menu == "🪴 Adubação para Vasos":
         with st.container(border=True):
             st.markdown("**📏 Dimensões do Vaso**")
             formato_vaso = st.radio("Formato do vaso:", ["Cilindro", "Tronco de Cone (mais comum)"], horizontal=True)
-            
             if formato_vaso == "Cilindro":
                 raio_sup = st.number_input("📐 Raio do vaso (cm)", min_value=5.0, max_value=100.0, value=15.0, step=1.0)
                 raio_inf = raio_sup
             else:
                 raio_sup = st.number_input("📐 Raio superior (cm)", min_value=5.0, max_value=100.0, value=20.0, step=1.0)
                 raio_inf = st.number_input("📐 Raio inferior (cm)", min_value=5.0, max_value=100.0, value=12.0, step=1.0)
-            
             altura_vaso = st.number_input("📏 Altura do vaso (cm)", min_value=10.0, max_value=150.0, value=25.0, step=5.0)
-            
             volume = calcular_volume_vaso(raio_sup, raio_inf, altura_vaso, "cilindro" if formato_vaso == "Cilindro" else "tronco_cone")
             st.success(f"💧 **Volume estimado:** {volume:.2f} litros")
-            
             area_superficie = math.pi * (raio_sup ** 2)
             st.info(f"📐 **Área de superfície:** {area_superficie:.1f} cm² ({area_superficie/10000:.4f} m²)")
     
@@ -1954,7 +1773,6 @@ elif menu == "🪴 Adubação para Vasos":
             st.markdown("**🌾 Seleção da Cultura**")
             cultura_vaso = st.selectbox("Escolha a cultura:", list(necessidades_culturas.keys()), key="cultura_vaso")
             req_vaso = necessidades_culturas[cultura_vaso]
-            
             st.markdown("---")
             st.markdown("**📊 Parâmetros da Cultura**")
             col_a, col_b, col_c = st.columns(3)
@@ -1971,12 +1789,10 @@ elif menu == "🪴 Adubação para Vasos":
         with st.spinner("Calculando..."):
             area_m2 = area_superficie / 10000
             adubo = calcular_adubo_para_vaso(cultura_vaso, volume, area_superficie)
-            
             st.markdown("""
             <div class="result-card">
                 <h3 style="text-align: center; margin-bottom: 1rem;">📊 Resultado da Adubação</h3>
             """, unsafe_allow_html=True)
-            
             col_r1, col_r2, col_r3 = st.columns(3)
             with col_r1:
                 st.metric("🌱 Nitrogênio (N)", f"{adubo['N']:.2f} g")
@@ -1987,7 +1803,6 @@ elif menu == "🪴 Adubação para Vasos":
             with col_r3:
                 st.metric("🍌 Potássio (K₂O)", f"{adubo['K2O']:.2f} g")
                 st.caption("Equivalente a: Cloreto de Potássio")
-            
             st.markdown("---")
             st.markdown("### 📋 Recomendações de Aplicação")
             st.markdown(f"""
@@ -2006,7 +1821,6 @@ elif menu == "🪴 Adubação para Vasos":
             - Ajuste conforme o substrato utilizado e a fase da cultura
             - Considere a fertilidade natural do substrato antes da adubação
             """)
-            
             st.markdown("</div>", unsafe_allow_html=True)
 
 # ============================================================================
@@ -2041,7 +1855,6 @@ elif menu == "🤖 Assistente IA":
                     pergunta,
                     st.session_state.dados_basicos if st.session_state.dados_basicos else None
                 )
-                
                 st.markdown(f"""
                 <div class="result-card">
                     <h3 style="text-align: center; margin-bottom: 1rem;">🤖 Resposta da IA</h3>
@@ -2089,7 +1902,6 @@ elif menu == "📈 Relatório":
         }
         
         relatorio = pd.DataFrame(relatorio_data)
-        
         st.dataframe(relatorio, use_container_width=True, hide_index=True)
         
         csv = relatorio.to_csv(index=False).encode('utf-8')
@@ -2204,89 +2016,49 @@ elif menu == "📋 Pesquisa":
     st.markdown("Sua opinião é fundamental para melhorarmos a ferramenta!")
     st.markdown("---")
     
-    # ========== FORMULÁRIO PARA TODOS OS USUÁRIOS ==========
-    
     if "pesquisa_respondida" not in st.session_state:
         st.session_state.pesquisa_respondida = False
     
     if not st.session_state.pesquisa_respondida:
-        
         with st.form("pesquisa_form"):
             st.markdown("#### 1. Avaliação da Plataforma")
-            nota_plataforma = st.slider(
-                "De 0 a 10, qual a nota pela funcionalidade da plataforma?",
-                min_value=0, max_value=10, value=5, step=1
-            )
-            
+            nota_plataforma = st.slider("De 0 a 10, qual a nota pela funcionalidade da plataforma?", min_value=0, max_value=10, value=5, step=1)
             st.markdown("---")
             st.markdown("#### 2. Didática da Interpretação")
-            nota_didatica = st.slider(
-                "De 0 a 10, o quão didático foi a interpretação dos dados?",
-                min_value=0, max_value=10, value=5, step=1
-            )
-            
+            nota_didatica = st.slider("De 0 a 10, o quão didático foi a interpretação dos dados?", min_value=0, max_value=10, value=5, step=1)
             st.markdown("---")
             st.markdown("#### 3. Uso Acadêmico")
-            
             col_estudante, col_nota = st.columns([1, 2])
             with col_estudante:
                 eh_estudante = st.checkbox("Sou estudante/pesquisador")
-            
             with col_nota:
                 if eh_estudante:
-                    nota_academico = st.slider(
-                        "De 0 a 10, qual a probabilidade de utilizar a ferramenta para fins acadêmicos?",
-                        min_value=0, max_value=10, value=5, step=1
-                    )
+                    nota_academico = st.slider("De 0 a 10, qual a probabilidade de utilizar a ferramenta para fins acadêmicos?", min_value=0, max_value=10, value=5, step=1)
                 else:
                     nota_academico = "Não se aplica (não sou estudante)"
                     st.info("✅ Você marcou que não é estudante. Esta pergunta não se aplica.")
-            
             st.markdown("---")
             st.markdown("#### 4. Uso em Propriedade Rural")
-            
             col_produtor, col_nota2 = st.columns([1, 2])
             with col_produtor:
                 eh_produtor = st.checkbox("Sou produtor rural")
-            
             with col_nota2:
                 if eh_produtor:
-                    nota_produtor = st.slider(
-                        "De 0 a 10, qual a probabilidade de usar esta ferramenta em sua propriedade rural?",
-                        min_value=0, max_value=10, value=5, step=1
-                    )
+                    nota_produtor = st.slider("De 0 a 10, qual a probabilidade de usar esta ferramenta em sua propriedade rural?", min_value=0, max_value=10, value=5, step=1)
                 else:
                     nota_produtor = "Não se aplica (não sou produtor)"
                     st.info("✅ Você marcou que não é produtor. Esta pergunta não se aplica.")
-            
             st.markdown("---")
             st.markdown("#### 5. Classificação do Uso")
-            
-            classificacao_uso = st.radio(
-                "Como você classificaria o uso da ferramenta?",
-                ["Fácil", "Médio", "Difícil"],
-                horizontal=True
-            )
-            
+            classificacao_uso = st.radio("Como você classificaria o uso da ferramenta?", ["Fácil", "Médio", "Difícil"], horizontal=True)
             st.markdown("---")
             st.markdown("#### 6. Sugestoes de Aprimoramento")
-            
-            sugestoes = st.text_area(
-                "Sugestoes de aprimoramentos. O que falta ou pode melhorar?",
-                placeholder="Ex: Adicionar gráficos, incluir mais culturas, melhorar a explicação do V%...",
-                height=100
-            )
-            
+            sugestoes = st.text_area("Sugestoes de aprimoramentos. O que falta ou pode melhorar?", placeholder="Ex: Adicionar gráficos, incluir mais culturas, melhorar a explicação do V%...", height=100)
             st.markdown("---")
-            
-            # Campo para identificacao opcional
             with st.expander("🔒 Identificacao (opcional)"):
                 nome = st.text_input("Nome (opcional)")
                 email = st.text_input("E-mail (opcional - para contato)")
-            
-            # Botão de envio
             submitted = st.form_submit_button("📤 ENVIAR PESQUISA", use_container_width=True)
-            
             if submitted:
                 resposta = {
                     "data_hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -2301,10 +2073,7 @@ elif menu == "📋 Pesquisa":
                     "nome": nome if nome else "Anônimo",
                     "email": email if email else "Não informado"
                 }
-                
                 arquivo_txt = "pesquisas_satisfacao.txt"
-                
-                # Formatar resposta para TXT
                 texto_resposta = f"""
 {'='*60}
 NOVA PESQUISA - {resposta['data_hora']}
@@ -2333,16 +2102,11 @@ NOVA PESQUISA - {resposta['data_hora']}
 
 {'='*60}
 """
-                
-                # Salvar no arquivo TXT (anexar)
                 with open(arquivo_txt, "a", encoding='utf-8') as f:
                     f.write(texto_resposta)
-                
                 st.session_state.pesquisa_respondida = True
                 st.session_state.ultima_pesquisa = resposta
-                
                 st.success("✅ Pesquisa enviada com sucesso! Muito obrigado pela sua contribuição!")
-                
                 st.markdown("### 📊 Resumo da sua resposta")
                 st.markdown(f"""
                 | Pergunta | Resposta |
@@ -2355,22 +2119,16 @@ NOVA PESQUISA - {resposta['data_hora']}
                 | Probabilidade de uso na propriedade | {nota_produtor} |
                 | Classificação do uso | {classificacao_uso} |
                 """)
-                
                 st.info("💾 Sua resposta foi registrada. Obrigado!")
-    
     else:
         st.success("✅ Você já respondeu à pesquisa! Muito obrigado pela sua contribuição!")
         st.info("💡 Caso queira dar novas sugestoes, entre em contato pelo e-mail.")
     
-    # ========== RELATÓRIO PROTEGIDO POR SENHA ==========
     st.markdown("---")
     st.markdown("### 🔒 Relatório de Pesquisas (Área Restrita)")
-    
     senha_correta = "91959441"
-    
     if "relatorio_liberado" not in st.session_state:
         st.session_state.relatorio_liberado = False
-    
     if not st.session_state.relatorio_liberado:
         senha = st.text_input("Digite a senha do administrador para acessar o relatório:", type="password")
         if st.button("🔓 Acessar Relatório"):
@@ -2381,16 +2139,11 @@ NOVA PESQUISA - {resposta['data_hora']}
                 st.error("❌ Senha incorreta!")
     else:
         st.success("✅ Modo administrador - Relatório liberado!")
-        
         arquivo_txt = "pesquisas_satisfacao.txt"
-        
         if os.path.exists(arquivo_txt):
             with open(arquivo_txt, "r", encoding='utf-8') as f:
                 conteudo = f.read()
-            
             st.text_area("📋 RELATÓRIO COMPLETO", conteudo, height=400)
-            
-            # Download em TXT
             with open(arquivo_txt, "rb") as f:
                 st.download_button(
                     label="📥 Baixar Relatório (TXT)",
@@ -2400,7 +2153,6 @@ NOVA PESQUISA - {resposta['data_hora']}
                 )
         else:
             st.info("ℹ️ Ainda não há nenhuma pesquisa registrada.")
-        
         if st.button("🔒 Sair do modo administrador"):
             st.session_state.relatorio_liberado = False
             st.rerun()
