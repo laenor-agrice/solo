@@ -1,7 +1,8 @@
 # ============================================================================
-# IMPORTAÇÕES
+# IMPORTAÇÕES - ORDEM CORRETA
 # ============================================================================
 
+import sys
 import streamlit as st
 import pandas as pd
 import requests
@@ -17,7 +18,6 @@ from datetime import datetime
 import importlib
 import warnings
 import numpy as np
-import sys
 
 warnings.filterwarnings('ignore')
 
@@ -951,29 +951,24 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# CARREGAR MODELO TREINADO (RANDOM FOREST) - VERSÃO PROFISSIONAL
+# CARREGAR MODELO TREINADO - VERSÃO LIMPA
 # ============================================================================
 
 @st.cache_resource
 def carregar_modelo():
     """
-    Carrega o modelo Random Forest treinado no Colab
-    Usa tentativa com joblib e fallback com pickle
+    Carrega o modelo Random Forest treinado
     """
     try:
-        # Tenta carregar com joblib (recomendado)
         modelo = joblib.load('modelo_rf.pkl')
-        return modelo, None, None
-        
+        return modelo, None
     except Exception as e:
-        # Se falhar, tenta com pickle
         try:
             with open('modelo_rf.pkl', 'rb') as f:
                 modelo = pickle.load(f)
-            return modelo, None, None
+            return modelo, None
         except Exception as e2:
-            # Se ambos falharem, retorna erro
-            return None, None, f"Erro ao carregar modelo: {str(e2)}"
+            return None, f"Erro ao carregar modelo: {str(e2)}"
 
 # ============================================================================
 # FUNÇÃO ALTERNATIVA PARA PREVISÃO SEM MODELO (FALLBACK)
@@ -982,7 +977,6 @@ def carregar_modelo():
 def prever_sem_modelo(dados_usuario):
     """
     Função de fallback para prever fertilidade usando regras manuais
-    Caso o modelo não possa ser carregado
     """
     ph = dados_usuario.get('ph', 6.0)
     v = dados_usuario.get('v_porcentagem', 50)
@@ -990,20 +984,15 @@ def prever_sem_modelo(dados_usuario):
     p = dados_usuario.get('phosphorus', 20)
     k = dados_usuario.get('potassium', 0.25)
     
-    # Pontuação baseada em regras agronômicas
     pontuacao = 0
     
-    # pH (0-10)
     if 5.5 <= ph <= 6.5:
         pontuacao += 3
     elif 5.0 <= ph < 5.5 or 6.5 < ph <= 7.0:
         pontuacao += 2
     elif 4.5 <= ph < 5.0 or 7.0 < ph <= 7.5:
         pontuacao += 1
-    else:
-        pontuacao += 0
     
-    # V% (0-5)
     if v >= 80:
         pontuacao += 5
     elif v >= 70:
@@ -1012,10 +1001,7 @@ def prever_sem_modelo(dados_usuario):
         pontuacao += 3
     elif v >= 50:
         pontuacao += 2
-    else:
-        pontuacao += 0
     
-    # N (0-3)
     if n >= 50:
         pontuacao += 3
     elif n >= 30:
@@ -1023,7 +1009,6 @@ def prever_sem_modelo(dados_usuario):
     elif n >= 20:
         pontuacao += 1
     
-    # P (0-3)
     if p >= 30:
         pontuacao += 3
     elif p >= 20:
@@ -1031,7 +1016,6 @@ def prever_sem_modelo(dados_usuario):
     elif p >= 10:
         pontuacao += 1
     
-    # K (0-3)
     if k >= 0.40:
         pontuacao += 3
     elif k >= 0.25:
@@ -1039,7 +1023,6 @@ def prever_sem_modelo(dados_usuario):
     elif k >= 0.15:
         pontuacao += 1
     
-    # Classificação
     pontuacao_maxima = 17
     
     if pontuacao >= 12:
@@ -1052,7 +1035,6 @@ def prever_sem_modelo(dados_usuario):
         classe = 'Baixa'
         confianca = (pontuacao / pontuacao_maxima) * 100
     
-    # Probabilidades simuladas
     if classe == 'Alta':
         probs = [0.70, 0.15, 0.15]
     elif classe == 'Media':
@@ -1224,7 +1206,6 @@ def gerar_diagnostico(dados, cultura_req):
 # ============================================================================
 
 def calcular_necessidade_calagem(v_atual, v_desejado, ctc, prnt=85):
-    """Calcula a necessidade de calagem em t/ha com PRNT personalizável"""
     if v_atual >= v_desejado:
         return 0, "✅ Solo já atingiu V% desejado. Não necessita calagem.", 0
     
@@ -1308,7 +1289,6 @@ def recomendar_adubacao_potassio(cultura, k_atual, k_min):
 # ============================================================================
 
 def calcular_volume_vaso(raio_superior, raio_inferior, altura, formato="tronco_cone"):
-    """Calcula o volume do vaso em litros"""
     if formato == "cilindro":
         volume_cm3 = math.pi * (raio_superior ** 2) * altura
     else:
@@ -1318,7 +1298,6 @@ def calcular_volume_vaso(raio_superior, raio_inferior, altura, formato="tronco_c
     return round(volume_litros, 2)
 
 def calcular_adubo_para_vaso(cultura, volume_litros, area_plantio_cm2=None):
-    """Calcula a quantidade de adubo para vaso"""
     req = necessidades_culturas[cultura]
     
     if area_plantio_cm2:
@@ -1438,17 +1417,15 @@ if menu == "📊 Dados do Solo":
                         st.metric("m% (Alumínio)", f"{m:.1f}%")
 
                     # ================================================================
-                    # PREVISÃO COM O MODELO RANDOM FOREST (COM FALLBACK)
+                    # PREVISÃO COM O MODELO RANDOM FOREST
                     # ================================================================
                     
-                    # Carrega o modelo
-                    modelo, _, erro = carregar_modelo()
+                    modelo, erro = carregar_modelo()
 
                     if modelo is not None:
                         st.markdown("---")
                         st.markdown("## 🤖 Resultados do Modelo de Machine Learning")
                         
-                        # Extrai features do modelo se possível
                         try:
                             if hasattr(modelo, 'feature_names_in_'):
                                 features = list(modelo.feature_names_in_)
@@ -1461,7 +1438,7 @@ if menu == "📊 Dados do Solo":
                             st.markdown(f"**Tipo:** Random Forest Classifier")
                             st.markdown(f"**Features:** {features}")
                         
-                        with st.spinner("🧠 Realizando previsão com o modelo treinado..."):
+                        with st.spinner("🧠 Realizando previsão..."):
                             try:
                                 df_previsao, tabela_diagnostico = preparar_dados_para_previsao(dados, features)
 
@@ -1473,7 +1450,6 @@ if menu == "📊 Dados do Solo":
                                 previsao = modelo.predict(df_previsao)[0]
                                 probabilidades = modelo.predict_proba(df_previsao)[0]
                                 
-                                # Mapeamento de classes
                                 classes_nomes = ['Alta', 'Baixa', 'Media']
                                 if hasattr(modelo, 'classes_'):
                                     if len(modelo.classes_) == 3:
@@ -1515,7 +1491,6 @@ if menu == "📊 Dados do Solo":
                                 st.warning(f"⚠️ Erro ao usar o modelo: {str(e)}")
                                 st.info("💡 Usando classificação manual como fallback...")
                                 
-                                # FALLBACK
                                 classe_prevista, confianca, probabilidades = prever_sem_modelo(dados)
                                 
                                 st.markdown("---")
@@ -1551,7 +1526,6 @@ if menu == "📊 Dados do Solo":
                         st.warning(f"ℹ️ **Modelo não disponível:** {erro if erro else 'Erro desconhecido'}")
                         st.info("💡 Usando classificação manual baseada em regras agronômicas.")
                         
-                        # FALLBACK
                         classe_prevista, confianca, probabilidades = prever_sem_modelo(dados)
                         
                         st.markdown("---")
