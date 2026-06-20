@@ -1,16 +1,20 @@
 # ============================================================================
-# IMPORTAÇÕES
+# IMPORTAÇÕES - VERSÃO SIMPLIFICADA
 # ============================================================================
 
+# Importa sys primeiro para resolver o erro
 import sys
-import types
 
-# Cria um módulo falso vazio na memória para enganar o modelo antigo
+# Cria módulos fake ANTES de qualquer outra importação
 if 'sklearn._loss' not in sys.modules:
-    mock_loss = types.ModuleType('sklearn._loss')
-    sys.modules['sklearn._loss'] = mock_loss
-    sys.modules['sklearn.metrics._loss'] = mock_loss
+    import types
+    sys.modules['sklearn._loss'] = types.ModuleType('sklearn._loss')
 
+if 'sklearn.metrics._loss' not in sys.modules:
+    import types
+    sys.modules['sklearn.metrics._loss'] = types.ModuleType('sklearn.metrics._loss')
+
+# Agora importa o resto
 import streamlit as st
 import pandas as pd
 import requests
