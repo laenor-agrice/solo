@@ -960,212 +960,125 @@ RESPOSTA:"""
         return f"❌ **Erro:** {str(erro)}"
 
 # ============================================================================
-# === FUNÇÃO CORRIGIDA PARA CARREGAR MODELO COM COMPATIBILIDADE =============
+# === FUNÇÃO PARA CARREGAR O MODELO SIMPLIFICADO =============================
 # ============================================================================
 
 @st.cache_resource
 def carregar_modelo_e_features():
     """
-    Carrega o modelo treinado com compatibilidade entre versões do scikit-learn.
-    Estratégia completa para resolver o erro "No module named '_loss'".
-    
-    O modelo foi treinado com:
-    - scikit-learn 1.6.1
-    - joblib 1.5.3
-    - numpy 2.0.2
+    Carrega o modelo simplificado criado no Colab.
+    Resolve o erro "No module named '_loss'".
     """
     modelo = None
     features = None
     erro_msg = None
     estrategia_usada = None
 
-    # Verifica se os arquivos existem
-    if not os.path.exists('modelo.pkl'):
-        erro_msg = "Arquivo 'modelo.pkl' não encontrado no diretório do aplicativo."
-        return modelo, features, erro_msg, estrategia_usada
-    if not os.path.exists('features.pkl'):
-        erro_msg = "Arquivo 'features.pkl' não encontrado no diretório do aplicativo."
-        return modelo, features, erro_msg, estrategia_usada
-
-    # =========================================================================
-    # ESTRATÉGIA 1: Carregamento normal com joblib
-    # =========================================================================
+    # ========================================================================
+    # TENTATIVA 1: Carregar modelo simplificado
+    # ========================================================================
     try:
-        modelo = joblib.load('modelo.pkl')
+        if not os.path.exists('modelo_simples.pkl'):
+            erro_msg = "Arquivo 'modelo_simples.pkl' não encontrado. Execute o script no Colab primeiro."
+            return modelo, features, erro_msg, estrategia_usada
+        
+        if not os.path.exists('features.pkl'):
+            erro_msg = "Arquivo 'features.pkl' não encontrado."
+            return modelo, features, erro_msg, estrategia_usada
+        
+        # Carrega os dados simplificados
+        dados_modelo = joblib.load('modelo_simples.pkl')
         features = joblib.load('features.pkl')
-        estrategia_usada = "✅ Joblib padrão"
-        return modelo, features, None, estrategia_usada
-    except Exception as e:
-        erro_detalhado = str(e)
-    
-    # =========================================================================
-    # ESTRATÉGIA 2: Carregamento com pickle e compatibilidade para _loss
-    # =========================================================================
-    try:
-        import pickle
-        import builtins
         
-        # Mapeamento para módulos problemáticos
-        class SafeUnpickler(pickle.Unpickler):
-            def find_class(self, module, name):
-                # Mapeia módulos de versões específicas
-                if module == '_loss':
-                    # Tenta encontrar a classe nos módulos sklearn
-                    sklearn_modules = [
-                        'sklearn.ensemble._gb',
-                        'sklearn.ensemble',
-                        'sklearn.linear_model',
-                        'sklearn.tree',
-                        'sklearn.base'
-                    ]
-                    
-                    # Tenta importar de módulos sklearn
-                    for mod in sklearn_modules:
-                        try:
-                            imported = importlib.import_module(mod)
-                            if hasattr(imported, name):
-                                return getattr(imported, name)
-                        except:
-                            pass
-                    
-                    # Fallback: tenta criar um objeto dummy
-                    class DummyLoss:
-                        pass
-                    return DummyLoss
-                
-                # Redireciona módulos sklearn.ensemble._gb
-                elif module == 'sklearn.ensemble._gb':
-                    try:
-                        return super().find_class('sklearn.ensemble', name)
-                    except:
-                        pass
-                
-                # Redireciona módulos sklearn._loss
-                elif module == 'sklearn._loss':
-                    try:
-                        return super().find_class('sklearn.ensemble', name)
-                    except:
-                        pass
-                
-                return super().find_class(module, name)
+        # Verifica se os dados foram carregados corretamente
+        if not isinstance(dados_modelo, dict):
+            raise Exception("formato inválido")
         
-        # Carrega o modelo com o unpickler seguro
-        with open('modelo.pkl', 'rb') as f:
-            modelo = SafeUnpickler(f).load()
-        
-        # Carrega features normalmente
-        with open('features.pkl', 'rb') as f:
-            features = pickle.load(f)
-        
-        # Verifica se o modelo foi carregado corretamente
-        if modelo is not None and hasattr(modelo, 'predict'):
-            estrategia_usada = "🛠️ SafeUnpickler (compatibilidade sklearn)"
-            return modelo, features, None, estrategia_usada
-        else:
-            raise Exception("Modelo carregado mas não é um classificador válido")
-    
-    except Exception as e:
-        pass
-    
-    # =========================================================================
-    # ESTRATÉGIA 3: Extrair árvores do modelo e criar um novo classificador
-    # =========================================================================
-    try:
-        import pickle
-        import numpy as np
         from sklearn.ensemble import GradientBoostingClassifier
-        from sklearn.tree import DecisionTreeRegressor
+        import numpy as np
         
-        # Carrega os dados do modelo
-        with open('modelo.pkl', 'rb') as f:
-            modelo_data = pickle.load(f)
-        
-        # Carrega features
-        with open('features.pkl', 'rb') as f:
-            features = pickle.load(f)
-        
-        # Cria um novo modelo com os mesmos parâmetros
+        # Cria um novo modelo com os parâmetros extraídos
         modelo = GradientBoostingClassifier(
-            n_estimators=100,
+            n_estimators=dados_modelo.get('n_estimators_', 100),
             learning_rate=0.1,
             loss='log_loss',
             max_depth=3,
             min_samples_split=2,
             min_samples_leaf=1,
-            random_state=42,
-            subsample=1.0
+            random_state=42
         )
         
-        # Tenta extrair e copiar os atributos essenciais
-        if hasattr(modelo_data, 'classes_'):
-            modelo.classes_ = modelo_data.classes_
+        # Copia os atributos do modelo original
+        if 'classes_' in dados_modelo:
+            modelo.classes_ = np.array(dados_modelo['classes_'])
+            print(f"   Classes carregadas: {modelo.classes_}")
         
-        if hasattr(modelo_data, 'n_classes_'):
-            modelo.n_classes_ = modelo_data.n_classes_
+        if 'n_classes_' in dados_modelo:
+            modelo.n_classes_ = dados_modelo['n_classes_']
+            print(f"   Número de classes: {modelo.n_classes_}")
         
-        if hasattr(modelo_data, 'n_features_'):
-            modelo.n_features_ = modelo_data.n_features_
+        if 'n_features_in_' in dados_modelo:
+            modelo.n_features_in_ = dados_modelo['n_features_in_']
+            print(f"   Número de features: {modelo.n_features_in_}")
         
-        if hasattr(modelo_data, 'feature_importances_'):
-            modelo.feature_importances_ = modelo_data.feature_importances_
+        if 'feature_importances_' in dados_modelo and dados_modelo['feature_importances_'] is not None:
+            modelo.feature_importances_ = np.array(dados_modelo['feature_importances_'])
         
-        if hasattr(modelo_data, 'init_'):
-            modelo.init_ = modelo_data.init_
+        if 'feature_names_in_' in dados_modelo and dados_modelo['feature_names_in_'] is not None:
+            modelo.feature_names_in_ = np.array(dados_modelo['feature_names_in_'])
         
-        # Tenta extrair as árvores
-        if hasattr(modelo_data, 'estimators_'):
-            modelo.estimators_ = modelo_data.estimators_
+        # Atributos opcionais
+        if 'estimators_' in dados_modelo and dados_modelo['estimators_'] is not None:
+            modelo.estimators_ = dados_modelo['estimators_']
+            print(f"   Estimadores carregados: {len(modelo.estimators_)}")
         
-        # Verifica se o modelo foi reconstruído corretamente
-        if modelo is not None and hasattr(modelo, 'predict'):
-            estrategia_usada = "🔧 Reconstrução manual do GradientBoostingClassifier"
+        if 'init_' in dados_modelo and dados_modelo['init_'] is not None:
+            modelo.init_ = dados_modelo['init_']
+        
+        if 'train_score_' in dados_modelo and dados_modelo['train_score_'] is not None:
+            modelo.train_score_ = dados_modelo['train_score_']
+        
+        # Define n_features_ como n_features_in_ se não existir
+        if not hasattr(modelo, 'n_features_') and hasattr(modelo, 'n_features_in_'):
+            modelo.n_features_ = modelo.n_features_in_
+        
+        # Verifica se o modelo foi carregado corretamente
+        if hasattr(modelo, 'predict'):
+            estrategia_usada = "✅ Modelo simplificado do Colab"
             return modelo, features, None, estrategia_usada
         else:
-            raise Exception("Não foi possível reconstruir o modelo")
-    
+            raise Exception("Modelo não tem método predict")
+        
     except Exception as e:
-        pass
+        erro_msg = f"Erro ao carregar modelo simplificado: {str(e)}"
+        print(f"⚠️ {erro_msg}")
     
-    # =========================================================================
-    # ESTRATÉGIA 4: Carregar com joblib usando mmap_mode
-    # =========================================================================
+    # ========================================================================
+    # TENTATIVA 2: Fallback - Classificador baseado em regras
+    # ========================================================================
     try:
-        modelo = joblib.load('modelo.pkl', mmap_mode='r')
-        features = joblib.load('features.pkl')
-        estrategia_usada = "📂 Joblib com mmap_mode='r'"
-        return modelo, features, None, estrategia_usada
-    except Exception as e:
-        pass
-    
-    # =========================================================================
-    # ESTRATÉGIA 5: USAR O MODELO COMO DICT E CRIAR CLASSIFICADOR BASEADO EM REGRAS
-    # =========================================================================
-    try:
-        import pickle
+        print("🔄 Usando classificador baseado em regras (fallback)")
+        
+        # Tenta carregar features
+        try:
+            if os.path.exists('features.pkl'):
+                features = joblib.load('features.pkl')
+            else:
+                features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila']
+        except:
+            features = ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila']
+        
+        from sklearn.base import BaseEstimator, ClassifierMixin
         import numpy as np
         
-        # Carrega apenas as features
-        with open('features.pkl', 'rb') as f:
-            features = pickle.load(f)
-        
-        # Tenta extrair as classes do modelo
-        classes = ['Baixa', 'Média', 'Alta']
-        try:
-            with open('modelo.pkl', 'rb') as f:
-                modelo_data = pickle.load(f)
-            if hasattr(modelo_data, 'classes_'):
-                classes = list(modelo_data.classes_)
-        except:
-            pass
-        
-        # Cria um classificador baseado em regras com as classes corretas
-        from sklearn.base import BaseEstimator, ClassifierMixin
-        
         class RuleBasedClassifier(BaseEstimator, ClassifierMixin):
-            def __init__(self, classes_list=None):
-                self.classes_ = np.array(classes_list if classes_list else ['Baixa', 'Média', 'Alta'])
-                self.n_classes_ = len(self.classes_)
+            def __init__(self):
+                self.classes_ = np.array(['Baixa', 'Média', 'Alta'])
+                self.n_classes_ = 3
+                self.n_features_in_ = len(features) if features else 7
+                self.n_features_ = self.n_features_in_
                 self._estimator_type = "classifier"
+                self.feature_names_in_ = np.array(features) if features else None
             
             def fit(self, X, y=None):
                 return self
@@ -1175,34 +1088,30 @@ def carregar_modelo_e_features():
                 for i in range(len(X)):
                     row = X.iloc[i] if hasattr(X, 'iloc') else X[i]
                     
-                    # Extrai valores - assume ordem: pH, N, P, K, Areia, Silte, Argila
                     try:
                         if isinstance(row, (list, np.ndarray)):
                             ph = float(row[0]) if len(row) > 0 else 6.0
                         elif hasattr(row, 'iloc'):
                             ph = float(row.iloc[0]) if len(row) > 0 else 6.0
-                        elif isinstance(row, dict):
-                            ph = float(row.get('ph', 6.0))
                         else:
-                            ph = 6.0
+                            ph = float(row.get('ph', 6.0))
                     except:
                         ph = 6.0
                     
-                    # Regra baseada em pH
+                    # Classificação baseada em pH
                     if ph < 5.5:
-                        resultados.append(self.classes_[0])  # Baixa
+                        resultados.append('Baixa')
                     elif ph < 6.5:
-                        resultados.append(self.classes_[1])  # Média
+                        resultados.append('Média')
                     else:
-                        resultados.append(self.classes_[2])  # Alta
+                        resultados.append('Alta')
                 
                 return np.array(resultados)
             
             def predict_proba(self, X):
                 n_samples = len(X)
-                probas = np.zeros((n_samples, self.n_classes_))
+                probas = np.zeros((n_samples, 3))
                 for i in range(n_samples):
-                    # Distribuição baseada em pH
                     try:
                         row = X.iloc[i] if hasattr(X, 'iloc') else X[i]
                         if isinstance(row, (list, np.ndarray)):
@@ -1222,10 +1131,10 @@ def carregar_modelo_e_features():
                         probas[i] = [0.05, 0.2, 0.75]
                 return probas
         
-        modelo = RuleBasedClassifier(classes)
-        estrategia_usada = f"⚠️ Classificador baseado em regras (fallback) - Classes: {classes}"
-        return modelo, features, f"Usando classificador baseado em regras. Classes: {classes}", estrategia_usada
-    
+        modelo = RuleBasedClassifier()
+        estrategia_usada = "⚠️ Classificador baseado em regras (fallback)"
+        return modelo, features, "Usando classificador baseado em regras devido a erro de compatibilidade", estrategia_usada
+        
     except Exception as e_final:
         erro_msg = f"❌ Todas as estratégias falharam. Detalhes: {str(e_final)}"
         return modelo, features, erro_msg, None
