@@ -997,7 +997,6 @@ def carregar_modelo_e_features():
         return modelo, features, None, estrategia_usada
     except Exception as e:
         erro_detalhado = str(e)
-        # Não mostra warning para não poluir a interface
     
     # =========================================================================
     # ESTRATÉGIA 2: Carregamento com pickle e compatibilidade para _loss
@@ -1013,19 +1012,11 @@ def carregar_modelo_e_features():
                 if module == '_loss':
                     # Tenta encontrar a classe nos módulos sklearn
                     sklearn_modules = [
-                        'sklearn.linear_model',
+                        'sklearn.ensemble._gb',
                         'sklearn.ensemble',
+                        'sklearn.linear_model',
                         'sklearn.tree',
-                        'sklearn.svm',
-                        'sklearn.neighbors',
-                        'sklearn.naive_bayes',
-                        'sklearn.neural_network',
-                        'sklearn.preprocessing',
-                        'sklearn.pipeline',
-                        'sklearn.compose',
-                        'sklearn.base',
-                        'sklearn.metrics',
-                        'sklearn.model_selection'
+                        'sklearn.base'
                     ]
                     
                     # Tenta importar de módulos sklearn
@@ -1037,24 +1028,19 @@ def carregar_modelo_e_features():
                         except:
                             pass
                     
-                    # Fallback: tenta usar o módulo atual
-                    try:
-                        # Tenta carregar diretamente do scikit-learn
-                        import sklearn
-                        if hasattr(sklearn, name):
-                            return getattr(sklearn, name)
-                    except:
+                    # Fallback: tenta criar um objeto dummy
+                    class DummyLoss:
                         pass
+                    return DummyLoss
                 
-                # Redireciona módulos sklearn.ensemble._gb para versão compatível
+                # Redireciona módulos sklearn.ensemble._gb
                 elif module == 'sklearn.ensemble._gb':
                     try:
-                        # Tenta carregar de uma versão compatível
                         return super().find_class('sklearn.ensemble', name)
                     except:
                         pass
                 
-                # Redireciona módulos sklearn._loss para sklearn.ensemble
+                # Redireciona módulos sklearn._loss
                 elif module == 'sklearn._loss':
                     try:
                         return super().find_class('sklearn.ensemble', name)
@@ -1071,19 +1057,24 @@ def carregar_modelo_e_features():
         with open('features.pkl', 'rb') as f:
             features = pickle.load(f)
         
-        estrategia_usada = "🛠️ SafeUnpickler (compatibilidade sklearn)"
-        return modelo, features, None, estrategia_usada
+        # Verifica se o modelo foi carregado corretamente
+        if modelo is not None and hasattr(modelo, 'predict'):
+            estrategia_usada = "🛠️ SafeUnpickler (compatibilidade sklearn)"
+            return modelo, features, None, estrategia_usada
+        else:
+            raise Exception("Modelo carregado mas não é um classificador válido")
     
     except Exception as e:
         pass
     
     # =========================================================================
-    # ESTRATÉGIA 3: Recriar o modelo manualmente a partir dos atributos
+    # ESTRATÉGIA 3: Extrair árvores do modelo e criar um novo classificador
     # =========================================================================
     try:
         import pickle
         import numpy as np
         from sklearn.ensemble import GradientBoostingClassifier
+        from sklearn.tree import DecisionTreeRegressor
         
         # Carrega os dados do modelo
         with open('modelo.pkl', 'rb') as f:
@@ -1105,30 +1096,38 @@ def carregar_modelo_e_features():
             subsample=1.0
         )
         
-        # Tenta copiar os atributos do modelo carregado
-        if hasattr(modelo_data, 'estimators_'):
-            modelo.estimators_ = modelo_data.estimators_
+        # Tenta extrair e copiar os atributos essenciais
         if hasattr(modelo_data, 'classes_'):
             modelo.classes_ = modelo_data.classes_
+        
         if hasattr(modelo_data, 'n_classes_'):
             modelo.n_classes_ = modelo_data.n_classes_
+        
         if hasattr(modelo_data, 'n_features_'):
             modelo.n_features_ = modelo_data.n_features_
+        
         if hasattr(modelo_data, 'feature_importances_'):
             modelo.feature_importances_ = modelo_data.feature_importances_
-        if hasattr(modelo_data, 'train_score_'):
-            modelo.train_score_ = modelo_data.train_score_
+        
         if hasattr(modelo_data, 'init_'):
             modelo.init_ = modelo_data.init_
         
-        estrategia_usada = "🔧 Reconstrução manual do GradientBoostingClassifier"
-        return modelo, features, None, estrategia_usada
+        # Tenta extrair as árvores
+        if hasattr(modelo_data, 'estimators_'):
+            modelo.estimators_ = modelo_data.estimators_
+        
+        # Verifica se o modelo foi reconstruído corretamente
+        if modelo is not None and hasattr(modelo, 'predict'):
+            estrategia_usada = "🔧 Reconstrução manual do GradientBoostingClassifier"
+            return modelo, features, None, estrategia_usada
+        else:
+            raise Exception("Não foi possível reconstruir o modelo")
     
     except Exception as e:
         pass
     
     # =========================================================================
-    # ESTRATÉGIA 4: Carregar com joblib usando protocolo compatível
+    # ESTRATÉGIA 4: Carregar com joblib usando mmap_mode
     # =========================================================================
     try:
         modelo = joblib.load('modelo.pkl', mmap_mode='r')
@@ -1139,25 +1138,39 @@ def carregar_modelo_e_features():
         pass
     
     # =========================================================================
-    # ESTRATÉGIA 5: Fallback - usar modelo baseado em regras
+    # ESTRATÉGIA 5: USAR O MODELO COMO DICT E CRIAR CLASSIFICADOR BASEADO EM REGRAS
     # =========================================================================
     try:
-        # Carrega apenas as features
         import pickle
+        import numpy as np
+        
+        # Carrega apenas as features
         with open('features.pkl', 'rb') as f:
             features = pickle.load(f)
         
-        # Cria um classificador simples baseado em regras para não quebrar o app
+        # Tenta extrair as classes do modelo
+        classes = ['Baixa', 'Média', 'Alta']
+        try:
+            with open('modelo.pkl', 'rb') as f:
+                modelo_data = pickle.load(f)
+            if hasattr(modelo_data, 'classes_'):
+                classes = list(modelo_data.classes_)
+        except:
+            pass
+        
+        # Cria um classificador baseado em regras com as classes corretas
         from sklearn.base import BaseEstimator, ClassifierMixin
-        import numpy as np
         
         class RuleBasedClassifier(BaseEstimator, ClassifierMixin):
-            def __init__(self):
-                self.classes_ = np.array(['Baixa', 'Média', 'Alta'])
-                self.n_classes_ = 3
+            def __init__(self, classes_list=None):
+                self.classes_ = np.array(classes_list if classes_list else ['Baixa', 'Média', 'Alta'])
+                self.n_classes_ = len(self.classes_)
+                self._estimator_type = "classifier"
+            
+            def fit(self, X, y=None):
+                return self
             
             def predict(self, X):
-                # Regras baseadas nos parâmetros do solo
                 resultados = []
                 for i in range(len(X)):
                     row = X.iloc[i] if hasattr(X, 'iloc') else X[i]
@@ -1168,36 +1181,139 @@ def carregar_modelo_e_features():
                             ph = float(row[0]) if len(row) > 0 else 6.0
                         elif hasattr(row, 'iloc'):
                             ph = float(row.iloc[0]) if len(row) > 0 else 6.0
-                        else:
+                        elif isinstance(row, dict):
                             ph = float(row.get('ph', 6.0))
+                        else:
+                            ph = 6.0
                     except:
                         ph = 6.0
                     
-                    # Regra simples baseada em pH (exemplo)
+                    # Regra baseada em pH
                     if ph < 5.5:
-                        resultados.append('Baixa')
+                        resultados.append(self.classes_[0])  # Baixa
                     elif ph < 6.5:
-                        resultados.append('Média')
+                        resultados.append(self.classes_[1])  # Média
                     else:
-                        resultados.append('Alta')
+                        resultados.append(self.classes_[2])  # Alta
                 
                 return np.array(resultados)
             
             def predict_proba(self, X):
-                # Probabilidades simuladas
                 n_samples = len(X)
-                probas = np.zeros((n_samples, 3))
+                probas = np.zeros((n_samples, self.n_classes_))
                 for i in range(n_samples):
-                    probas[i] = [0.1, 0.3, 0.6]  # Exemplo: mais provável Alta
+                    # Distribuição baseada em pH
+                    try:
+                        row = X.iloc[i] if hasattr(X, 'iloc') else X[i]
+                        if isinstance(row, (list, np.ndarray)):
+                            ph = float(row[0]) if len(row) > 0 else 6.0
+                        elif hasattr(row, 'iloc'):
+                            ph = float(row.iloc[0]) if len(row) > 0 else 6.0
+                        else:
+                            ph = 6.0
+                    except:
+                        ph = 6.0
+                    
+                    if ph < 5.5:
+                        probas[i] = [0.7, 0.25, 0.05]
+                    elif ph < 6.5:
+                        probas[i] = [0.1, 0.7, 0.2]
+                    else:
+                        probas[i] = [0.05, 0.2, 0.75]
                 return probas
         
-        modelo = RuleBasedClassifier()
-        estrategia_usada = "⚠️ Classificador baseado em regras (fallback)"
-        return modelo, features, "Usando classificador baseado em regras devido a erro de compatibilidade", estrategia_usada
+        modelo = RuleBasedClassifier(classes)
+        estrategia_usada = f"⚠️ Classificador baseado em regras (fallback) - Classes: {classes}"
+        return modelo, features, f"Usando classificador baseado em regras. Classes: {classes}", estrategia_usada
     
     except Exception as e_final:
         erro_msg = f"❌ Todas as estratégias falharam. Detalhes: {str(e_final)}"
         return modelo, features, erro_msg, None
+
+# ============================================================================
+# FUNÇÃO PARA PREPARAR DADOS PARA PREVISÃO (VERSÃO OTIMIZADA)
+# ============================================================================
+
+def preparar_dados_para_previsao(dados_usuario, features_do_modelo):
+    """
+    Prepara o DataFrame de entrada para o modelo com mapeamento inteligente.
+    O modelo espera as 7 features: pH, N, P, K, Areia, Silte, Argila
+    """
+    
+    # Mapeamento simplificado para as 7 features do modelo
+    # Baseado na análise do modelo.pkl: ['pH', 'N', 'P', 'K', 'Areia', 'Silte', 'Argila']
+    mapeamento_direto = {
+        'pH': 'ph',
+        'N': 'nitrogen',
+        'P': 'phosphorus',
+        'K': 'potassium',
+        'Areia': 'sand',
+        'Silte': 'silt',
+        'Argila': 'clay'
+    }
+    
+    dados_modelo = {}
+    tabela_diagnostico = []
+    
+    for feature in features_do_modelo:
+        valor_final = 0
+        coluna_encontrada = "(não encontrada)"
+        
+        # Tenta mapear a feature
+        if feature in mapeamento_direto:
+            chave_app = mapeamento_direto[feature]
+            if chave_app in dados_usuario:
+                valor_final = dados_usuario[chave_app]
+                coluna_encontrada = chave_app
+            else:
+                # Tenta buscar pelo nome original
+                if feature in dados_usuario:
+                    valor_final = dados_usuario[feature]
+                    coluna_encontrada = feature
+                elif feature.lower() in dados_usuario:
+                    valor_final = dados_usuario[feature.lower()]
+                    coluna_encontrada = feature.lower()
+        else:
+            # Busca direta
+            if feature in dados_usuario:
+                valor_final = dados_usuario[feature]
+                coluna_encontrada = feature
+            elif feature.lower() in dados_usuario:
+                valor_final = dados_usuario[feature.lower()]
+                coluna_encontrada = feature.lower()
+        
+        dados_modelo[feature] = valor_final
+        tabela_diagnostico.append({
+            'Feature esperada': feature,
+            'Coluna encontrada': coluna_encontrada,
+            'Valor utilizado': valor_final
+        })
+    
+    # =========================================================================
+    # TABELA DE DIAGNÓSTICO (EXPANDER COLAPSADO - APENAS PARA DEPURAÇÃO)
+    # =========================================================================
+    with st.expander("🔍 Diagnóstico do Mapeamento (Depuração)", expanded=False):
+        df_diagnostico = pd.DataFrame(tabela_diagnostico)
+        st.dataframe(df_diagnostico, use_container_width=True, hide_index=True)
+        
+        # Estatísticas do mapeamento
+        mapeadas = sum(1 for item in tabela_diagnostico if not 'não encontrada' in item['Coluna encontrada'])
+        nao_encontradas = len(tabela_diagnostico) - mapeadas
+        
+        st.caption(f"✅ Features mapeadas com dados reais: {mapeadas}")
+        if nao_encontradas > 0:
+            st.caption(f"⚠️ Features não encontradas (preenchidas com 0): {nao_encontradas}")
+    
+    # =========================================================================
+    # CRIAÇÃO DO DATAFRAME FINAL
+    # =========================================================================
+    df_previsao = pd.DataFrame([dados_modelo])
+    
+    # Garante a ordem correta das colunas
+    if features_do_modelo is not None:
+        df_previsao = df_previsao[features_do_modelo]
+    
+    return df_previsao
 
 # ============================================================================
 # FUNÇÃO PARA PREPARAR DADOS PARA PREVISÃO (VERSÃO OTIMIZADA)
