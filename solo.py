@@ -1,7 +1,4 @@
 # ============================================================================
-# IMPORTAÇÕES DE SISTEMA (CORREÇÃO DE COMPATIBILIDADE)
-# ============================================================================
-# ============================================================================
 # IMPORTAÇÕES
 # ============================================================================
 
@@ -12,7 +9,6 @@ import types
 if 'sklearn._loss' not in sys.modules:
     mock_loss = types.ModuleType('sklearn._loss')
     sys.modules['sklearn._loss'] = mock_loss
-    # Garante que mapeia variações comuns que o pickle procura
     sys.modules['sklearn.metrics._loss'] = mock_loss
 
 import streamlit as st
@@ -30,7 +26,9 @@ from datetime import datetime
 import importlib
 import warnings
 import numpy as np
+
 warnings.filterwarnings('ignore')
+
 # ============================================================================
 # CONFIGURAÇÃO DA PÁGINA - DESIGN PREMIUM
 # ============================================================================
