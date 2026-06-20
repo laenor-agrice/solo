@@ -3,7 +3,7 @@
 # ============================================================================
 
 # Importa sys primeiro para resolver o erro
-import sys
+
 
 # Cria módulos fake ANTES de qualquer outra importação
 if 'sklearn._loss' not in sys.modules:
