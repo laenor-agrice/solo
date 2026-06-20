@@ -2,8 +2,14 @@
 # IMPORTAÇÕES
 # ============================================================================
 import sys
-import sklearn.metrics._loss as mock_loss
-sys.modules['sklearn.metrics._loss'] = mock_loss
+import types
+
+# Cria um módulo falso vazio na memória para enganar o modelo antigo
+if 'sklearn._loss' not in sys.modules:
+    mock_loss = types.ModuleType('sklearn._loss')
+    sys.modules['sklearn._loss'] = mock_loss
+    # Garante que mapeia variações comuns que o pickle procura
+    sys.modules['sklearn.metrics._loss'] = mock_loss
 
 import streamlit as st
 import pandas as pd
