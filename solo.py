@@ -1965,7 +1965,7 @@ elif menu == "ℹ️ Métodos":
         
         4. **CQFS RS/SC** - Comissão de Química e Fertilidade do Solo. Manual de calagem e adubação para os Estados do Rio Grande do Sul e Santa Catarina. Porto Alegre, 2016.
         
-        5. **CONAB** - Companhia Nacional de Abastecimento. Manual de Adubação e Calagem para as principais culturas. Brasília, 2021.
+        5. **BOLETIM 100** - Recomendações de adubação e calagem. São Paulo - SP, 1997.
         """)
     
     st.markdown("---")
